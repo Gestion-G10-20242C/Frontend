@@ -16,6 +16,11 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/UserView.vue'),
     },
+    // Catch-all route - redirect to home
+    {
+      path: '/:pathMatch(.*)*', // Catch-all route
+      redirect: '/', // Redirect to home route
+    },
   ],
 })
 
