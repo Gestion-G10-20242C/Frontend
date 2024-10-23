@@ -34,10 +34,12 @@
         </form>
 
         <div class="text-end">
-          <button type="button" class="btn btn-outline-light me-2">
+          <RouterLink to="/login" class="btn btn-outline-light me-2">
             Login
-          </button>
-          <button type="button" class="btn btn-warning">Sign-up</button>
+          </RouterLink>
+          <RouterLink to="/register" class="btn btn-warning"
+            >Sign-up</RouterLink
+          >
         </div>
         <div class="dropdown text-end">
           <a

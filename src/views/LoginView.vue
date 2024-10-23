@@ -7,10 +7,45 @@ export default {
     }
   },
   methods: {
-    logUser() {
+    async logUser() {
       console.log('logUser()')
       console.log('Username:', this.username)
       console.log('Password:', this.password)
+
+      const url =
+        'https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/auth/login'
+
+      // Create the body for the request
+      const body = {
+        username: this.username,
+        password: this.password,
+      }
+
+      try {
+        // Make the POST request
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(body),
+        })
+
+        // Handle the response
+        const data = await response.json()
+        const parsedBody = JSON.parse(data.body) // Parse the body field
+
+        console.log('Response:', parsedBody)
+
+        // Persist the access token in localStorage
+        localStorage.setItem('access_token', parsedBody.access_token)
+        console.log('Access token saved:', parsedBody.access_token)
+
+        // Redirect the user to the user page
+        this.$router.push('/user/' + this.username)
+      } catch (error) {
+        console.error('Error:', error)
+      }
     },
   },
 }

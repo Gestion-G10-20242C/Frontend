@@ -15,12 +15,12 @@
         Readme.
       </p>
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <button type="button" class="btn btn-primary btn-lg px-4 gap-3">
+        <RouterLink to="/login" class="btn btn-primary btn-lg px-4 gap-3">
           Log In
-        </button>
-        <button type="button" class="btn btn-outline-secondary btn-lg px-4">
-          Sign up
-        </button>
+        </RouterLink>
+        <RouterLink to="/register" class="btn btn-primary btn-lg px-4 gap-3">
+          Sign Up
+        </RouterLink>
       </div>
     </div>
   </div>
