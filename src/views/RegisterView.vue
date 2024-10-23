@@ -19,7 +19,7 @@ export default {
     validatePassword() {
       console.log('validatePassword()')
       const passwordRegex = new RegExp(
-        '^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\\$%^&\\*])(?=.{8,})',
+        '^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&.,])[A-Za-z\\d@$!%*?&.,]{8,}$',
       )
       this.validPassword = passwordRegex.test(this.password)
     },
