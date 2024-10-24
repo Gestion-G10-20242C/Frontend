@@ -36,7 +36,11 @@ export default {
         const parsedBody = JSON.parse(data.body) // Parse the body field
 
         console.log('Response:', parsedBody)
-
+        
+        if ('error' in parsedBody) {
+          throw new Error("Error: " + parsedBody.error);
+          
+        }
         // Persist the access token in localStorage
         localStorage.setItem('access_token', parsedBody.access_token)
         console.log('Access token saved:', parsedBody.access_token)
@@ -44,6 +48,7 @@ export default {
         // Redirect the user to the user page
         this.$router.push('/user/' + this.username)
       } catch (error) {
+        this.$router.push('/login')
         console.error('Error:', error)
       }
     },
@@ -67,32 +72,34 @@ export default {
         <h1 class="h3 mb-3 fw-normal">Please log in</h1>
       </div>
 
-      <form v-on:submit.prevent="logUser">
-        <div class="form-floating">
-          <input
-            type="username"
-            class="form-control"
-            id="floatingInput"
-            placeholder=""
-            v-model="username"
-          />
-          <label for="floatingInput">Username</label>
-        </div>
-        <div class="form-floating">
-          <input
-            type="password"
-            class="form-control"
-            id="floatingPassword"
-            placeholder=""
-            v-model="password"
-          />
-          <label for="floatingPassword">Password</label>
-        </div>
+      <div class="container d-flex justify-content-center" style="margin-top: 5%;">
+        <form class="w-50" v-on:submit.prevent="logUser">
+          <div class="form-floating">
+            <input
+              type="username"
+              class="form-control"
+              id="floatingInput"
+              placeholder=""
+              v-model="username"
+            />
+            <label for="floatingInput">Username</label>
+          </div>
+          <div class="form-floating">
+            <input
+              type="password"
+              class="form-control"
+              id="floatingPassword"
+              placeholder=""
+              v-model="password"
+            />
+            <label for="floatingPassword">Password</label>
+          </div>
 
-        <button class="btn btn-primary w-100 py-2" type="submit">
-          Start Reading
-        </button>
-      </form>
+          <button class="btn btn-primary w-100 py-2" type="submit" style="margin-top: 5%;">
+            Start Reading
+          </button>
+        </form>
+      </div>
     </div>
   </div>
 </template>

@@ -156,82 +156,84 @@ export default {
 
       <!-- Registo datos iniciales -->
       <template v-if="!shouldValidate">
-        <form v-on:submit.prevent="registerUser">
-          <!-- Username -->
-          <div class="form-floating">
-            <input
-              type="username"
-              class="form-control"
-              id="floatingInput"
-              placeholder=""
-              v-model="username"
-              :class="{
-                'is-valid': validUsername === true,
-                'is-invalid': validUsername === false,
-              }"
-            />
-            <div class="invalid-feedback">Usuario invalido o en uso.</div>
-            <label for="floatingInput">Username</label>
-          </div>
-          <!-- Password -->
-          <div class="form-floating">
-            <input
-              type="password"
-              class="form-control"
-              id="floatingPassword"
-              placeholder=""
-              v-model="password"
-              :class="{
-                'is-valid': validPassword === true,
-                'is-invalid': validPassword === false,
-              }"
-              @input="validatePassword"
-            />
-            <div class="invalid-feedback">
-              La contraseña debe tener mínimo 8 caracteres, una letra mayúscula,
-              una minúscula, un número y un caracter especial.
+        <div class="container d-flex justify-content-center" style="margin-top: 5%;">
+          <form class="w-50" v-on:submit.prevent="registerUser" style="min-width: 300px; max-width: 50%;">
+            <!-- Username -->
+            <div class="form-floating">
+              <input
+                type="username"
+                class="form-control"
+                id="floatingInput"
+                placeholder=""
+                v-model="username"
+                :class="{
+                  'is-valid': validUsername === true,
+                  'is-invalid': validUsername === false,
+                }"
+              />
+              <div class="invalid-feedback">Usuario invalido o en uso.</div>
+              <label for="floatingInput">Username</label>
             </div>
-            <label for="floatingPassword">Password</label>
-          </div>
-          <!-- Repeat password -->
-          <div class="form-floating">
-            <input
-              type="password"
-              class="form-control"
-              id="floatingRepeatedPassword"
-              placeholder=""
-              v-model="repeatedPassword"
-              :class="{
-                'is-valid': validRepeatedPassword === true,
-                'is-invalid': validRepeatedPassword === false,
-              }"
-              @input="validateRepeatedPassword"
-            />
-            <div class="invalid-feedback">Las contraseñas no coinciden.</div>
-            <label for="floatingRepeatedPassword">Repeat password</label>
-          </div>
-          <!-- Email -->
-          <div class="form-floating">
-            <input
-              type="email"
-              class="form-control"
-              id="floatingEmail"
-              placeholder=""
-              v-model="email"
-              :class="{
-                'is-valid': validEmail === true,
-                'is-invalid': validEmail === false,
-              }"
-              @input="validateEmail"
-            />
-            <label for="floatingEmail">Email</label>
-            <div class="invalid-feedback">Mail invalido o en uso.</div>
-          </div>
+            <!-- Password -->
+            <div class="form-floating">
+              <input
+                type="password"
+                class="form-control"
+                id="floatingPassword"
+                placeholder=""
+                v-model="password"
+                :class="{
+                  'is-valid': validPassword === true,
+                  'is-invalid': validPassword === false,
+                }"
+                @input="validatePassword"
+              />
+              <div class="invalid-feedback">
+                La contraseña debe tener mínimo 8 caracteres, una letra mayúscula,
+                una minúscula, un número y un caracter especial.
+              </div>
+              <label for="floatingPassword">Password</label>
+            </div>
+            <!-- Repeat password -->
+            <div class="form-floating">
+              <input
+                type="password"
+                class="form-control"
+                id="floatingRepeatedPassword"
+                placeholder=""
+                v-model="repeatedPassword"
+                :class="{
+                  'is-valid': validRepeatedPassword === true,
+                  'is-invalid': validRepeatedPassword === false,
+                }"
+                @input="validateRepeatedPassword"
+              />
+              <div class="invalid-feedback">Las contraseñas no coinciden.</div>
+              <label for="floatingRepeatedPassword">Repetir contraseña</label>
+            </div>
+            <!-- Email -->
+            <div class="form-floating">
+              <input
+                type="email"
+                class="form-control"
+                id="floatingEmail"
+                placeholder=""
+                v-model="email"
+                :class="{
+                  'is-valid': validEmail === true,
+                  'is-invalid': validEmail === false,
+                }"
+                @input="validateEmail"
+              />
+              <label for="floatingEmail">Email</label>
+              <div class="invalid-feedback">Correo invalido o en uso.</div>
+            </div>
 
-          <button class="btn btn-primary w-100 py-2" type="submit">
-            register
-          </button>
-        </form>
+            <button class="btn btn-primary w-100 py-2" type="submit" style="margin-top: 5%;">
+              register
+            </button>
+          </form>
+        </div>
       </template>
 
       <!-- Validación de cuenta -->
@@ -255,7 +257,7 @@ export default {
             <label for="floatingInput">Token de validación</label>
           </div>
           <button class="btn btn-primary w-100 py-2" type="submit">
-            Validate account
+            Validar cuenta
           </button>
         </form>
       </template>
