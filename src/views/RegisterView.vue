@@ -13,6 +13,7 @@ export default {
       shouldValidate: false,
       validationToken: '',
       validToken: null,
+      errorMessage: '',
     }
   },
   methods: {
@@ -35,6 +36,11 @@ export default {
         '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
       )
       this.validEmail = emailRegex.test(this.email)
+    },
+    showErrorModal(message) {
+      this.errorMessage = message;
+      const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
+      errorModal.show();
     },
 
     async registerUser() {
@@ -80,9 +86,10 @@ export default {
 
         if (parsedBody.error != null) {
           if (parsedBody.error.includes('User already exists')) {
-            this.validUsername = false
-          } else if (parsedBody.error.includes('Email already exists')) {
-            this.validEmail = false
+            console.log('User already exists')
+            this.showErrorModal('Usuario ya existente.')
+          } else if (parsedBody.error.includes('EmailAlreadyExists')) {
+            this.showErrorModal('Email ya registrado.')
           }
           return
         } else {
@@ -90,7 +97,7 @@ export default {
         }
       } catch (error) {
         console.error('Error:', error)
-        alert('Error:', error)
+        this.showErrorModal('Error al registrar el usuario.')
       }
     },
 
@@ -127,11 +134,9 @@ export default {
           return
         }
 
-        // Redirect the user to the login page
-        this.$router.push('/login')
       } catch (error) {
         console.error('Error:', error)
-        alert('Error:', error)
+        this.showErrorModal('Error al validar la cuenta')
       }
     },
   },
@@ -238,29 +243,51 @@ export default {
 
       <!-- Validación de cuenta -->
       <template v-else>
-        <h3>Revise su casilla de correo para validar su cuenta.</h3>
-        <form v-on:submit.prevent="validateRegisterUser">
-          <div class="form-floating">
-            <input
-              type="validationToken"
-              class="form-control"
-              id="floatingInput"
-              placeholder=""
-              v-model="validationToken"
-              :class="{
-                'is-invalid': validToken === false,
-              }"
-            />
-            <div class="invalid-feedback">
-              Token de validación incorrecto o caducado.
+        <div class="container d-flex justify-content-center" style="margin-top:3%">
+          <h3>Revise su casilla de correo para validar su cuenta.</h3>
+        </div>
+        <div class="container d-flex justify-content-center" style="margin-top: 2%;">
+          <form class="w-50" v-on:submit.prevent="validateRegisterUser">
+            <div class="form-floating">
+              <input
+                type="validationToken"
+                class="form-control"
+                id="floatingInput"
+                placeholder=""
+                v-model="validationToken"
+                :class="{
+                  'is-invalid': validToken === false,
+                }"
+              />
+              <div class="invalid-feedback">
+                Token de validación incorrecto o caducado.
+              </div>
+              <label for="floatingInput">Token de validación</label>
             </div>
-            <label for="floatingInput">Token de validación</label>
-          </div>
-          <button class="btn btn-primary w-100 py-2" type="submit">
-            Validar cuenta
-          </button>
-        </form>
+            <button class="btn btn-primary w-100 py-2" type="submit">
+              Validar cuenta
+            </button>
+          </form>
+        </div>
       </template>
     </div>
   </div>
+
+    <!-- Modal -->
+  <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" style="margin-top: 16%;">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="errorModalLabel">Error</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {{ errorMessage }}
+        </div>
+        <div class="modal-footer">
+        </div>
+      </div>
+    </div>
+  </div>
+
 </template>
