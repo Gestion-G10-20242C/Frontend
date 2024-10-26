@@ -1,8 +1,10 @@
 <script setup>
 import Header from '../components/Header.vue'
 import { useRoute } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
+const userStore = useUserStore()
 const username = route.params.username
 // We should run a query from the extracted username to get the user data
 // const userData = await fetchUser(username);
@@ -11,7 +13,6 @@ const userFound = true
 // Mocked as of now - If empty should return a not found page
 const userData = {
   name: 'Carlos Fontela',
-  username: 'carlosfontela', // same as username above - redundant?
   profilePicture:
     'https://cysingsoft.wordpress.com/wp-content/uploads/2009/01/carlosfontela6.jpg?w=584',
   description:
@@ -47,19 +48,34 @@ const userData = {
     <div class="container pt-4">
       <div class="row">
         <div class="col-3">
-          <img
-            alt="Profile picture"
-            class="logo rounded-circle mx-auto"
-            :src="userData.profilePicture"
-            width="140"
-            height="140"
-          />
+          <!-- Profile picture -->
+          <div class="col-3 position-relative" style="display: inline-block">
+            <img
+              alt="Profile picture"
+              class="logo rounded-circle mx-auto"
+              :src="userData.profilePicture"
+              width="140"
+              height="140"
+            />
+            <button
+              v-if="username === userStore.userName"
+              class="btn btn-sm btn-primary position-absolute"
+              style="bottom: 0; right: 10"
+            >
+              ✎
+            </button>
+          </div>
+          <!-- User name -->
           <h2>{{ userData.name }}</h2>
-          <h4 class="fw-normal">@{{ userData.username }}</h4>
+          <!-- User username -->
+          <h5 class="fw-normal">@{{ username }}</h5>
+          <!-- User description -->
           <p>
             {{ userData.description }}
           </p>
         </div>
+
+        <!-- Favourite bo -->
         <div class="col-9">
           <div class="container bg-primary p-4 rounded">
             <div class="row">
@@ -81,13 +97,19 @@ const userData = {
           </div>
         </div>
       </div>
+
       <div class="row mt-4">
+        <!-- Biblioteca -->
         <div class="col">
           <h3>Biblioteca</h3>
         </div>
+
+        <!-- Reading Challenges -->
         <div class="col">
           <h3>Reading Challenges</h3>
         </div>
+
+        <!-- Grupos -->
         <div class="col">
           <h3>Grupos</h3>
           <ul class="list-group">
