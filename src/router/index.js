@@ -1,3 +1,4 @@
+import { useUserStore } from '@/stores/user'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -11,7 +12,7 @@ const router = createRouter({
     {
       path: '/user/:username',
       name: 'user',
-      // route level code-splitting 
+      // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
       component: () => import('../views/UserView.vue'),
@@ -31,6 +32,12 @@ const router = createRouter({
       redirect: '/', // Redirect to home route
     },
   ],
+})
+
+router.beforeEach(async (to, from, next) => {
+  const userStore = useUserStore()
+  await userStore.resetIfExpired()
+  next() // continue navigation
 })
 
 export default router

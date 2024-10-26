@@ -38,9 +38,11 @@ export default {
       this.validEmail = emailRegex.test(this.email)
     },
     showErrorModal(message) {
-      this.errorMessage = message;
-      const errorModal = new bootstrap.Modal(document.getElementById('errorModal'));
-      errorModal.show();
+      this.errorMessage = message
+      const errorModal = new bootstrap.Modal(
+        document.getElementById('errorModal'),
+      )
+      errorModal.show()
     },
 
     async registerUser() {
@@ -133,7 +135,6 @@ export default {
           this.validToken = false
           return
         }
-
       } catch (error) {
         console.error('Error:', error)
         this.showErrorModal('Error al validar la cuenta')
@@ -161,8 +162,15 @@ export default {
 
       <!-- Registo datos iniciales -->
       <template v-if="!shouldValidate">
-        <div class="container d-flex justify-content-center" style="margin-top: 5%;">
-          <form class="w-50" v-on:submit.prevent="registerUser" style="min-width: 300px; max-width: 50%;">
+        <div
+          class="container d-flex justify-content-center"
+          style="margin-top: 5%"
+        >
+          <form
+            class="w-50"
+            v-on:submit.prevent="registerUser"
+            style="min-width: 300px; max-width: 50%"
+          >
             <!-- Username -->
             <div class="form-floating">
               <input
@@ -194,8 +202,8 @@ export default {
                 @input="validatePassword"
               />
               <div class="invalid-feedback">
-                La contraseña debe tener mínimo 8 caracteres, una letra mayúscula,
-                una minúscula, un número y un caracter especial.
+                La contraseña debe tener mínimo 8 caracteres, una letra
+                mayúscula, una minúscula, un número y un caracter especial.
               </div>
               <label for="floatingPassword">Password</label>
             </div>
@@ -234,7 +242,11 @@ export default {
               <div class="invalid-feedback">Correo invalido o en uso.</div>
             </div>
 
-            <button class="btn btn-primary w-100 py-2" type="submit" style="margin-top: 5%;">
+            <button
+              class="btn btn-primary w-100 py-2"
+              type="submit"
+              style="margin-top: 5%"
+            >
               register
             </button>
           </form>
@@ -243,10 +255,16 @@ export default {
 
       <!-- Validación de cuenta -->
       <template v-else>
-        <div class="container d-flex justify-content-center" style="margin-top:3%">
+        <div
+          class="container d-flex justify-content-center"
+          style="margin-top: 3%"
+        >
           <h3>Revise su casilla de correo para validar su cuenta.</h3>
         </div>
-        <div class="container d-flex justify-content-center" style="margin-top: 2%;">
+        <div
+          class="container d-flex justify-content-center"
+          style="margin-top: 2%"
+        >
           <form class="w-50" v-on:submit.prevent="validateRegisterUser">
             <div class="form-floating">
               <input
@@ -273,21 +291,31 @@ export default {
     </div>
   </div>
 
-    <!-- Modal -->
-  <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true" style="margin-top: 16%;">
+  <!-- Modal -->
+  <div
+    class="modal fade"
+    id="errorModal"
+    tabindex="-1"
+    aria-labelledby="errorModalLabel"
+    aria-hidden="true"
+    style="margin-top: 16%"
+  >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="errorModalLabel">Error</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
         <div class="modal-body">
           {{ errorMessage }}
         </div>
-        <div class="modal-footer">
-        </div>
+        <div class="modal-footer"></div>
       </div>
     </div>
   </div>
-
 </template>

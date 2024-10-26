@@ -1,3 +1,17 @@
+<script>
+import { useUserStore } from '@/stores/user'
+
+export default {
+  setup() {
+    const userStore = useUserStore()
+
+    return {
+      userStore,
+    }
+  },
+}
+</script>
+
 <template>
   <header class="p-3 text-bg-dark">
     <div class="container">
@@ -33,7 +47,7 @@
           />
         </form>
 
-        <div class="text-end">
+        <div v-if="!userStore.isLoggedIn" class="text-end">
           <RouterLink to="/login" class="btn btn-outline-light me-2">
             Login
           </RouterLink>
@@ -41,7 +55,8 @@
             >Sign-up</RouterLink
           >
         </div>
-        <div class="dropdown text-end">
+
+        <div v-if="userStore.isLoggedIn" class="dropdown text-end">
           <a
             href="#"
             class="d-block link-body-emphasis text-decoration-none dropdown-toggle"
@@ -49,7 +64,7 @@
             aria-expanded="false"
           >
             <img
-              src="https://github.com/mdo.png"
+              :src="userStore.profilePicture"
               alt="mdo"
               width="32"
               height="32"
