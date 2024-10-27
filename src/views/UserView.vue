@@ -49,7 +49,7 @@ const userData = {
       <div class="row">
         <div class="col-3">
           <!-- Profile picture -->
-          <div class="col-3 position-relative" style="display: inline-block">
+          <div class="position-relative" style="display: inline-block">
             <img
               alt="Profile picture"
               class="logo rounded-circle mx-auto"
@@ -60,23 +60,52 @@ const userData = {
             <button
               v-if="username === userStore.userName"
               class="btn btn-sm btn-primary position-absolute"
-              style="bottom: 0; right: 10"
+              style="bottom: 0; right: 0"
+              data-bs-toggle="modal"
+              data-bs-target="#changeProfilePictureModal"
             >
               ✎
             </button>
           </div>
+
           <!-- User name -->
-          <h2>{{ userData.name }}</h2>
+          <div class="d-flex justify-content-start align-items-center">
+            <h2 class="mb-0">{{ userData.name }}</h2>
+            <button
+              v-if="username === userStore.userName"
+              class="ms-1 p-1 btn btn-sm btn-primary"
+              data-bs-toggle="modal"
+              data-bs-target="#changeNameModal"
+            >
+              ✎
+            </button>
+          </div>
+
           <!-- User username -->
           <h5 class="fw-normal">@{{ username }}</h5>
+
           <!-- User description -->
-          <p>
-            {{ userData.description }}
-          </p>
+          <div class="container">
+            <div class="row">
+              <p class="mb-0">
+                {{ userData.description }}
+              </p>
+            </div>
+            <div class="row">
+              <button
+                v-if="username === userStore.userName"
+                class="btn btn-primary p-0"
+                data-bs-toggle="modal"
+                data-bs-target="#changeDescriptionModal"
+              >
+                ✎
+              </button>
+            </div>
+          </div>
         </div>
 
-        <!-- Favourite bo -->
-        <div class="col-9">
+        <!-- Favourite book -->
+        <div class="col-9 position-relative">
           <div class="container bg-primary p-4 rounded">
             <div class="row">
               <h1>{{ userData.favouriteBook.title }}</h1>
@@ -95,6 +124,15 @@ const userData = {
               </div>
             </div>
           </div>
+          <button
+            v-if="username === userStore.userName"
+            class="btn btn-sm btn-danger position-absolute"
+            style="bottom: 0; right: 10"
+            data-bs-toggle="modal"
+            data-bs-target="#changeFavouriteBookModal"
+          >
+            ✎
+          </button>
         </div>
       </div>
 
@@ -140,6 +178,162 @@ const userData = {
               </span>
             </li>
           </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal change profile picture -->
+    <div
+      v-if="username === userStore.userName"
+      class="modal fade"
+      id="changeProfilePictureModal"
+      tabindex="-1"
+      aria-labelledby="changeProfilePictureModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="changeProfilePictureModalLabel">
+              Cambiar foto de perfil
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">...</div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+            <button type="button" class="btn btn-success">
+              Guardar cambios
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal change name -->
+    <div
+      v-if="username === userStore.userName"
+      class="modal fade"
+      id="changeNameModal"
+      tabindex="-1"
+      aria-labelledby="changeNameModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="changeNameModalLabel">
+              Cambiar nombre de usuario
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">...</div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+            <button type="button" class="btn btn-success">
+              Guardar cambios
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal change description -->
+    <div
+      v-if="username === userStore.userName"
+      class="modal fade"
+      id="changeDescriptionModal"
+      tabindex="-1"
+      aria-labelledby="changeDescriptionModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="changeDescriptionModalLabel">
+              Cambiar descripción
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">...</div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+            <button type="button" class="btn btn-success">
+              Guardar cambios
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal change favourite book -->
+    <div
+      v-if="username === userStore.userName"
+      class="modal fade"
+      id="changeFavouriteBookModal"
+      tabindex="-1"
+      aria-labelledby="changeFavouriteBookModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="changeFavouriteBookModalLabel">
+              Cambiar libro favorito
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">...</div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+            <button type="button" class="btn btn-success">
+              Guardar cambios
+            </button>
+          </div>
         </div>
       </div>
     </div>
