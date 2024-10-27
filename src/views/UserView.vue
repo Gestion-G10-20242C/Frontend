@@ -47,7 +47,7 @@ const userData = {
     <Header />
     <div class="container pt-4">
       <div class="row">
-        <div class="col-3">
+        <div class="col-3 d-flex flex-column align-items-center">
           <!-- Profile picture -->
           <div class="position-relative" style="display: inline-block">
             <img
@@ -94,7 +94,7 @@ const userData = {
             <div class="row">
               <button
                 v-if="username === userStore.userName"
-                class="btn btn-primary p-0"
+                class="btn btn-primary py-0"
                 data-bs-toggle="modal"
                 data-bs-target="#changeDescriptionModal"
               >
