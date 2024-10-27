@@ -111,12 +111,12 @@ const userData = {
               <h1>{{ userData.favouriteBook.title }}</h1>
             </div>
             <div class="row">
-              <div class="col-3">
+              <div class="col-2">
                 <img
                   alt="Book cover"
                   class="logo"
                   :src="userData.favouriteBook.cover"
-                  width="140"
+                  width="100%"
                 />
               </div>
               <div class="col">
