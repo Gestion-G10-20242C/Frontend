@@ -1,111 +1,147 @@
-<script setup>
-import Header from '../components/Header.vue'
+<script>
+import HeaderComponent from '../components/HeaderComponent.vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { ref, reactive } from 'vue'
 
-const route = useRoute()
-const userStore = useUserStore()
-const username = route.params.username
-// We should run a query from the extracted username to get the user data
-// const userData = await fetchUser(username);
-const userFound = true
-
-// Mocked as of now - If empty should return a not found page
-const userData = {
-  name: 'Carlos Fontela',
-  profilePicture:
-    'https://cysingsoft.wordpress.com/wp-content/uploads/2009/01/carlosfontela6.jpg?w=584',
-  description:
-    'Hola! Mi nombre es Carlos Fontela, soy un desarrollador de software amante de las metodologías ágiles.',
-  favouriteBook: {
-    title: 'Java y UML',
-    cover:
-      'https://sbslibreria.vtexassets.com/arquivos/ids/466160/9789871104888.jpg?v=638156213260000000',
-    description:
-      'Me gusto mucho, coincido con varios de los aspectos nombrados por el autor. Java es un lenguaje de programación de propósito general, concurrente, orientado a objetos que fue diseñado específicamente para tener tan pocas dependencias de implementación como fuera posible. UML es un lenguaje de modelado gráfico que se utiliza para especificar, visualizar, construir y documentar un sistema de software.',
+export default {
+  name: 'UserView',
+  components: {
+    HeaderComponent,
   },
-  groups: [
-    {
-      name: 'Agile beasts',
-      members: 14,
+  setup() {
+    const route = useRoute()
+    const username = route.params.username
+    const userStore = useUserStore()
+
+    // We should run a query from the extracted username to get the user data
+    // const userData = await fetchUser(username);
+    const userFound = true
+
+    // Mocked as of now - If empty should return a not found page
+    const userData = reactive({
+      name: 'Carlos Fontela',
+      profilePicture:
+        'https://cysingsoft.wordpress.com/wp-content/uploads/2009/01/carlosfontela6.jpg?w=584',
+      description:
+        'Hola! Mi nombre es Carlos Fontela, soy un desarrollador de software amante de las metodologías ágiles.',
+      favouriteBook: {
+        title: 'Java y UML',
+        cover:
+          'https://sbslibreria.vtexassets.com/arquivos/ids/466160/9789871104888.jpg?v=638156213260000000',
+        description:
+          'Me gusto mucho, coincido con varios de los aspectos nombrados por el autor. Java es un lenguaje de programación de propósito general, concurrente, orientado a objetos que fue diseñado específicamente para tener tan pocas dependencias de implementación como fuera posible. UML es un lenguaje de modelado gráfico que se utiliza para especificar, visualizar, construir y documentar un sistema de software.',
+      },
+      groups: [
+        {
+          name: 'Agile beasts',
+          members: 14,
+        },
+        {
+          name: 'FIUBA',
+          members: 518,
+        },
+        {
+          name: 'Borges Lovers',
+          members: 1234,
+        },
+      ],
+    })
+
+    const newUserData = reactive({
+      name: userData.name,
+      description: userData.description,
+    })
+
+    // Used for profile picture change
+    const selectedFile = ref(null)
+    const previewImage = ref(null)
+    const base64Image = ref(null)
+
+    return {
+      userFound,
+      userData,
+      username,
+      userStore,
+      newUserData,
+      selectedFile,
+      previewImage,
+      base64Image,
+    }
+  },
+  methods: {
+    async updateUserInfo() {
+      console.log('updateUserInfo()')
+
+      this.userData.name = this.newUserData.name
+      this.userData.description = this.newUserData.description
+      this.userData.profilePicture = this.base64Image
+
+      // Send the new user data to the backend
+      // TODO!
+
+      // Close the modal programmatically
+      document.getElementById('close-edit-user-info-modal').click()
     },
-    {
-      name: 'FIUBA',
-      members: 518,
+
+    onFileChange(event) {
+      const file = event.target.files[0]
+      if (file) {
+        this.selectedFile = file
+        this.previewImage = URL.createObjectURL(file) // Creates a preview URL for the image
+
+        // Convert the file to Base64
+        const reader = new FileReader()
+        reader.onload = e => {
+          this.base64Image = e.target.result
+        }
+        reader.readAsDataURL(file)
+      }
     },
-    {
-      name: 'Borges Lovers',
-      members: 1234,
-    },
-  ],
+  },
 }
 </script>
 
 <template>
   <!-- User found -->
   <template v-if="userFound">
-    <Header />
+    <HeaderComponent />
     <div class="container pt-4">
       <div class="row">
         <div class="col-3 d-flex flex-column align-items-center">
           <!-- Profile picture -->
-          <div class="position-relative" style="display: inline-block">
-            <img
-              alt="Profile picture"
-              class="logo rounded-circle mx-auto"
-              :src="userData.profilePicture"
-              width="140"
-              height="140"
-            />
-            <button
-              v-if="username === userStore.userName"
-              class="btn btn-sm btn-primary position-absolute"
-              style="bottom: 0; right: 0"
-              data-bs-toggle="modal"
-              data-bs-target="#changeProfilePictureModal"
-            >
-              ✎
-            </button>
-          </div>
+          <img
+            :src="userData.profilePicture"
+            alt="Profile picture"
+            class="logo rounded-circle mx-auto"
+            width="140"
+            height="140"
+          />
 
           <!-- User name -->
-          <div class="d-flex justify-content-start align-items-center">
-            <h2 class="mb-0">{{ userData.name }}</h2>
-            <button
-              v-if="username === userStore.userName"
-              class="ms-1 p-1 btn btn-sm btn-primary"
-              data-bs-toggle="modal"
-              data-bs-target="#changeNameModal"
-            >
-              ✎
-            </button>
-          </div>
+          <h2 class="mb-0">{{ userData.name }}</h2>
 
           <!-- User username -->
           <h5 class="fw-normal">@{{ username }}</h5>
 
           <!-- User description -->
-          <div class="container">
-            <div class="row">
-              <p class="mb-0">
-                {{ userData.description }}
-              </p>
-            </div>
-            <div class="row">
-              <button
-                v-if="username === userStore.userName"
-                class="btn btn-primary py-0"
-                data-bs-toggle="modal"
-                data-bs-target="#changeDescriptionModal"
-              >
-                ✎
-              </button>
-            </div>
-          </div>
+          <p class="mb-0">
+            {{ userData.description }}
+          </p>
+
+          <!-- Edit user button -->
+          <button
+            v-if="username === userStore.userName"
+            class="btn btn-primary mt-2 py-0 w-100"
+            data-bs-toggle="modal"
+            data-bs-target="#editUserInfoModal"
+          >
+            Edit
+          </button>
         </div>
 
         <!-- Favourite book -->
-        <div class="col-9 position-relative">
+        <div class="col-9">
           <div class="container bg-primary p-4 rounded">
             <div class="row">
               <h1>{{ userData.favouriteBook.title }}</h1>
@@ -126,12 +162,11 @@ const userData = {
           </div>
           <button
             v-if="username === userStore.userName"
-            class="btn btn-sm btn-danger position-absolute"
-            style="bottom: 0; right: 10"
+            class="btn btn-sm btn-danger mt-n4 w-100"
             data-bs-toggle="modal"
             data-bs-target="#changeFavouriteBookModal"
           >
-            ✎
+            Edit
           </button>
         </div>
       </div>
@@ -153,6 +188,7 @@ const userData = {
           <ul class="list-group">
             <li
               v-for="group in userData.groups"
+              :key="group.name"
               class="list-group-item d-flex justify-content-between align-items-center"
             >
               {{ group.name }}
@@ -182,97 +218,19 @@ const userData = {
       </div>
     </div>
 
-    <!-- Modal change profile picture -->
-    <div
-      v-if="username === userStore.userName"
-      class="modal fade"
-      id="changeProfilePictureModal"
-      tabindex="-1"
-      aria-labelledby="changeProfilePictureModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="changeProfilePictureModalLabel">
-              Cambiar foto de perfil
-            </h1>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">...</div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cerrar
-            </button>
-            <button type="button" class="btn btn-success">
-              Guardar cambios
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal change name -->
-    <div
-      v-if="username === userStore.userName"
-      class="modal fade"
-      id="changeNameModal"
-      tabindex="-1"
-      aria-labelledby="changeNameModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h1 class="modal-title fs-5" id="changeNameModalLabel">
-              Cambiar nombre de usuario
-            </h1>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">...</div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cerrar
-            </button>
-            <button type="button" class="btn btn-success">
-              Guardar cambios
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Modal change description -->
     <div
       v-if="username === userStore.userName"
       class="modal fade"
-      id="changeDescriptionModal"
+      id="editUserInfoModal"
       tabindex="-1"
-      aria-labelledby="changeDescriptionModalLabel"
+      aria-labelledby="editUserInfoModalLabel"
       aria-hidden="true"
     >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h1 class="modal-title fs-5" id="changeDescriptionModalLabel">
+            <h1 class="modal-title fs-5" id="editUserInfoModalLabel">
               Cambiar descripción
             </h1>
             <button
@@ -282,16 +240,67 @@ const userData = {
               aria-label="Close"
             ></button>
           </div>
-          <div class="modal-body">...</div>
+          <div class="modal-body">
+            <!-- Change profile picture -->
+            <div class="input-group mb-3">
+              <label class="input-group" for="customFile">Foto de perfil</label>
+              <input
+                type="file"
+                class="form-control"
+                id="customFile"
+                @change="onFileChange"
+              />
+            </div>
+            <div class="d-flex justify-content-center mb-3">
+              <img
+                v-if="previewImage"
+                :src="previewImage"
+                alt="Profile Picture Preview"
+                class="logo rounded-circle mx-auto"
+                style="max-width: 140px"
+              />
+            </div>
+
+            <!-- Change name -->
+            <div class="input-group mb-3">
+              <span class="input-group-text" id="inputGroup-sizing-default"
+                >Nombre</span
+              >
+              <input
+                type="text"
+                class="form-control"
+                aria-label="Sizing example input"
+                aria-describedby="inputGroup-sizing-default"
+                v-model="newUserData.name"
+              />
+            </div>
+            <!-- Change description -->
+            <div class="input-group">
+              <span class="input-group-text">Descripción</span>
+              <textarea
+                class="form-control"
+                aria-label="With textarea"
+                v-model="newUserData.description"
+                style="min-height: 200px"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Close and Save buttons -->
           <div class="modal-footer">
             <button
+              id="close-edit-user-info-modal"
               type="button"
               class="btn btn-secondary"
               data-bs-dismiss="modal"
             >
               Cerrar
             </button>
-            <button type="button" class="btn btn-success">
+            <button
+              type="button"
+              @click="updateUserInfo"
+              class="btn btn-success"
+            >
               Guardar cambios
             </button>
           </div>
@@ -324,6 +333,7 @@ const userData = {
           <div class="modal-body">...</div>
           <div class="modal-footer">
             <button
+              id="close-edit-profile-picture-modal"
               type="button"
               class="btn btn-secondary"
               data-bs-dismiss="modal"
@@ -341,7 +351,7 @@ const userData = {
 
   <!-- User not found -->
   <template v-else>
-    <Header />
+    <HeaderComponent />
     <div class="p-4 d-flex justify-content-center">
       <h1>Usuario no encontrado!</h1>
     </div>
