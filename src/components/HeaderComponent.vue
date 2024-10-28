@@ -1,5 +1,6 @@
 <script>
 import { useUserStore } from '@/stores/user'
+import { RouterLink } from 'vue-router' // Asegúrate de importar RouterLink
 
 export default {
   setup() {
@@ -32,6 +33,22 @@ export default {
         <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
           <li>
             <RouterLink to="/feed" class="nav-link px-2 text-white">Home</RouterLink>
+          </li>
+          <li class="nav-item dropdown"> <!-- Nueva pestaña de Comunidad -->
+            <a
+              class="nav-link dropdown-toggle text-white"
+              href="#"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Comunidad
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <RouterLink to="/follow-users" class="dropdown-item">Gente</RouterLink> 
+              </li>
+            </ul>
           </li>
         </ul>
 

@@ -113,7 +113,7 @@ export default {
             type="submit"
             style="margin-top: 5%"
           >
-            Start Reading
+            Empieza a leer
           </button>
         </form>
       </div>

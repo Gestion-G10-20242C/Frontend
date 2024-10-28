@@ -20,6 +20,11 @@ const router = createRouter({
       component: () => import('../views/FeedView.vue'), // Importar el nuevo componente
     },
     {
+      path: '/follow-users',
+      name: 'followUsers',
+      component: () => import('../views/FollowUsersView.vue'),
+    },
+    {
       path: '/login',
       name: 'login',
       component: () => import('../views/LoginView.vue'),

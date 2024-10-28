@@ -247,7 +247,7 @@ export default {
               type="submit"
               style="margin-top: 5%"
             >
-              register
+              Empieza a leer
             </button>
           </form>
         </div>
