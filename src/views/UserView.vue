@@ -1,8 +1,8 @@
 <script>
-import HeaderComponent from '../components/HeaderComponent.vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ref, reactive } from 'vue'
+import HeaderComponent from '@/components/HeaderComponent.vue'
 
 export default {
   name: 'UserView',

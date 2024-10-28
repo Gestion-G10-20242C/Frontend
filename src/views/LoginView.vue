@@ -55,8 +55,8 @@ export default {
         }
         userStore.logIn(user)
 
-        // Redirect the user to the user page
-        this.$router.push('/user/' + this.username)
+        // Redirect the user to feed
+        this.$router.push('/feed')
       } catch (error) {
         this.$router.push('/login')
         console.error('Error:', error)

@@ -12,10 +12,12 @@ const router = createRouter({
     {
       path: '/user/:username',
       name: 'user',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
       component: () => import('../views/UserView.vue'),
+    },
+    {
+      path: '/feed', // Nueva ruta para el feed
+      name: 'feed',
+      component: () => import('../views/FeedView.vue'), // Importar el nuevo componente
     },
     {
       path: '/login',
@@ -28,8 +30,8 @@ const router = createRouter({
       component: () => import('../views/RegisterView.vue'),
     }, // Catch-all route - redirect to home
     {
-      path: '/:pathMatch(.*)*', // Catch-all route
-      redirect: '/', // Redirect to home route
+      path: '/:pathMatch(.*)*',
+      redirect: '/',
     },
   ],
 })

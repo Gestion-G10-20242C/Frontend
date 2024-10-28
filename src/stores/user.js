@@ -5,12 +5,14 @@ export const useUserStore = defineStore('user', {
     isLoggedIn: false,
     userName: '',
     profilePicture: '',
+    followingUsers: [], // Nueva propiedad para almacenar los usuarios seguidos
   }),
 
   actions: {
     logIn(user) {
       this.userName = user.userName
       this.profilePicture = user.profilePicture
+      this.followingUsers = user.followingUsers || []; // Asumir que viene del backend
       this.isLoggedIn = true
     },
 
@@ -18,15 +20,12 @@ export const useUserStore = defineStore('user', {
       this.isLoggedIn = false
       this.userName = ''
       this.profilePicture = ''
+      this.followingUsers = []; // Limpiar la lista al salir
     },
 
     async resetIfExpired() {
       if (this.isLoggedIn) {
-        // const response = await fetch('/api/check-session')
-        // if (response.status === 401) {
-        // if (false === 401) {
-        //   this.logOut()
-        // }
+        // Lógica para verificar la sesión
       }
     },
   },
