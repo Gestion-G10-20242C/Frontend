@@ -136,7 +136,7 @@ export default {
             data-bs-toggle="modal"
             data-bs-target="#editUserInfoModal"
           >
-            Edit
+            Editar
           </button>
         </div>
 
@@ -166,7 +166,7 @@ export default {
             data-bs-toggle="modal"
             data-bs-target="#changeFavouriteBookModal"
           >
-            Edit
+            Editar
           </button>
         </div>
       </div>

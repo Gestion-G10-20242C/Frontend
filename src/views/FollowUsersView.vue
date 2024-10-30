@@ -1,6 +1,8 @@
 <script>
 import { reactive, ref, computed, onMounted } from 'vue';
+import { useRouter } from 'vue-router'; // Importar el router
 import HeaderComponent from '@/components/HeaderComponent.vue';
+import { useUserStore } from '@/stores/user';
 
 export default {
   name: 'FollowUsersView',
@@ -8,36 +10,81 @@ export default {
     HeaderComponent,
   },
   setup() {
+    const userStore = useUserStore();
     const searchTerm = ref('');
     const users = reactive([]);
+    const router = useRouter(); // Instancia del router
 
     const fetchUsers = async () => {
+      const currentUserName = userStore.userName;
+
       try {
+        // Obtener la lista de usuarios
         const response = await fetch('https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users');
         const data = await response.json();
-        // Mapea los usuarios obtenidos desde la API
-        data.body.users.forEach(user => {
-          users.push({
-            name: user.username, 
-            profilePicture: 'https://cdn-icons-png.flaticon.com/512/1077/1077114.png', 
-            isFollowing: false,
-          });
-        });
+
+        console.log(data.body.users);
+
+        // Recorrer los usuarios y verificar el estado de seguimiento
+        for (const user of data.body.users) {
+          console.log("User: ", user);
+          if (user.username !== currentUserName) {
+            // Verificar si el usuario está siendo seguido
+            const isFollowingResponse = await fetch(`https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUserName}/following/${user.username}`);
+            const isFollowingData = await isFollowingResponse.json();
+
+            console.log(isFollowingData);
+
+            users.push({
+              name: user.username,
+              profilePicture: 'https://cdn-icons-png.flaticon.com/512/1077/1077114.png',
+              isFollowing: isFollowingData.active, // Estado de seguimiento
+            });
+          }
+        }
       } catch (error) {
         console.error('Error al obtener los usuarios:', error);
       }
     };
 
-    const toggleFollow = (user) => {
-      user.isFollowing = !user.isFollowing;
+    const toggleFollow = async (user) => {
+      const isFollowing = !user.isFollowing;
+      user.isFollowing = isFollowing;
+
+      const accessToken = localStorage.getItem('access_token');
+      const currentUser = userStore.userName;
+
+      console.log(`Cambiando el estado de seguimiento de ${user.name} a ${isFollowing}`);
+
+      try {
+        const response = await fetch(`https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUser}/following/${user.name}`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${accessToken}`,
+          },
+          body: JSON.stringify({ active: isFollowing }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Error al actualizar el estado de seguimiento');
+        }
+        console.log('Estado de seguimiento actualizado con éxito');
+        console.log(response);
+      } catch (error) {
+        console.error('Error al cambiar el estado de seguimiento:', error);
+        user.isFollowing = !isFollowing; // Revertir el estado si hay un error
+      }
     };
 
-    // Computed property para filtrar los usuarios según el término de búsqueda
+    const viewUserProfile = (username) => {
+      router.push({ name: 'user', params: { username } }); // Redirige a la vista del perfil del usuario
+    };
+
     const filteredUsers = computed(() => {
       return users.filter(user => user.name.toLowerCase().includes(searchTerm.value.toLowerCase()));
     });
 
-    // Llama a la API cuando el componente se monte
     onMounted(() => {
       fetchUsers();
     });
@@ -47,6 +94,7 @@ export default {
       users,
       filteredUsers,
       toggleFollow,
+      viewUserProfile, // Exponer la función
     };
   },
 };
@@ -70,10 +118,10 @@ export default {
             v-for="(user, index) in filteredUsers" 
             :key="index"
           >
-            <div class="d-flex align-items-center">
+            <div class="d-flex align-items-center" @click="viewUserProfile(user.name)" style="cursor: pointer;">
               <img :src="user.profilePicture" alt="Profile" width="50" height="50" class="rounded-circle me-2"/>
               <div>
-                <h5 class="mb-0">{{ user.name }}</h5> <!-- Solo muestra el nombre -->
+                <h5 class="mb-0">{{ user.name }}</h5>
               </div>
             </div>
             <button 
@@ -89,25 +137,3 @@ export default {
     </div>
   </div>
 </template>
-
-<style scoped>
-.list-group-item {
-  margin-bottom: 15px;
-}
-
-.btn-primary {
-  background-color: #ffc107;
-  color: black;
-}
-
-.btn-danger {
-  background-color: #dc3545;
-  color: white;
-}
-
-.btn {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.25rem;
-}
-</style>
