@@ -1,6 +1,6 @@
 <script>
-import { reactive, ref, computed } from 'vue'
-import HeaderComponent from '@/components/HeaderComponent.vue'
+import { reactive, ref, computed, onMounted } from 'vue';
+import HeaderComponent from '@/components/HeaderComponent.vue';
 
 export default {
   name: 'FollowUsersView',
@@ -9,47 +9,37 @@ export default {
   },
   setup() {
     const searchTerm = ref('');
-    
-    const users = reactive([
-      {
-        name: 'Carlos Fontela',
-        profilePicture: 'https://cysingsoft.wordpress.com/wp-content/uploads/2009/01/carlosfontela6.jpg?w=584',
-        username: '@carlosfontela',
-        isFollowing: false,
-      },
-      {
-        name: 'Ana Pérez',
-        profilePicture: 'https://randomuser.me/api/portraits/women/1.jpg',
-        username: '@anaperez',
-        isFollowing: false,
-      },
-      {
-        name: 'Luis Gómez',
-        profilePicture: 'https://randomuser.me/api/portraits/men/1.jpg',
-        username: '@luisgomez',
-        isFollowing: false,
-      },
-      {
-        name: 'Sofía Rodríguez',
-        profilePicture: 'https://randomuser.me/api/portraits/women/2.jpg',
-        username: '@sofiarodriguez',
-        isFollowing: false,
-      },
-      {
-        name: 'José Martínez',
-        profilePicture: 'https://randomuser.me/api/portraits/men/2.jpg',
-        username: '@josemartinez',
-        isFollowing: false,
-      },
-    ]);
+    const users = reactive([]);
+
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users');
+        const data = await response.json();
+        // Mapea los usuarios obtenidos desde la API
+        data.body.users.forEach(user => {
+          users.push({
+            name: user.username, 
+            profilePicture: 'https://cdn-icons-png.flaticon.com/512/1077/1077114.png', 
+            isFollowing: false,
+          });
+        });
+      } catch (error) {
+        console.error('Error al obtener los usuarios:', error);
+      }
+    };
 
     const toggleFollow = (user) => {
       user.isFollowing = !user.isFollowing;
     };
 
-    // Computed property to filter users based on the search term
+    // Computed property para filtrar los usuarios según el término de búsqueda
     const filteredUsers = computed(() => {
       return users.filter(user => user.name.toLowerCase().includes(searchTerm.value.toLowerCase()));
+    });
+
+    // Llama a la API cuando el componente se monte
+    onMounted(() => {
+      fetchUsers();
     });
 
     return {
@@ -59,7 +49,7 @@ export default {
       toggleFollow,
     };
   },
-}
+};
 </script>
 
 <template>
@@ -83,8 +73,7 @@ export default {
             <div class="d-flex align-items-center">
               <img :src="user.profilePicture" alt="Profile" width="50" height="50" class="rounded-circle me-2"/>
               <div>
-                <h5 class="mb-0">{{ user.name }}</h5>
-                <small class="text-muted">{{ user.username }}</small>
+                <h5 class="mb-0">{{ user.name }}</h5> <!-- Solo muestra el nombre -->
               </div>
             </div>
             <button 
@@ -107,18 +96,18 @@ export default {
 }
 
 .btn-primary {
-  background-color: #ffc107; /* Color de fondo para "Seguir" */
-  color: black; /* Color del texto */
+  background-color: #ffc107;
+  color: black;
 }
 
 .btn-danger {
-  background-color: #dc3545; /* Color de fondo para "Dejar de Seguir" */
-  color: white; /* Color del texto */
+  background-color: #dc3545;
+  color: white;
 }
 
 .btn {
-  padding: 0.5rem 1rem; /* Ajusta el padding para botones */
-  border: none; /* Sin borde */
-  border-radius: 0.25rem; /* Bordes redondeados */
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 0.25rem;
 }
 </style>

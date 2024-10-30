@@ -1,4 +1,6 @@
 <script>
+import { useUserStore } from '@/stores/user'
+const userStore = useUserStore()
 export default {
   data() {
     return {
@@ -39,6 +41,7 @@ export default {
     },
     showErrorModal(message) {
       this.errorMessage = message
+      // eslint-disable-next-line no-undef
       const errorModal = new bootstrap.Modal(
         document.getElementById('errorModal'),
       )
@@ -112,8 +115,11 @@ export default {
 
       const body = {
         username: this.username,
+        password: this.password,
         confirmation_code: this.validationToken,
       }
+
+      console.log('Body:', body)
 
       try {
         // Make the POST request
@@ -134,6 +140,22 @@ export default {
         if (parsedBody.error != null) {
           this.validToken = false
           return
+        } else {
+          this.validToken = true
+          
+          // Persist the access token in localStorage
+          localStorage.setItem('access_token', parsedBody.access_token)
+          console.log('Access token saved:', parsedBody.access_token)
+
+          // Persist the user data in userStore
+          const user = {
+            userName: this.username,
+            profilePicture:
+              'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg',
+          }
+          userStore.logIn(user)
+          // Redirect the user to feed
+          this.$router.push('/feed')
         }
       } catch (error) {
         console.error('Error:', error)

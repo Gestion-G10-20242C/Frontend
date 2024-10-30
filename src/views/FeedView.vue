@@ -1,5 +1,5 @@
 <script>
-import { ref, reactive } from 'vue'
+import { reactive } from 'vue'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import ReviewItem from '@/components/ReviewItem.vue'
 
@@ -55,9 +55,9 @@ export default {
 
 <template>
   <HeaderComponent />
-  <div class="container pt-4">
+  <div class="container pt-4 content-wrapper">
     <div class="row">
-      <div class="col">
+      <div class="col feed-column">
         <h1>Feed</h1>
         <div class="list-group">
           <ReviewItem

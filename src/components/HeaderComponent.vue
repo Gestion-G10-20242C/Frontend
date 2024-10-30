@@ -1,6 +1,5 @@
 <script>
 import { useUserStore } from '@/stores/user'
-import { RouterLink } from 'vue-router' // Asegúrate de importar RouterLink
 
 export default {
   setup() {
@@ -63,9 +62,9 @@ export default {
 
         <div v-if="!userStore.isLoggedIn" class="text-end">
           <RouterLink to="/login" class="btn btn-outline-light me-2">
-            Login
+            Inicia Sesión
           </RouterLink>
-          <RouterLink to="/register" class="btn btn-warning">Sign-up</RouterLink>
+          <RouterLink to="/register" class="btn btn-warning">Regístrate</RouterLink>
         </div>
 
         <div v-if="userStore.isLoggedIn" class="dropdown text-end">
@@ -84,17 +83,17 @@ export default {
             />
           </a>
           <ul class="dropdown-menu text-small">
-            <li><a class="dropdown-item" href="#">Settings</a></li>
+            <li><a class="dropdown-item" href="#">Configuración</a></li>
             <li>
               <RouterLink 
                 :to="`/user/${userStore.userName}`" 
                 class="dropdown-item"
               >
-                Profile
+                Mi Perfil
               </RouterLink>
             </li>
             <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item" href="/">Sign out</a></li>
+            <li><a class="dropdown-item" href="/">Cerrar Sesión</a></li>
           </ul>
         </div>
       </div>
