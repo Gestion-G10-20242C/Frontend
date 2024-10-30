@@ -119,14 +119,11 @@ export default {
           />
 
           <!-- User name -->
-          <h2 class="mb-0">{{ userData.name }}</h2>
-
-          <!-- User username -->
-          <h5 class="fw-normal">@{{ username }}</h5>
+          <h2 class="mb-0">{{ username }}</h2>
 
           <!-- User description -->
           <p class="mb-0">
-            {{ userData.description }}
+            {{ `Hola! Mi nombre es `+ username + `, soy un desarrollador de software amante de las metodologías ágiles.` }}
           </p>
 
           <!-- Edit user button -->

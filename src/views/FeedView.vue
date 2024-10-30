@@ -1,56 +1,46 @@
 <script>
-import { reactive } from 'vue'
-import HeaderComponent from '@/components/HeaderComponent.vue'
-import ReviewItem from '@/components/ReviewItem.vue'
+import { reactive, onMounted } from 'vue';
+import { useUserStore } from '@/stores/user';
+import HeaderComponent from '@/components/HeaderComponent.vue';
+import { useRouter } from 'vue-router'; // Importa useRouter
 
 export default {
   name: 'FeedView',
   components: {
     HeaderComponent,
-    ReviewItem,
   },
   setup() {
-    const posts = reactive([
-      {
-        user: {
-          name: 'Carlos Fontela',
-          profilePicture: 'https://cysingsoft.wordpress.com/wp-content/uploads/2009/01/carlosfontela6.jpg?w=584',
-          username: '@carlosfontela'
-        },
-        content: '¡Acabo de terminar de leer "Java y UML"! Es un libro increíble sobre programación.',
-        bookTitle: 'Java y UML',
-        likes: 5,
-        comments: 2,
-      },
-      {
-        user: {
-          name: 'Ana Pérez',
-          profilePicture: 'https://randomuser.me/api/portraits/women/1.jpg',
-          username: '@anaperez'
-        },
-        content: 'Recomiendo "El Alquimista" de Paulo Coelho. ¡Una historia inspiradora!',
-        bookTitle: 'El Alquimista',
-        likes: 8,
-        comments: 3,
-      },
-      {
-        user: {
-          name: 'Luis Gómez',
-          profilePicture: 'https://randomuser.me/api/portraits/men/1.jpg',
-          username: '@luisgomez'
-        },
-        content: 'Acabo de leer "Cien años de soledad" de Gabriel García Márquez. Una obra maestra de la literatura.',
-        bookTitle: 'Cien años de soledad',
-        likes: 10,
-        comments: 5,
-      },
-    ]);
+    const follows = reactive([]);
+    const userStore = useUserStore();
+    const router = useRouter(); // Inicializa el router
+
+    const fetchFollowing = async () => {
+      const currentUserName = userStore.userName;
+      try {
+        const response = await fetch(`https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUserName}/following/`);
+        if (!response.ok) {
+          throw new Error('Network response was not ok');
+        }
+        const data = await response.json();
+
+        console.log(data);
+
+        follows.push(...data); // Suponiendo que la respuesta es un array de usuarios
+      } catch (error) {
+        console.error('Error fetching following:', error);
+      }
+    };
+
+    onMounted(() => {
+      fetchFollowing();
+    });
 
     return {
-      posts,
+      follows,
+      router, // Retorna el router
     };
   },
-}
+};
 </script>
 
 <template>
@@ -60,11 +50,10 @@ export default {
       <div class="col feed-column">
         <h1>Feed</h1>
         <div class="list-group">
-          <ReviewItem
-            v-for="(post, index) in posts"
-            :key="index"
-            :post="post"
-          />
+          <div class="list-group-item" v-for="(user, index) in follows" :key="index">
+            <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="Icono de seguimiento" class="follow-icon" />
+            <router-link class="user-link" :to="`/user/${user.following}`">{{ user.following }}</router-link> <!-- Envolver el nombre en un router-link -->
+          </div>
         </div>
       </div>
     </div>
@@ -74,5 +63,22 @@ export default {
 <style scoped>
 .list-group-item {
   margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+}
+
+.follow-icon {
+  width: 20px; /* Ajusta el tamaño según lo necesites */
+  height: 20px; /* Ajusta el tamaño según lo necesites */
+  margin-right: 10px; /* Espacio entre el icono y el nombre */
+}
+
+.user-link {
+  color: black; /* Cambia el color del texto a negro */
+  text-decoration: none; /* Quita el subrayado del enlace */
+}
+
+.user-link:hover {
+  text-decoration: underline; /* Agrega subrayado al pasar el mouse */
 }
 </style>
