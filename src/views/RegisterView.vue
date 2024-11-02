@@ -142,7 +142,7 @@ export default {
           return
         } else {
           this.validToken = true
-          
+
           // Persist the access token in localStorage
           localStorage.setItem('access_token', parsedBody.access_token)
           console.log('Access token saved:', parsedBody.access_token)

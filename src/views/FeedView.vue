@@ -1,8 +1,8 @@
 <script>
-import { reactive, onMounted } from 'vue';
-import { useUserStore } from '@/stores/user';
-import HeaderComponent from '@/components/HeaderComponent.vue';
-import { useRouter } from 'vue-router'; // Importa useRouter
+import { reactive, onMounted } from 'vue'
+import { useUserStore } from '@/stores/user'
+import HeaderComponent from '@/components/HeaderComponent.vue'
+import { useRouter } from 'vue-router' // Importa useRouter
 
 export default {
   name: 'FeedView',
@@ -10,37 +10,39 @@ export default {
     HeaderComponent,
   },
   setup() {
-    const follows = reactive([]);
-    const userStore = useUserStore();
-    const router = useRouter(); // Inicializa el router
+    const follows = reactive([])
+    const userStore = useUserStore()
+    const router = useRouter() // Inicializa el router
 
     const fetchFollowing = async () => {
-      const currentUserName = userStore.userName;
+      const currentUserName = userStore.userName
       try {
-        const response = await fetch(`https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUserName}/following/`);
+        const response = await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUserName}/following/`,
+        )
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error('Network response was not ok')
         }
-        const data = await response.json();
+        const data = await response.json()
 
-        console.log(data);
+        console.log(data)
 
-        follows.push(...data); // Suponiendo que la respuesta es un array de usuarios
+        follows.push(...data) // Suponiendo que la respuesta es un array de usuarios
       } catch (error) {
-        console.error('Error fetching following:', error);
+        console.error('Error fetching following:', error)
       }
-    };
+    }
 
     onMounted(() => {
-      fetchFollowing();
-    });
+      fetchFollowing()
+    })
 
     return {
       follows,
       router, // Retorna el router
-    };
+    }
   },
-};
+}
 </script>
 
 <template>
@@ -50,9 +52,20 @@ export default {
       <div class="col feed-column">
         <h1>Feed</h1>
         <div class="list-group">
-          <div class="list-group-item" v-for="(user, index) in follows" :key="index">
-            <img src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png" alt="Icono de seguimiento" class="follow-icon" />
-            <router-link class="user-link" :to="`/user/${user.following}`">{{ user.following }}</router-link> <!-- Envolver el nombre en un router-link -->
+          <div
+            class="list-group-item"
+            v-for="(user, index) in follows"
+            :key="index"
+          >
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+              alt="Icono de seguimiento"
+              class="follow-icon"
+            />
+            <router-link class="user-link" :to="`/user/${user.following}`">{{
+              user.following
+            }}</router-link>
+            <!-- Envolver el nombre en un router-link -->
           </div>
         </div>
       </div>

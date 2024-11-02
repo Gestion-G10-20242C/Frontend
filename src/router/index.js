@@ -39,7 +39,12 @@ const router = createRouter({
       name: 'search',
       component: () => import('../views/Search.vue'),
     },
+    {
     // Catch-all route - redirect to home
+      path: '/books',
+      name: 'books',
+      component: () => import('../views/BooksView.vue'),
+    }, // Catch-all route - redirect to home
     {
       path: '/:pathMatch(.*)*',
       redirect: '/',

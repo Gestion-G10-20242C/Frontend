@@ -12,7 +12,7 @@ export const useUserStore = defineStore('user', {
     logIn(user) {
       this.userName = user.userName
       this.profilePicture = user.profilePicture
-      this.followingUsers = user.followingUsers || []; // Asumir que viene del backend
+      this.followingUsers = user.followingUsers || [] // Asumir que viene del backend
       this.isLoggedIn = true
     },
 
@@ -20,7 +20,7 @@ export const useUserStore = defineStore('user', {
       this.isLoggedIn = false
       this.userName = ''
       this.profilePicture = ''
-      this.followingUsers = []; // Limpiar la lista al salir
+      this.followingUsers = [] // Limpiar la lista al salir
     },
 
     async resetIfExpired() {
