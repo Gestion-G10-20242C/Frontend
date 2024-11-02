@@ -35,7 +35,6 @@ const router = createRouter({
       component: () => import('../views/RegisterView.vue'),
     },
     {
-    // Catch-all route - redirect to home
       path: '/books',
       name: 'books',
       component: () => import('../views/BooksView.vue'),
