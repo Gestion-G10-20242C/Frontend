@@ -9,7 +9,10 @@
         height="50"
       />
       <div>
-        <h5 class="mb-1">{{ post.user.name }} <small class="text-muted">{{ post.user.username }}</small></h5>
+        <h5 class="mb-1">
+          {{ post.user.name }}
+          <small class="text-muted">{{ post.user.username }}</small>
+        </h5>
         <p class="mb-1">{{ post.content }}</p>
         <p class="fw-bold mb-1">Libro: {{ post.bookTitle }}</p>
       </div>

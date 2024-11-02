@@ -29,11 +29,16 @@ export default {
           />
         </a>
 
-        <ul class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0">
+        <ul
+          class="nav col-12 col-lg-auto me-lg-auto mb-2 justify-content-center mb-md-0"
+        >
           <li>
-            <RouterLink to="/feed" class="nav-link px-2 text-white">Home</RouterLink>
+            <RouterLink to="/feed" class="nav-link px-2 text-white"
+              >Home</RouterLink
+            >
           </li>
-          <li class="nav-item dropdown"> <!-- Nueva pestaña de Comunidad -->
+          <li class="nav-item dropdown">
+            <!-- Nueva pestaña de Comunidad -->
             <a
               class="nav-link dropdown-toggle text-white"
               href="#"
@@ -45,7 +50,9 @@ export default {
             </a>
             <ul class="dropdown-menu">
               <li>
-                <RouterLink to="/follow-users" class="dropdown-item">Gente</RouterLink> 
+                <RouterLink to="/follow-users" class="dropdown-item"
+                  >Gente</RouterLink
+                >
               </li>
             </ul>
           </li>
@@ -64,7 +71,9 @@ export default {
           <RouterLink to="/login" class="btn btn-outline-light me-2">
             Inicia Sesión
           </RouterLink>
-          <RouterLink to="/register" class="btn btn-warning">Regístrate</RouterLink>
+          <RouterLink to="/register" class="btn btn-warning"
+            >Regístrate</RouterLink
+          >
         </div>
 
         <div v-if="userStore.isLoggedIn" class="dropdown text-end">
@@ -85,8 +94,8 @@ export default {
           <ul class="dropdown-menu text-small">
             <li><a class="dropdown-item" href="#">Configuración</a></li>
             <li>
-              <RouterLink 
-                :to="`/user/${userStore.userName}`" 
+              <RouterLink
+                :to="`/user/${userStore.userName}`"
                 class="dropdown-item"
               >
                 Mi Perfil

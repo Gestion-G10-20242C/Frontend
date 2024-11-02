@@ -1,8 +1,8 @@
 <script>
-import { reactive, ref, computed, onMounted } from 'vue';
-import { useRouter } from 'vue-router'; // Importar el router
-import HeaderComponent from '@/components/HeaderComponent.vue';
-import { useUserStore } from '@/stores/user';
+import { reactive, ref, computed, onMounted } from 'vue'
+import { useRouter } from 'vue-router' // Importar el router
+import HeaderComponent from '@/components/HeaderComponent.vue'
+import { useUserStore } from '@/stores/user'
 
 export default {
   name: 'FollowUsersView',
@@ -10,84 +10,96 @@ export default {
     HeaderComponent,
   },
   setup() {
-    const userStore = useUserStore();
-    const searchTerm = ref('');
-    const users = reactive([]);
-    const router = useRouter(); // Instancia del router
+    const userStore = useUserStore()
+    const searchTerm = ref('')
+    const users = reactive([])
+    const router = useRouter() // Instancia del router
 
     const fetchUsers = async () => {
-      const currentUserName = userStore.userName;
+      const currentUserName = userStore.userName
 
       try {
         // Obtener la lista de usuarios
-        const response = await fetch('https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users');
-        const data = await response.json();
+        const response = await fetch(
+          'https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users',
+        )
+        const data = await response.json()
 
-        console.log(data.body.users);
+        console.log(data.body.users)
 
         // Recorrer los usuarios y verificar el estado de seguimiento
         for (const user of data.body.users) {
-          console.log("User: ", user);
+          console.log('User: ', user)
           if (user.username !== currentUserName) {
             // Verificar si el usuario está siendo seguido
-            const isFollowingResponse = await fetch(`https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUserName}/following/${user.username}`);
-            const isFollowingData = await isFollowingResponse.json();
+            const isFollowingResponse = await fetch(
+              `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUserName}/following/${user.username}`,
+            )
+            const isFollowingData = await isFollowingResponse.json()
 
-            console.log(isFollowingData);
+            console.log(isFollowingData)
 
             users.push({
               name: user.username,
-              profilePicture: 'https://cdn-icons-png.flaticon.com/512/1077/1077114.png',
+              profilePicture:
+                'https://cdn-icons-png.flaticon.com/512/1077/1077114.png',
               isFollowing: isFollowingData.active, // Estado de seguimiento
-            });
+            })
           }
         }
       } catch (error) {
-        console.error('Error al obtener los usuarios:', error);
+        console.error('Error al obtener los usuarios:', error)
       }
-    };
+    }
 
-    const toggleFollow = async (user) => {
-      const isFollowing = !user.isFollowing;
-      user.isFollowing = isFollowing;
+    const toggleFollow = async user => {
+      const isFollowing = !user.isFollowing
+      user.isFollowing = isFollowing
 
-      const accessToken = localStorage.getItem('access_token');
-      const currentUser = userStore.userName;
+      const accessToken = localStorage.getItem('access_token')
+      const currentUser = userStore.userName
 
-      console.log(`Cambiando el estado de seguimiento de ${user.name} a ${isFollowing}`);
+      console.log(
+        `Cambiando el estado de seguimiento de ${user.name} a ${isFollowing}`,
+      )
 
       try {
-        const response = await fetch(`https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUser}/following/${user.name}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${accessToken}`,
+        const response = await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUser}/following/${user.name}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({ active: isFollowing }),
           },
-          body: JSON.stringify({ active: isFollowing }),
-        });
+        )
 
         if (!response.ok) {
-          throw new Error('Error al actualizar el estado de seguimiento');
+          throw new Error('Error al actualizar el estado de seguimiento')
         }
-        console.log('Estado de seguimiento actualizado con éxito');
-        console.log(response);
+        console.log('Estado de seguimiento actualizado con éxito')
+        console.log(response)
       } catch (error) {
-        console.error('Error al cambiar el estado de seguimiento:', error);
-        user.isFollowing = !isFollowing; // Revertir el estado si hay un error
+        console.error('Error al cambiar el estado de seguimiento:', error)
+        user.isFollowing = !isFollowing // Revertir el estado si hay un error
       }
-    };
+    }
 
-    const viewUserProfile = (username) => {
-      router.push({ name: 'user', params: { username } }); // Redirige a la vista del perfil del usuario
-    };
+    const viewUserProfile = username => {
+      router.push({ name: 'user', params: { username } }) // Redirige a la vista del perfil del usuario
+    }
 
     const filteredUsers = computed(() => {
-      return users.filter(user => user.name.toLowerCase().includes(searchTerm.value.toLowerCase()));
-    });
+      return users.filter(user =>
+        user.name.toLowerCase().includes(searchTerm.value.toLowerCase()),
+      )
+    })
 
     onMounted(() => {
-      fetchUsers();
-    });
+      fetchUsers()
+    })
 
     return {
       searchTerm,
@@ -95,9 +107,9 @@ export default {
       filteredUsers,
       toggleFollow,
       viewUserProfile, // Exponer la función
-    };
+    }
   },
-};
+}
 </script>
 
 <template>
@@ -106,27 +118,37 @@ export default {
     <div class="row">
       <div class="col">
         <h1>Otros Lectores</h1>
-        <input 
-          type="text" 
-          v-model="searchTerm" 
-          placeholder="Buscar usuarios por nombre" 
-          class="form-control mb-3" 
+        <input
+          type="text"
+          v-model="searchTerm"
+          placeholder="Buscar usuarios por nombre"
+          class="form-control mb-3"
         />
         <div class="list-group">
-          <div 
-            class="list-group-item d-flex justify-content-between align-items-center" 
-            v-for="(user, index) in filteredUsers" 
+          <div
+            class="list-group-item d-flex justify-content-between align-items-center"
+            v-for="(user, index) in filteredUsers"
             :key="index"
           >
-            <div class="d-flex align-items-center" @click="viewUserProfile(user.name)" style="cursor: pointer;">
-              <img :src="user.profilePicture" alt="Profile" width="50" height="50" class="rounded-circle me-2"/>
+            <div
+              class="d-flex align-items-center"
+              @click="viewUserProfile(user.name)"
+              style="cursor: pointer"
+            >
+              <img
+                :src="user.profilePicture"
+                alt="Profile"
+                width="50"
+                height="50"
+                class="rounded-circle me-2"
+              />
               <div>
                 <h5 class="mb-0">{{ user.name }}</h5>
               </div>
             </div>
-            <button 
-              class="btn" 
-              :class="user.isFollowing ? 'btn-danger' : 'btn-primary'" 
+            <button
+              class="btn"
+              :class="user.isFollowing ? 'btn-danger' : 'btn-primary'"
               @click="toggleFollow(user)"
             >
               {{ user.isFollowing ? 'Dejar de Seguir' : 'Seguir' }}

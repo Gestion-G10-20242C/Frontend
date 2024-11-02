@@ -75,7 +75,9 @@ export default {
 
       this.userData.name = this.newUserData.name
       this.userData.description = this.newUserData.description
-      this.userData.profilePicture = this.base64Image
+      if (this.base64Image) {
+        this.userData.profilePicture = this.base64Image
+      }
 
       // Send the new user data to the backend
       // TODO!
@@ -123,7 +125,7 @@ export default {
 
           <!-- User description -->
           <p class="mb-0">
-            {{ `Hola! Mi nombre es `+ username + `, soy un desarrollador de software amante de las metodologías ágiles.` }}
+            {{ userData.description }}
           </p>
 
           <!-- Edit user button -->
