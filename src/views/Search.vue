@@ -1,7 +1,7 @@
 <script>
 import { ref, computed } from 'vue'
-
 import HeaderComponent from '@/components/HeaderComponent.vue'
+import { useSearchStore } from '@/stores/search';
 
 export default {
   name: 'SearchView',
@@ -9,27 +9,33 @@ export default {
     HeaderComponent,
   },
     setup(){
+      const searchStore = useSearchStore()
+      const searchParameter = searchStore.getSearchQuery()
 
-        const items = [
-        'Apple', 'Banana', 'Cherry', 'Date', 'Elderberry',
-        'Fig', 'Grape', 'Honeydew', 'Kiwi', 'Lemon',
-        'Mango', 'Nectarine', 'Orange', 'Papaya', 'Quince'
-        ]
+      console.log('Search parameter:', searchParameter)
 
-        const searchQuery = ref('')
 
-        const filteredItems = computed(() => {
-        if (searchQuery.value === '') return items
-        const lowercaseQuery = searchQuery.value.toLowerCase()
-        return items.filter(item => item.toLowerCase().includes(lowercaseQuery))
-        })
+      const items = [
+      'Apple', 'Banana', 'Cherry', 'Date', 'Elderberry',
+      'Fig', 'Grape', 'Honeydew', 'Kiwi', 'Lemon',
+      'Mango', 'Nectarine', 'Orange', 'Papaya', 'Quince'
+      ]
 
-        return {
-            items,
-            searchQuery,
-            filteredItems,
-            HeaderComponent
-            }
+      const searchQuery = ref(searchParameter? searchParameter: '')
+
+      const filteredItems = computed(() => {
+      if (searchQuery.value === '') return items
+      const lowercaseQuery = searchQuery.value.toLowerCase()
+      return items.filter(item => item.toLowerCase().includes(lowercaseQuery))
+      })
+
+      return {
+          items,
+          searchParameter,
+          searchQuery,
+          filteredItems,
+          HeaderComponent
+          }
     }
 }
 </script>
