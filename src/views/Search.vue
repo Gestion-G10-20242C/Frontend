@@ -26,6 +26,10 @@ export default {
 
       const searchQuery = ref(searchParameter? searchParameter: '')
 
+      const updateItems = () => {
+        searchStore.setSearchQuery(searchQuery.value)
+      }
+      
       const filteredItems = computed(() => {
       if (searchQuery.value === '') return items
       const lowercaseQuery = searchQuery.value.toLowerCase()
@@ -34,9 +38,9 @@ export default {
 
       return {
           items,
-          searchParameter,
           searchQuery,
           filteredItems,
+          updateItems,
           HeaderComponent
           }
     },
