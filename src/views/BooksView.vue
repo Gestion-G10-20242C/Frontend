@@ -11,11 +11,13 @@ export default {
     const searchInput = ref('')
     const selectedOption = ref('title')
     const results = ref([])
+    const selectedBook = ref({})
 
     return {
       searchInput,
       selectedOption,
       results,
+      selectedBook,
     }
   },
   methods: {
@@ -43,6 +45,9 @@ export default {
       ]
 
       this.results = mockResults
+    },
+    setSelectedBook(title) {
+      this.selectedBook = title
     },
   },
 }
@@ -102,6 +107,72 @@ export default {
             <h5 class="text-body-secondary">{{ author }}</h5>
             <h5 class="text-body-tertiary">{{ releaseYear }}</h5>
           </div>
+          <div class="col-1">
+            <button
+              @click="setSelectedBook({ title, author, releaseYear, cover })"
+              class="btn btn-sm btn-primary mt-n4 fs-5"
+              data-bs-toggle="modal"
+              data-bs-target="#changeFavouriteBookModal"
+            >
+              +
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Libro seleccionado -->
+    <div
+      class="modal fade"
+      id="changeFavouriteBookModal"
+      tabindex="-1"
+      aria-labelledby="changeFavouriteBookModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="container">
+              <div class="row">
+                <div class="col-4 text-center">
+                  <img
+                    alt="Book cover"
+                    :src="selectedBook.cover"
+                    height="300vh"
+                    width="auto"
+                  />
+                </div>
+                <div class="col">
+                  <h3 class="text-body-emphasis">{{ selectedBook.title }}</h3>
+                  <h5 class="text-body-secondary">{{ selectedBook.author }}</h5>
+                  <h5 class="text-body-tertiary mb-3">
+                    {{ selectedBook.releaseYear }}
+                  </h5>
+                  <div>
+                    <h5 class="text-body-emphasis">Sinopsis</h5>
+                    <p>
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Nullam nec purus nec nunc ultricies tincidunt. Nullam
+                      bibendum, nunc nec ultricies tincidunt,
+                    </p>
+                  </div>
+                  <div>
+                    <h5 class="text-body-emphasis">Género</h5>
+                    <p>Lorem, Ipsum, Dolor</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-footer"></div>
         </div>
       </div>
     </div>
