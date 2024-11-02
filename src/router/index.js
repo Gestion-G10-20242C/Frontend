@@ -33,7 +33,13 @@ const router = createRouter({
       path: '/register',
       name: 'register',
       component: () => import('../views/RegisterView.vue'),
-    }, // Catch-all route - redirect to home
+    },
+    {
+      path: '/search',
+      name: 'search',
+      component: () => import('../views/Search.vue'),
+    },
+    // Catch-all route - redirect to home
     {
       path: '/:pathMatch(.*)*',
       redirect: '/',
