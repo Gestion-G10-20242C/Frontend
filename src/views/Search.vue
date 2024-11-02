@@ -2,31 +2,34 @@
 import { ref, computed } from 'vue'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import { useSearchStore } from '@/stores/search';
+import {URLs} from '@/config/common'
+
+const searchStore = useSearchStore()
 
 export default {
   name: 'SearchView',
   components: {
     HeaderComponent,
   },
+  
     setup(){
-      const searchStore = useSearchStore()
+      
       const searchParameter = searchStore.getSearchQuery()
 
       console.log('Search parameter:', searchParameter)
 
-
-      const items = [
+      const items = ref([
       'Apple', 'Banana', 'Cherry', 'Date', 'Elderberry',
       'Fig', 'Grape', 'Honeydew', 'Kiwi', 'Lemon',
       'Mango', 'Nectarine', 'Orange', 'Papaya', 'Quince'
-      ]
+      ])
 
       const searchQuery = ref(searchParameter? searchParameter: '')
 
       const filteredItems = computed(() => {
       if (searchQuery.value === '') return items
       const lowercaseQuery = searchQuery.value.toLowerCase()
-      return items.filter(item => item.toLowerCase().includes(lowercaseQuery))
+      return items.value.filter(item => item.toLowerCase().includes(lowercaseQuery))
       })
 
       return {
@@ -36,6 +39,36 @@ export default {
           filteredItems,
           HeaderComponent
           }
+    },
+
+    methods: {
+      async searchItems(){
+        const url = URLs.BACKEND + '/search'
+
+        // Tal vez lo pasamos por query_params
+        const body = {
+          search_query: searchStore.getSearchQuery(),
+        }
+
+        try {
+
+          const response = await fetch(url, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(body),
+          })
+
+          const data = await response.json()
+          const parsedBody = JSON.parse(data.body)
+
+          console.log('Response:', parsedBody)
+        } catch (error) {
+            console.error('Error:', error)
+        }
+
+      }
     }
 }
 </script>
