@@ -15,7 +15,7 @@ export default {
     const handleSubmit = () => {
       setSearchQuery(searchQuery.value)
       searchQuery.value = ''
-      router.push('/search')
+      router.push('/books')
     }
 
     const setSearchQuery = (query) => {
