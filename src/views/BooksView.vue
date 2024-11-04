@@ -1,6 +1,9 @@
 <script>
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import { ref } from 'vue'
+import { useSearchStore } from '@/stores/search';
+
+const searchStore = useSearchStore()
 
 export default {
   name: 'BooksView',
@@ -8,7 +11,7 @@ export default {
     HeaderComponent,
   },
   setup() {
-    const searchInput = ref('')
+    const searchInput = ref(searchStore.getSearchQuery()? searchStore.getSearchQuery(): '')
     const selectedOption = ref('title')
     const results = ref([])
     const selectedBook = ref({})

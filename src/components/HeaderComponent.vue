@@ -1,12 +1,33 @@
 <script>
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useSearchStore } from '@/stores/search'
 import { useUserStore } from '@/stores/user'
+
 
 export default {
   setup() {
     const userStore = useUserStore()
+    const searchStore = useSearchStore()
+    const searchQuery = ref('')
+    const router = useRouter()
+
+    const handleSubmit = () => {
+      setSearchQuery(searchQuery.value)
+      searchQuery.value = ''
+      router.push('/books')
+    }
+
+    const setSearchQuery = (query) => {
+      searchStore.setSearchQuery(query)
+    }
 
     return {
       userStore,
+      searchStore,
+      searchQuery,
+      handleSubmit,
+      setSearchQuery,
     }
   },
 }
@@ -63,12 +84,13 @@ export default {
           </li>
         </ul>
 
-        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search">
+        <form class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3" role="search" @submit.prevent="handleSubmit">
           <input
             type="search"
             class="form-control form-control-dark text-bg-dark"
             placeholder="Search..."
             aria-label="Search"
+            v-model="searchQuery"
           />
         </form>
 
