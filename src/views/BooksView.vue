@@ -1,13 +1,14 @@
 <script>
-import HeaderComponent from '@/components/HeaderComponent.vue';
-import GenreSidebar from '@/components/GenreSidebar.vue';
-import { ref } from 'vue';
-import { useSearchStore } from '@/stores/search';
+import HeaderComponent from '@/components/HeaderComponent.vue'
+import GenreSidebar from '@/components/GenreSidebar.vue'
+import { ref } from 'vue'
+import { useSearchStore } from '@/stores/search'
+import { GET } from '@/utils/fetch_async'
 
 // Importa los datos de libros desde un archivo JSON o fuente similar
-import booksData from '@/resources/books.json';
+import booksData from '@/resources/books.json'
 
-const searchStore = useSearchStore();
+const searchStore = useSearchStore()
 
 export default {
   name: 'BooksView',
@@ -16,42 +17,65 @@ export default {
     GenreSidebar,
   },
   setup() {
-    const searchInput = ref(searchStore.getSearchQuery() ? searchStore.getSearchQuery() : '');
-    const selectedOption = ref('title');
-    const results = ref([]);
-    const selectedBook = ref({});
+    const searchInput = ref(
+      searchStore.getSearchQuery() ? searchStore.getSearchQuery() : '',
+    )
+    const selectedOption = ref('title')
+    var results = ref([])
+    const selectedBook = ref({})
 
     return {
       searchInput,
       selectedOption,
       results,
       selectedBook,
-    };
+    }
   },
   methods: {
-    searchBooks() {
+    async fetch_books() {
+      console.log('Buscando...', this.searchInput)
+
+      this.results = await GET(
+        'GET',
+        `/search?query=${this.searchInput}&field=title`,
+        null,
+        null,
+      )
+      console.log('Recibi', this.results)
+    },
+
+    async searchBooks() {
+      console.log('Me llego: ', this.searchInput)
       if (this.searchInput.length < 3) {
-        return;
+        return
       }
-      console.log('Searching for:', this.searchInput, 'by', this.selectedOption);
+      console.log('Searching for:', this.searchInput, 'by', this.selectedOption)
+
+      await this.fetch_books()
 
       // Filtra los libros según la búsqueda
-      this.results = booksData.filter((book) => {
+      this.results = booksData.filter(book => {
         if (this.selectedOption === 'title') {
-          return book.title.toLowerCase().includes(this.searchInput.toLowerCase());
+          return book.title
+            .toLowerCase()
+            .includes(this.searchInput.toLowerCase())
         } else if (this.selectedOption === 'author') {
-          return book.author.toLowerCase().includes(this.searchInput.toLowerCase());
+          return book.author
+            .toLowerCase()
+            .includes(this.searchInput.toLowerCase())
         } else if (this.selectedOption === 'genre') {
-          return book.genre.toLowerCase().includes(this.searchInput.toLowerCase());
+          return book.genre
+            .toLowerCase()
+            .includes(this.searchInput.toLowerCase())
         }
-        return false;
-      });
+        return false
+      })
     },
     setSelectedBook(book) {
-      this.selectedBook = book;
+      this.selectedBook = book
     },
   },
-};
+}
 </script>
 
 <template>
@@ -76,7 +100,9 @@ export default {
         </div>
 
         <div class="input-group mb-3">
-          <label class="input-group-text" for="inputGroupSelect01">Buscar por</label>
+          <label class="input-group-text" for="inputGroupSelect01"
+            >Buscar por</label
+          >
           <select
             class="form-select"
             v-model="selectedOption"
@@ -95,11 +121,7 @@ export default {
         <div class="container">
           <div v-for="book in results" :key="book.title" class="row mb-4">
             <div class="col-2 text-center">
-              <img 
-                alt="Book cover" 
-                :src="book.cover" 
-                height="150vh" 
-              />
+              <img alt="Book cover" :src="book.cover" height="150vh" />
             </div>
             <div class="col">
               <h3 class="text-body-emphasis">{{ book.title }}</h3>
