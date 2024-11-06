@@ -1,0 +1,171 @@
+[
+    {
+      "title": "El Señor de los Anillos",
+      "author": "J.R.R. Tolkien",
+      "releaseYear": 1954,
+      "cover": "https://cdn8.openculture.com/wp-content/uploads/2013/02/The-Fellowship-Of-The-Ring-Book-Cover-by-JRR-Tolkien_1-480.jpg",
+      "sinopsis": "En la Tierra Media, un joven hobbit se embarca en una misión para destruir el Anillo Único y derrotar al malvado Sauron.",
+      "genre": "Fantasía"
+    },
+    {
+      "title": "Harry Potter y la piedra filosofal",
+      "author": "J.K. Rowling",
+      "releaseYear": 1997,
+      "cover": "https://m.media-amazon.com/images/I/81q77Q39nEL._AC_UF1000,1000_QL80_.jpg",
+      "sinopsis": "Un niño huérfano descubre que es un mago y debe enfrentarse a un enemigo oscuro en el colegio Hogwarts de Magia y Hechicería.",
+      "genre": "Fantasía"
+    },
+    {
+      "title": "El Hobbit",
+      "author": "J.R.R. Tolkien",
+      "releaseYear": 1937,
+      "cover": "https://m.media-amazon.com/images/I/712cDO7d73L._AC_UF1000,1000_QL80_.jpg",
+      "sinopsis": "Bilbo Bolsón, un hobbit pacífico, se embarca en una aventura épica para recuperar un tesoro robado por un dragón.",
+      "genre": "Fantasía"
+    },
+    {
+      "title": "El Libro de las Sombras Contadas",
+      "author": "Terry Goodkind",
+      "releaseYear": 1994,
+      "cover": "https://www.planetadelibros.com/usuaris/libros/fotos/383/original/portada_la-espada-de-la-verdad-n-0117-el-libro-de-las-sombras-contadas_terry-goodkind_202311301225.jpg",
+      "sinopsis": "Un joven llamado Richard Rahl debe unirse a la lucha contra un mal ancestral para salvar su mundo.",
+      "genre": "Fantasía"
+    },
+    {
+      "title": "Dune",
+      "author": "Frank Herbert",
+      "releaseYear": 1965,
+      "cover": "https://images.cdn3.buscalibre.com/fit-in/360x360/0c/00/0c00cbb74142643771a16065636dd0e3.jpg",
+      "sinopsis": "La historia de Paul Atreides, un joven noble en un planeta desértico, que lucha por sobrevivir en un universo gobernado por intrigas políticas.",
+      "genre": "Ciencia Ficción"
+    },
+    {
+      "title": "Neuromante",
+      "author": "William Gibson",
+      "releaseYear": 1984,
+      "cover": "https://2084futurosimaginados.org/wp-content/uploads/2024/05/neuromanceres-01.jpg",
+      "sinopsis": "Un ex hacker llamado Case se adentra en un mundo virtual de inteligencia artificial en busca de redención.",
+      "genre": "Ciencia Ficción"
+    },
+    {
+      "title": "Fundación",
+      "author": "Isaac Asimov",
+      "releaseYear": 1951,
+      "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmcOAZTn_SbJ9p3TEm5ClCTN7JV_yC-arcBw&s",
+      "sinopsis": "En un futuro lejano, un grupo de científicos busca salvar a la humanidad mediante la creación de una 'Fundación' que proteja el conocimiento.",
+      "genre": "Ciencia Ficción"
+    },
+    {
+      "title": "El fin de la infancia",
+      "author": "Arthur C. Clarke",
+      "releaseYear": 1953,
+      "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTfxHhfD2OVX-5tcEf8C8rvnppfSX8m5gz9Zw&s",
+      "sinopsis": "La humanidad es visitada por una raza alienígena que guía la evolución hacia una nueva etapa, pero a un costo inesperado.",
+      "genre": "Ciencia Ficción"
+    },
+    {
+      "title": "El regreso del Caballero Oscuro",
+      "author": "Frank Miller",
+      "releaseYear": 1986,
+      "cover": "https://content.eccediciones.com/productos/4726/cubierta_batman_regreso_caballero_oscuro_2ed_WEB.jpg",
+      "sinopsis": "Bruce Wayne regresa a Gotham como Batman, enfrentándose a un futuro distópico y luchando contra el crimen en una ciudad que lo había olvidado.",
+      "genre": "Comics"
+    },
+    {
+      "title": "El Código Da Vinci",
+      "author": "Dan Brown",
+      "releaseYear": 2003,
+      "cover": "https://images.cdn2.buscalibre.com/fit-in/360x360/49/54/4954e233ad1e1a43e3f8187cd91c6997.jpg",
+      "sinopsis": "Un profesor de simbología y una criptóloga buscan resolver misterios ocultos en las obras de arte de Da Vinci, con repercusiones globales.",
+      "genre": "Misterio"
+    },
+    {
+      "title": "La chica del tren",
+      "author": "Paula Hawkins",
+      "releaseYear": 2015,
+      "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTt1NV1VhQJly7JJLZ5jW5aBqH_c1ea4ONkxg&s",
+      "sinopsis": "Una mujer observa desde el tren a una pareja feliz, pero cuando la mujer desaparece, se ve involucrada en una intrincada trama de engaños.",
+      "genre": "Misterio"
+    },
+    {
+      "title": "Los hombres que no amaban a las mujeres",
+      "author": "Stieg Larsson",
+      "releaseYear": 2005,
+      "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRv0aSZNhpsVi4_LvMoVJX-TcaJp4MD6cHLig&s",
+      "sinopsis": "Un periodista y una hacker se unen para resolver el misterio de una desaparición que lleva décadas sin solución.",
+      "genre": "Misterio"
+    },
+    {
+      "title": "Sherlock Holmes: Estudio en escarlata",
+      "author": "Arthur Conan Doyle",
+      "releaseYear": 1887,
+      "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQyv1eGr53Tfkgl4dpBU3XHPbjKXv6ZHIWZkw&s",
+      "sinopsis": "Sherlock Holmes y su amigo Watson investigan el asesinato de un hombre en Londres, descubriendo oscuros secretos sobre la religión mormona.",
+      "genre": "Misterio"
+    },
+    {
+      "title": "Orgullo y prejuicio",
+      "author": "Jane Austen",
+      "releaseYear": 1813,
+      "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSjykXuoU-pVtZYP4C91G9YNTdOKIf6_KapOg&s",
+      "sinopsis": "El clásico romance entre Elizabeth Bennet y el orgulloso Sr. Darcy, explorando temas de amor, sociedad y prejuicios.",
+      "genre": "Romance"
+    },
+    {
+      "title": "Cincuenta sombras de Grey",
+      "author": "E.L. James",
+      "releaseYear": 2009,
+      "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0pxOutnsQnvOpIZwIEDoDioeCHK_clATYHQ&s",
+      "sinopsis": "Una joven estudiante se enamora de un exitoso empresario con secretos oscuros que complican su relación.",
+      "genre": "Romance"
+    },
+    {
+      "title": "Bajo la misma estrella",
+      "author": "John Green",
+      "releaseYear": 2012,
+      "cover": "https://images.cdn3.buscalibre.com/fit-in/360x360/f2/67/f267cdd7d83a8b08394786f07f950ea1.jpg",
+      "sinopsis": "Una joven con cáncer se enamora de un chico que también lucha con su propia enfermedad, mientras viven un amor imposible.",
+      "genre": "Romance"
+    },
+    {
+      "title": "Diario de una pasión",
+      "author": "Nicholas Sparks",
+      "releaseYear": 1996,
+      "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTsntb-k_HcAGQEVNGhpmG853vkm4ml8SuZvA&s",
+      "sinopsis": "La historia de un amor de verano que se convierte en una pasión que trasciende el tiempo y la distancia.",
+      "genre": "Romance"
+    },
+    {
+      "title": "La historia interminable",
+      "author": "Michael Ende",
+      "releaseYear": 1979,
+      "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRS9ndGDuANSPupZ9Qd0I742dVugmR8cLQKog&s",
+      "sinopsis": "Un niño se adentra en un libro mágico que lo lleva a un mundo de fantasía donde él mismo se convierte en parte de la historia.",
+      "genre": "Historia"
+    },
+    {
+      "title": "Los pilares de la Tierra",
+      "author": "Ken Follett",
+      "releaseYear": 1989,
+      "cover": "https://images.cdn2.buscalibre.com/fit-in/360x360/61/32/61328f4133cbc217435c385c1eaefd74.jpg",
+      "sinopsis": "La lucha por la construcción de una catedral en la Edad Media, explorando la política, la religión y el poder en esa época.",
+      "genre": "Historia"
+    },
+    {
+      "title": "El nombre de la rosa",
+      "author": "Umberto Eco",
+      "releaseYear": 1980,
+      "cover": "https://images.cdn1.buscalibre.com/fit-in/360x360/4d/b9/4db9da291dbd3e39949c68bfd8e364b9.jpg",
+      "sinopsis": "En una abadía medieval, un fraile franciscano investiga una serie de misteriosos asesinatos.",
+      "genre": "Historia"
+    },
+    {
+      "title": "La Odisea",
+      "author": "Homero",
+      "releaseYear": "circa 700 a.C.",
+      "cover": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTbOYU_GKCi2fkYyWD06uvTlWfMdQnVoPyeLw&s",
+      "sinopsis": "La épica aventura de Odiseo en su regreso a casa tras la guerra de Troya, enfrentándose a monstruos y dioses.",
+      "genre": "Historia"
+    }
+  ]
+  

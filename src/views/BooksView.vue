@@ -4,6 +4,9 @@ import GenreSidebar from '@/components/GenreSidebar.vue';
 import { ref } from 'vue';
 import { useSearchStore } from '@/stores/search';
 
+// Importa los datos de libros desde un archivo JSON o fuente similar
+import booksData from '@/resources/books.json';
+
 const searchStore = useSearchStore();
 
 export default {
@@ -32,26 +35,20 @@ export default {
       }
       console.log('Searching for:', this.searchInput, 'by', this.selectedOption);
 
-      // TODO: Replace with backend call
-      const mockResults = [
-        {
-          title: 'El señor de los anillos',
-          author: 'J.R.R. Tolkien',
-          releaseYear: 1954,
-          cover: 'https://www.openculture.com/?attachment_id=56360',
-        },
-        {
-          title: 'Harry Potter y la piedra filosofal',
-          author: 'J.K. Rowling',
-          releaseYear: 1997,
-          cover: 'https://m.media-amazon.com/images/I/81q77Q39nEL._AC_UF1000,1000_QL80_.jpg',
-        },
-      ];
-
-      this.results = mockResults;
+      // Filtra los libros según la búsqueda
+      this.results = booksData.filter((book) => {
+        if (this.selectedOption === 'title') {
+          return book.title.toLowerCase().includes(this.searchInput.toLowerCase());
+        } else if (this.selectedOption === 'author') {
+          return book.author.toLowerCase().includes(this.searchInput.toLowerCase());
+        } else if (this.selectedOption === 'genre') {
+          return book.genre.toLowerCase().includes(this.searchInput.toLowerCase());
+        }
+        return false;
+      });
     },
-    setSelectedBook(title) {
-      this.selectedBook = title;
+    setSelectedBook(book) {
+      this.selectedBook = book;
     },
   },
 };
@@ -96,22 +93,22 @@ export default {
       <div>
         <h2 class="mb-4">Resultados</h2>
         <div class="container">
-          <div
-            v-for="{ title, author, releaseYear, cover } in results"
-            :key="title"
-            class="row mb-4"
-          >
+          <div v-for="book in results" :key="book.title" class="row mb-4">
             <div class="col-2 text-center">
-              <img alt="Book cover" :src="cover" height="150vh" />
+              <img 
+                alt="Book cover" 
+                :src="book.cover" 
+                height="150vh" 
+              />
             </div>
             <div class="col">
-              <h3 class="text-body-emphasis">{{ title }}</h3>
-              <h5 class="text-body-secondary">{{ author }}</h5>
-              <h5 class="text-body-tertiary">{{ releaseYear }}</h5>
+              <h3 class="text-body-emphasis">{{ book.title }}</h3>
+              <h5 class="text-body-secondary">{{ book.author }}</h5>
+              <h5 class="text-body-tertiary">{{ book.releaseYear }}</h5>
             </div>
             <div class="col-1">
               <button
-                @click="setSelectedBook({ title, author, releaseYear, cover })"
+                @click="setSelectedBook(book)"
                 class="btn btn-sm btn-primary mt-n4 fs-5"
                 data-bs-toggle="modal"
                 data-bs-target="#changeFavouriteBookModal"
@@ -165,15 +162,11 @@ export default {
                 </h5>
                 <div>
                   <h5 class="text-body-emphasis">Sinopsis</h5>
-                  <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    Nullam nec purus nec nunc ultricies tincidunt. Nullam
-                    bibendum, nunc nec ultricies tincidunt,
-                  </p>
+                  <p>{{ selectedBook.sinopsis }}</p>
                 </div>
                 <div>
                   <h5 class="text-body-emphasis">Género</h5>
-                  <p>Lorem, Ipsum, Dolor</p>
+                  <p>{{ selectedBook.genre }}</p>
                 </div>
               </div>
             </div>

@@ -12,22 +12,41 @@
   
   <script>
   import HeaderComponent from '@/components/HeaderComponent.vue';
+  import booksData from '@/resources/books.json';
   
   export default {
     name: 'AllGenresView',
     components: { HeaderComponent },
     data() {
       return {
-        genres: [
-          { name: 'Fantasía', count: 120 },
-          { name: 'Ciencia Ficción', count: 90 },
-          { name: 'Misterio', count: 80 },
-          { name: 'Romance', count: 70 },
-          { name: 'Historia', count: 60 },
-          { name: 'Aventura', count: 50 },
-          // Agrega más géneros según sea necesario
-        ],
+        genres: [], // Aquí almacenaremos los géneros con su cantidad
       };
+    },
+    created() {
+      this.calculateGenres();
+    },
+    methods: {
+      calculateGenres() {
+        const genreCounts = {};
+  
+        // Contamos cuántos libros hay por género
+        booksData.forEach((book) => {
+          if (book.genre) {
+            if (genreCounts[book.genre]) {
+              genreCounts[book.genre]++;
+            } else {
+              genreCounts[book.genre] = 1;
+            }
+          }
+        });
+  
+        // Convertimos los géneros a un array con nombre y cantidad
+        const allGenres = Object.keys(genreCounts)
+          .map((genre) => ({ name: genre, count: genreCounts[genre] }));
+  
+        // Ordenamos los géneros alfabéticamente por su nombre
+        this.genres = allGenres.sort((a, b) => a.name.localeCompare(b.name));
+      },
     },
   };
   </script>
