@@ -38,6 +38,17 @@ const router = createRouter({
       path: '/books',
       name: 'books',
       component: () => import('../views/BooksView.vue'),
+    },
+    {
+      path: '/genres',
+      name: 'all-genres',
+      component: () => import('../views/AllGenresView.vue'),
+    },
+    {
+      path: '/genres/:genreName',
+      name: 'single-genre',
+      component: () => import('../views/SingleGenreView.vue'),
+      props: true,
     }, // Catch-all route - redirect to home
     {
       path: '/:pathMatch(.*)*',
