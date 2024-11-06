@@ -6,7 +6,6 @@ import { useSearchStore } from '@/stores/search'
 import { GET } from '@/utils/fetch_async'
 
 // Importa los datos de libros desde un archivo JSON o fuente similar
-import booksData from '@/resources/books.json'
 
 const searchStore = useSearchStore()
 
@@ -41,11 +40,9 @@ export default {
         null,
         null,
       )
-      console.log('Recibi', this.results)
     },
 
     async searchBooks() {
-      console.log('Me llego: ', this.searchInput)
       if (this.searchInput.length < 3) {
         return
       }
@@ -53,8 +50,14 @@ export default {
 
       await this.fetch_books()
 
+      this.results.forEach((book, index) => {
+        console.log(`Book ${index + 1}:`, book)
+        console.log('Author Name:', book.author_name)
+        console.log('Image URL:', book.image_url)
+      })
+
       // Filtra los libros según la búsqueda
-      this.results = booksData.filter(book => {
+      this.results = this.results.filter(book => {
         if (this.selectedOption === 'title') {
           return book.title
             .toLowerCase()
@@ -121,12 +124,12 @@ export default {
         <div class="container">
           <div v-for="book in results" :key="book.title" class="row mb-4">
             <div class="col-2 text-center">
-              <img alt="Book cover" :src="book.cover" height="150vh" />
+              <img alt="Book cover" :src="book.image_url" height="150vh" />
             </div>
             <div class="col">
               <h3 class="text-body-emphasis">{{ book.title }}</h3>
-              <h5 class="text-body-secondary">{{ book.author }}</h5>
-              <h5 class="text-body-tertiary">{{ book.releaseYear }}</h5>
+              <h5 class="text-body-secondary">{{ book.author_name }}</h5>
+              <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
             </div>
             <div class="col-1">
               <button
@@ -171,25 +174,28 @@ export default {
               <div class="col-4 text-center">
                 <img
                   alt="Book cover"
-                  :src="selectedBook.cover"
+                  :src="selectedBook.image_url"
                   height="300vh"
                   width="auto"
                 />
               </div>
               <div class="col">
                 <h3 class="text-body-emphasis">{{ selectedBook.title }}</h3>
-                <h5 class="text-body-secondary">{{ selectedBook.author }}</h5>
-                <h5 class="text-body-tertiary mb-3">
-                  {{ selectedBook.releaseYear }}
+                <h5 class="text-body-secondary">
+                  {{ selectedBook.author_name }}
                 </h5>
-                <div>
+                <h5 class="text-body-tertiary mb-3">
+                  {{ selectedBook.publication_date }}
+                </h5>
+                <!-- Esta info no la devuelve. Habria que pedirla -->
+                <!-- <div>
                   <h5 class="text-body-emphasis">Sinopsis</h5>
                   <p>{{ selectedBook.sinopsis }}</p>
                 </div>
                 <div>
                   <h5 class="text-body-emphasis">Género</h5>
                   <p>{{ selectedBook.genre }}</p>
-                </div>
+                </div> -->
               </div>
             </div>
           </div>
