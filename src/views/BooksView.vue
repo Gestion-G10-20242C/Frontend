@@ -31,15 +31,10 @@ export default {
     }
   },
   methods: {
-    async fetch_books() {
+    async fetch_books(rel_path) {
       console.log('Buscando...', this.searchInput)
 
-      this.results = await GET(
-        'GET',
-        `/search?query=${this.searchInput}&field=title`,
-        null,
-        null,
-      )
+      this.results = await GET('GET', rel_path, null, null)
     },
 
     async searchBooks() {
@@ -48,12 +43,12 @@ export default {
       }
       console.log('Searching for:', this.searchInput, 'by', this.selectedOption)
 
-      await this.fetch_books()
+      const rel_path = `/search?query=${this.searchInput}&field=${this.selectedOption}`
+
+      await this.fetch_books(rel_path)
 
       this.results.forEach((book, index) => {
         console.log(`Book ${index + 1}:`, book)
-        console.log('Author Name:', book.author_name)
-        console.log('Image URL:', book.image_url)
       })
 
       // Filtra los libros según la búsqueda
@@ -120,26 +115,60 @@ export default {
 
       <!-- Resultados -->
       <div>
-        <h2 class="mb-4">Resultados</h2>
         <div class="container">
-          <div v-for="book in results" :key="book.title" class="row mb-4">
-            <div class="col-2 text-center">
-              <img alt="Book cover" :src="book.image_url" height="150vh" />
+          <div v-if="selectedOption === 'title'">
+            <h2 class="mb-4">Libros</h2>
+            <div v-for="book in results" :key="book.title" class="row mb-4">
+              <div class="col-2 text-center">
+                <img alt="Book cover" :src="book.image_url" height="150vh" />
+              </div>
+              <div class="col">
+                <h3 class="text-body-emphasis">{{ book.title }}</h3>
+                <h5 class="text-body-secondary">{{ book.author_name }}</h5>
+                <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
+              </div>
+              <div class="col-1">
+                <button
+                  @click="setSelectedBook(book)"
+                  class="btn btn-sm btn-primary mt-n4 fs-5"
+                  data-bs-toggle="modal"
+                  data-bs-target="#changeFavouriteBookModal"
+                >
+                  +
+                </button>
+              </div>
             </div>
-            <div class="col">
-              <h3 class="text-body-emphasis">{{ book.title }}</h3>
-              <h5 class="text-body-secondary">{{ book.author_name }}</h5>
-              <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
+          </div>
+          <div v-else-if="selectedOption === 'author'">
+            <h2 class="mb-4">Autores</h2>
+            <div v-for="author in results" :key="author.name" class="row mb-4">
+              <div class="col-2 text-center">
+                <img
+                  alt="Author cover"
+                  :src="author.image_url"
+                  height="150vh"
+                />
+              </div>
+              <div class="col">
+                <h5 class="text-body-secondary">{{ author.name }}</h5>
+                <h5 class="text-body-tertiary">
+                  Published {{ author.amount_books }} books
+                </h5>
+              </div>
             </div>
-            <div class="col-1">
-              <button
-                @click="setSelectedBook(book)"
-                class="btn btn-sm btn-primary mt-n4 fs-5"
-                data-bs-toggle="modal"
-                data-bs-target="#changeFavouriteBookModal"
-              >
-                +
-              </button>
+          </div>
+          <div v-else>
+            <h2 class="mb-4">Generos</h2>
+            <div v-for="genre in results" :key="genre.name" class="row mb-4">
+              <div class="col-2 text-center">
+                <img alt="Author cover" :src="genre.image_url" height="150vh" />
+              </div>
+              <div class="col">
+                <h5 class="text-body-secondary">{{ genre.name }}</h5>
+                <h5 class="text-body-tertiary">
+                  {{ genre.amount_books }} books of this genre
+                </h5>
+              </div>
             </div>
           </div>
         </div>
