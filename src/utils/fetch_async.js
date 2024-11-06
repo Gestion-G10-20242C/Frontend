@@ -23,9 +23,7 @@ export const GET = async (method, relative_path, body, query_params) => {
   try {
     const response = await fetch(url, options)
     const data = await response.json()
-    const parsedBody = JSON.parse(data.body)
-    console.log('Response:', parsedBody)
-    return parsedBody
+    return data
   } catch (error) {
     console.error('Error:', error)
     return null

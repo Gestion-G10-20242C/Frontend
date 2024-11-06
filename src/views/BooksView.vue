@@ -91,7 +91,7 @@ export default {
         <div class="input-group input-group-lg mb-4">
           <input
             v-model="searchInput"
-            @input="searchBooks"
+            @keyup.enter="searchBooks"
             type="text"
             class="form-control"
             aria-label="Sizing example input"
