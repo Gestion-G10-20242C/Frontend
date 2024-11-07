@@ -48,12 +48,8 @@ export default {
         console.log('Access token saved:', parsedBody.access_token)
 
         // Persist the user data in userStore
-        const user = {
-          userName: this.username,
-          profilePicture:
-            'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg',
-        }
-        userStore.logIn(user)
+
+        userStore.logIn(this.username)
 
         // Redirect the user to feed
         this.$router.push('/feed')
@@ -79,7 +75,7 @@ export default {
         />
       </div>
       <div class="d-flex justify-content-center">
-        <h1 class="h3 mb-3 fw-normal">Please log in</h1>
+        <h1 class="h3 mb-3 fw-normal">Inicia Sesión</h1>
       </div>
 
       <div
