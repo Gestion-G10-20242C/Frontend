@@ -150,8 +150,7 @@ export default {
           // Persist the user data in userStore
           const user = {
             userName: this.username,
-            profilePicture:
-              'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg',
+            name: "",
           }
           userStore.logIn(user)
           // Redirect the user to feed
