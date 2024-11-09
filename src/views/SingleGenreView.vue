@@ -15,7 +15,7 @@
           </div>
           <div class="col">
             <h3 class="text-body-emphasis">{{ book.title }}</h3>
-            <h5 class="text-body-secondary">{{ book.author }}</h5>
+            <h5 class="text-body-secondary">{{ book.author_name }}</h5>
             <h5 class="text-body-tertiary">{{ book.releaseYear }}</h5>
           </div>
           <div class="col-1">
@@ -63,7 +63,7 @@
                 </div>
                 <div class="col">
                   <h3 class="text-body-emphasis">{{ selectedBook.title }}</h3>
-                  <h5 class="text-body-secondary">{{ selectedBook.author }}</h5>
+                  <h5 class="text-body-secondary">{{ selectedBook.author_name }}</h5>
                   <h5 class="text-body-tertiary mb-3">
                     {{ selectedBook.releaseYear }}
                   </h5>
@@ -73,7 +73,7 @@
                   </div>
                   <div>
                     <h5 class="text-body-emphasis">Género</h5>
-                    <p>{{ selectedBook.genre }}</p>
+                    <p>{{ selectedBook.genres }}</p>
                   </div>
                 </div>
               </div>
@@ -103,7 +103,7 @@
       const selectedBook = ref({});
       
       // Filtra los libros según el género
-      const filteredBooks = booksData.filter(book => book.genre.toLowerCase() === props.genreName.toLowerCase());
+      const filteredBooks = booksData.filter(book => book.genres.toLowerCase() === props.genreName.toLowerCase());
       
       // Establece el libro seleccionado para el modal
       const setSelectedBook = (book) => {

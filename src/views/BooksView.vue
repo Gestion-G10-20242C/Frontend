@@ -57,12 +57,12 @@ export default {
           return book.title
             .toLowerCase()
             .includes(this.searchInput.toLowerCase())
-        } else if (this.selectedOption === 'author') {
-          return book.author
+        } else if (this.selectedOption === 'author_name') {
+          return book.author_name
             .toLowerCase()
             .includes(this.searchInput.toLowerCase())
-        } else if (this.selectedOption === 'genre') {
-          return book.genre
+        } else if (this.selectedOption === 'genres') {
+          return book.genres
             .toLowerCase()
             .includes(this.searchInput.toLowerCase())
         }
@@ -107,8 +107,8 @@ export default {
             @change="searchBooks"
           >
             <option value="title">Título</option>
-            <option value="author">Autor</option>
-            <option value="genre">Género</option>
+            <option value="author_name">Autor</option>
+            <option value="genres">Género</option>
           </select>
         </div>
       </div>
@@ -139,7 +139,7 @@ export default {
               </div>
             </div>
           </div>
-          <div v-else-if="selectedOption === 'author'">
+          <div v-else-if="selectedOption === 'author_name'">
             <h2 class="mb-4">Autores</h2>
             <div v-for="author in results" :key="author.name" class="row mb-4">
               <div class="col-2 text-center">
@@ -223,7 +223,7 @@ export default {
                 </div>
                 <div>
                   <h5 class="text-body-emphasis">Género</h5>
-                  <p>{{ selectedBook.genre }}</p>
+                  <p>{{ selectedBook.genres }}</p>
                 </div> -->
               </div>
             </div>
