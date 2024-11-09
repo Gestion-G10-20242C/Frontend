@@ -1,7 +1,7 @@
 <script>
 import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted , watch} from 'vue'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 
 export default {
@@ -11,11 +11,12 @@ export default {
   },
   setup() {
     const route = useRoute()
-    const username = route.params.username
+    const username = ref(route.params.username);
     const userStore = useUserStore()
 
     const userFound = ref(false)
-    const isFollowing = ref(false) // Estado para seguir/dejar de seguir
+    const isFollowing = ref(false) 
+    const isLoading = ref(false)
     const userData = reactive({
       name: '',
       profilePicture: '',
@@ -31,9 +32,22 @@ export default {
       readingChallenges: [],
     })
 
+    const newUserData = reactive({
+      name: '',
+      description: '',
+      profilePictureLink: '',
+    })
+
+      // Detectar cambios en la ruta (cuando la URL cambia)
+      watch(() => route.params.username, (newUsername) => {
+      // Actualizar el username y volver a cargar los datos
+      username.value = newUsername
+      fetchUserData()
+    })
+
     // Fetch user data from API
     const fetchUserData = async () => {
-      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}`
+      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username.value}`
       try {
         const response = await fetch(apiUrl)
         if (!response.ok) {
@@ -53,26 +67,24 @@ export default {
         userData.myBooks = data.myBooks || []
         userData.readingChallenges = data.readingChallenges || []
 
+        // Inicializa `newUserData` con los datos de `userData`
+        newUserData.name = userData.name
+        newUserData.description = userData.description
+        newUserData.profilePictureLink = userData.profilePicture
+
         userFound.value = true
         checkIfFollowing() // Verificar si ya sigue al usuario
-        console.log("isFollowing: ", isFollowing.value)
-
       } catch (error) {
         console.error(error)
         userFound.value = false
       }
     }
 
-    // Verificar si el usuario está siguiendo al perfil
     const checkIfFollowing = async () => {
-      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${userStore.userName}/following/${username}`
+      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${userStore.userName}/following/${username.value}`
       try {
         const response = await fetch(apiUrl)
-        if (response.ok) {
-          isFollowing.value = true
-        } else {
-          isFollowing.value = false
-        }
+        isFollowing.value = response.ok
       } catch (error) {
         console.error(error)
       }
@@ -87,7 +99,7 @@ export default {
 
       try {
         const response = await fetch(
-          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUser}/following/${username}`,
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUser}/following/${username.value}`,
           {
             method: 'PATCH',
             headers: {
@@ -115,51 +127,29 @@ export default {
     return {
       userFound,
       userData,
+      newUserData,
       username,
       userStore,
-      newUserData: {
-        name: userData.name,
-        description: userData.description,
-        profilePictureLink: userData.profilePicture,
-      },
       fetchUserData,
       isFollowing,
       toggleFollow, 
+      isLoading,
     }
   },
   methods: {
     async updateUserInfo() {
       console.log('Updating user info');
 
-      // Crear el objeto `updatedData` solo con los campos no vacíos
-      const updatedData = {};
-      if (this.newUserData.name == "") {
-        updatedData.name = this.userData.name;
-      } else {
-        updatedData.name = this.newUserData.name;
+      this.isLoading = true;
+
+      const updatedData = {
+        name: this.newUserData.name || this.userData.name,
+        description: this.newUserData.description || this.userData.description,
+        profilePicture: this.newUserData.profilePictureLink || this.userData.profilePicture,
       }
 
-      if (this.newUserData.description == "") {
-        updatedData.description = this.userData.description;
-      } else {
-        updatedData.description = this.newUserData.description;
-      }
-
-      if (this.newUserData.profilePictureLink == "") {
-        updatedData.profilePicture = this.userData.profilePicture;
-      } else {
-        updatedData.profilePicture = this.newUserData.profilePictureLink;
-      }
-
-      // Verifica si hay datos para actualizar
-      if (Object.keys(updatedData).length === 0) {
-        console.log('No hay cambios para actualizar');
-        return;
-      }
-
-      console.log('User', this.username);
-      const token = localStorage.getItem('access_token');
-      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}`;
+      const token = localStorage.getItem('access_token')
+      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}`
 
       try {
         const response = await fetch(apiUrl, {
@@ -169,29 +159,33 @@ export default {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(updatedData),
-        });
+        })
 
         if (!response.ok) {
-          throw new Error('Error al actualizar la información del usuario');
+          throw new Error('Error al actualizar la información del usuario')
         }
         
-        this.userData.name = updatedData.name;
-        this.userData.description = updatedData.description;
-        this.userData.profilePicture = updatedData.profilePicture;
+        // Actualizar los datos en `userData`
+        this.userData.name = updatedData.name
+        this.userData.description = updatedData.description
+        this.userData.profilePicture = updatedData.profilePicture
 
         // Actualizar el usuario en el store
-        this.userStore.updateUser(updatedData);
+        this.userStore.updateUser(updatedData)
 
         // Cerrar el modal
-        document.getElementById('close-edit-user-info-modal').click();
+        document.getElementById('close-edit-user-info-modal').click()
       } catch (error) {
-        console.error('Error al actualizar:', error);
-        alert('Hubo un problema al actualizar la información del perfil');
+        console.error('Error al actualizar:', error)
+        alert('Hubo un problema al actualizar la información del perfil')
+            } finally {
+        this.isLoading = false;  // Desactivar el estado de carga
       }
     },
   }
 }
 </script>
+
 
 <template>
   <!-- User found -->
@@ -283,7 +277,7 @@ export default {
         </div>
 
         <!-- Grupos -->
-        <div class="col">
+        <div class="col" >
           <h3>Grupos</h3>
           <ul class="list-group">
             <li
@@ -307,7 +301,8 @@ export default {
                     viewBox="0 0 16 16"
                   >
                     <path
-                      d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0m3-2a2 2 0='M1.6 8.3zm" />
+                    d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1zm-7.978-1L7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002-.014.002zM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4m3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0M6.936 9.28a6 6 0 0 0-1.23-.247A7 7 0 0 0 5 9c-4 0-5 3-5 4q0 1 1 1h4.216A2.24 2.24 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816M4.92 10A5.5 5.5 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0"
+                    />
                   </svg>
                 </div>
               </span>
@@ -326,7 +321,7 @@ export default {
       aria-labelledby="editUserInfoModalLabel"
       aria-hidden="true"
     >
-      <div class="modal-dialog">
+      <div class="modal-dialog modal-lg">
         <div class="modal-content">
           <div class="modal-header">
             <h1 class="modal-title fs-5" id="editUserInfoModalLabel">
@@ -342,10 +337,11 @@ export default {
           <div class="modal-body">
             <!-- Profile picture URL input -->
             <div class="input-group mb-3">
-              <label for="profilePictureUrl">Enlace de foto de perfil</label>
+            <span class="input-group-text" id="inputGroup-sizing-default">
+              Enlace de foto de perfil
+              </span>
               <input
                 type="text"
-                id="profilePictureUrl"
                 class="form-control"
                 v-model="newUserData.profilePictureLink"
               />
@@ -364,16 +360,23 @@ export default {
             </div>
           
             <!-- Change description -->
-            <div class="input-group mb-3">
-              <span class="input-group-text" id="inputGroup-sizing-default">
+            <div class="input-group mb-3 h-100">
+              <span class="input-group-text" id="inputGroup-sizing-default" style="min-height: 200px;">
                 Descripción
               </span>
-              <input
+              <textarea
                 type="text"
                 class="form-control"
+                justify-content="flex-start"
                 v-model="newUserData.description"
-              />
+              ></textarea>
             </div>
+
+            <!-- Mostrar mensaje de carga si isLoading es true -->
+            <div v-if="isLoading" class="text-center">
+              <p>Actualizando...</p>
+            </div>
+
           </div>
           <div class="modal-footer">
             <button

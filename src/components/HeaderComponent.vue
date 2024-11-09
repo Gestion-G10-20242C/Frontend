@@ -18,6 +18,11 @@ export default {
       router.push('/books')
     }
 
+    const handleProfileClick = () => {
+      // Forzar la recarga de la ruta actual
+      router.push({ path: '/user/' + userStore.userName, query: { refresh: Date.now() } })
+    }
+
     const setSearchQuery = query => {
       searchStore.setSearchQuery(query)
     }
@@ -28,6 +33,7 @@ export default {
       searchQuery,
       handleSubmit,
       setSearchQuery,
+      handleProfileClick
     }
   },
 }
@@ -128,6 +134,7 @@ export default {
               <RouterLink
                 :to="`/user/${userStore.userName}`"
                 class="dropdown-item"
+                @click="handleProfileClick"
               >
                 Mi Perfil
               </RouterLink>
