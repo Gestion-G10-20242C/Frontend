@@ -166,7 +166,6 @@ export default {
                 <h5 class="text-body-emphasis">{{ book.title }}</h5>
                 <h5 class="text-body-secondary">{{ book.author_name }}</h5>
                 <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
-                </h5>
               </div>
             </div>
           </div>
