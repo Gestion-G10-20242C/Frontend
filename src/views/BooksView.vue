@@ -141,32 +141,31 @@ export default {
           </div>
           <div v-else-if="selectedOption === 'author_name'">
             <h2 class="mb-4">Autores</h2>
-            <div v-for="author in results" :key="author.name" class="row mb-4">
+            <div v-for="book in results" :key="book.name" class="row mb-4">
               <div class="col-2 text-center">
                 <img
-                  alt="Author cover"
-                  :src="author.image_url"
+                  alt="Book cover"
+                  :src="book.image_url"
                   height="150vh"
                 />
               </div>
               <div class="col">
-                <h5 class="text-body-secondary">{{ author.name }}</h5>
-                <h5 class="text-body-tertiary">
-                  Published {{ author.amount_books }} books
-                </h5>
+                <h5 class="text-body-emphasis">{{ book.title }}</h5>
+                <h5 class="text-body-secondary">{{ book.author_name }}</h5>
+                <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
               </div>
             </div>
           </div>
           <div v-else>
             <h2 class="mb-4">Generos</h2>
-            <div v-for="genre in results" :key="genre.name" class="row mb-4">
+            <div v-for="book in results" :key="book.name" class="row mb-4">
               <div class="col-2 text-center">
-                <img alt="Author cover" :src="genre.image_url" height="150vh" />
+                <img alt="Author cover" :src="book.image_url" height="150vh" />
               </div>
               <div class="col">
-                <h5 class="text-body-secondary">{{ genre.name }}</h5>
-                <h5 class="text-body-tertiary">
-                  {{ genre.amount_books }} books of this genre
+                <h5 class="text-body-emphasis">{{ book.title }}</h5>
+                <h5 class="text-body-secondary">{{ book.author_name }}</h5>
+                <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
                 </h5>
               </div>
             </div>
