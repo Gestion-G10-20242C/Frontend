@@ -17,6 +17,7 @@ export default {
     const userFound = ref(false)
     const isFollowing = ref(false) 
     const isLoading = ref(false)
+    let currIndex = -1
     const userData = reactive({
       name: '',
       profilePicture: '',
@@ -32,6 +33,192 @@ export default {
       readingChallenges: [],
     })
 
+    const newBook = ref({
+      id: '',
+      title: '',
+      author: '',
+      cover: '',
+      publishDate: '',
+    });
+
+    const addBook = async () => {
+      const book = {
+        title: newBook.value.title,
+        author: newBook.value.author,
+        cover: newBook.value.cover,
+        publishDate: newBook.value.publishDate,
+      };
+
+      // Add book to user's myBooks
+      userData.myBooks.push(book);
+
+      // Close modal
+      document.getElementById('close-add-book-modal').click();
+
+      // Upload book on database
+
+      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username.value}`
+
+      const token = localStorage.getItem('access_token')
+
+      // Turn userData.myBooks into an array 
+      const myBooks = userData.myBooks.map((book) => {
+        return {
+          title: book.title,
+          cover: book.cover,
+          author: book.author,
+          publishDate: book.publishDate,
+        }
+      })
+
+      const updatedData = {
+        myBooks: myBooks,
+        name: userData.name,
+        description: userData.description,
+        profilePicture: userData.profilePicture,
+      }
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatedData),
+        })
+
+        if (!response.ok) {
+          throw new Error('Error al subir el libro')
+        }
+        console.log('Libro subido con éxito')
+      } catch (error) {
+        console.error('Error al subir el libro:', error)
+      }
+      
+    };
+
+    const setBookIndex = (index) => {
+      currIndex = index
+
+      newBook.value = {
+        title: userData.myBooks[index].title,
+        cover: userData.myBooks[index].cover,
+        author: userData.myBooks[index].author,
+        publishDate: userData.myBooks[index].publishDate,
+      }
+    }
+
+    const getBookIndex = () => {
+      return currIndex
+    }
+
+    const editBook = async (index) => {
+
+      console.log('Editando libro:', index);
+
+      // Actualizar el libro con los nuevos datos
+      const updatedBook = {
+        title: newBook.value.title,
+        cover: newBook.value.cover,
+        publishDate: newBook.value.publishDate,
+        author: newBook.value.author,
+      }
+    
+      // Actualizar el libro en la lista local
+      userData.myBooks.splice(index, 1, updatedBook);
+    
+      // Crear una copia de la lista de libros. Son todos iguales excepto el de indice index
+      const updatedBooks = userData.myBooks.map((book, i) => {
+        if (i === index) {
+          return updatedBook;
+        }
+        return book;
+      });
+
+      // Subir los datos actualizados al backend
+      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username.value}`;
+      const token = localStorage.getItem('access_token');
+    
+      // Prepara los datos actualizados
+      const updatedData = {
+        myBooks: updatedBooks,
+        name: userData.name,
+        description: userData.description,
+        profilePicture: userData.profilePicture,
+      };
+    
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatedData),
+        });
+      
+        if (!response.ok) {
+          throw new Error('Error al actualizar el libro');
+        }
+        console.log('Libro actualizado con éxito');
+
+      } catch (error) {
+        console.error('Error al actualizar el libro:', error);
+      } finally {
+        // Cerrar el modal
+        document.getElementById('editBookModalCloseButton').click();
+      }
+    };
+
+
+    const deleteBook = async (index) => {
+
+      console.log('Eliminando libro:', index);
+
+      // Remove the book from the local list
+      userData.myBooks.splice(index, 1);
+    
+      // Update user data in the database
+      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username.value}`;
+      const token = localStorage.getItem('access_token');
+    
+      // Prepare the updated data
+      const updatedData = {
+        myBooks: userData.myBooks.map(book => ({
+          title: book.title,
+          cover: book.cover,
+          author: book.author,
+          publishDate: book.publishDate,
+        })),
+        name: userData.name,
+        description: userData.description,
+        profilePicture: userData.profilePicture,
+      };
+    
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updatedData),
+        });
+      
+        if (!response.ok) {
+          throw new Error('Error al eliminar el libro');
+        }
+        console.log('Libro eliminado con éxito');
+      } catch (error) {
+        console.error('Error al eliminar el libro:', error);
+      } finally {
+        // Close the modal
+        document.getElementById('deleteBookModalCloseButton').click();
+      }
+    };
+
+
     const newUserData = reactive({
       name: '',
       description: '',
@@ -44,6 +231,7 @@ export default {
       username.value = newUsername
       fetchUserData()
     })
+
 
     // Fetch user data from API
     const fetchUserData = async () => {
@@ -64,7 +252,7 @@ export default {
         }
         userData.groups = data.groups || []
         userData.bookShelf = data.bookShelf || []
-        userData.myBooks = data.myBooks || []
+        userData.myBooks = data.myBooks ? JSON.parse(data.myBooks.replace(/'/g, '"')) : []
         userData.readingChallenges = data.readingChallenges || []
 
         // Inicializa `newUserData` con los datos de `userData`
@@ -72,8 +260,11 @@ export default {
         newUserData.description = userData.description
         newUserData.profilePictureLink = userData.profilePicture
 
+        console.log('User data:', userData)
+        console.log('User books:', userData.myBooks) 
+
         userFound.value = true
-        checkIfFollowing() // Verificar si ya sigue al usuario
+        checkIfFollowing() 
       } catch (error) {
         console.error(error)
         userFound.value = false
@@ -84,7 +275,11 @@ export default {
       const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${userStore.userName}/following/${username.value}`
       try {
         const response = await fetch(apiUrl)
-        isFollowing.value = response.ok
+        if (!response.ok) {
+          throw new Error('Error fetching following data')
+        }
+        const data = await response.json()
+        isFollowing.value = data.active
       } catch (error) {
         console.error(error)
       }
@@ -134,6 +329,12 @@ export default {
       isFollowing,
       toggleFollow, 
       isLoading,
+      addBook,
+      newBook,
+      deleteBook,
+      editBook,
+      setBookIndex,
+      getBookIndex,
     }
   },
   methods: {
@@ -194,14 +395,19 @@ export default {
     <div class="container pt-4">
       <div class="row">
         <div class="col-3 d-flex flex-column align-items-center">
-          <!-- Profile picture -->
-          <img
-            :src="userData.profilePicture"
-            alt="Profile picture"
-            class="logo rounded-circle mx-auto"
-            width="140"
-            height="140"
-          />
+
+          <!-- Profile picture with author badge -->
+          <div class="position-relative">
+            <img
+              :src="userData.profilePicture"
+              alt="Profile picture"
+              class="logo rounded-circle mx-auto"
+              width="140"
+              height="140"
+            />
+            <!-- Display author badge if user has books -->
+            <span v-if="userData.myBooks.length > 0" class="author-badge">Autor</span>
+          </div>
 
           <!-- Name -->
           <h2 class="mb-0">{{ userData.name || username }}</h2>
@@ -232,6 +438,17 @@ export default {
           >
             Editar
           </button>
+
+          <!-- Button to add a new book -->
+          <button
+              v-if="username === userStore.userName"
+              class="btn btn-sm btn-primary mt-2 py-0 w-100"
+              data-bs-toggle="modal"
+              data-bs-target="#addBookModal"
+            >
+              Subir un libro
+            </button>
+          
         </div>
 
         <!-- Favourite book -->
@@ -264,6 +481,50 @@ export default {
           </button>
         </div>
       </div>
+
+      <!-- Books section -->
+      <div class="row mt-4" v-if="userData.myBooks && userData.myBooks.length > 0">
+        <div class="col">
+          <h3>Mis Libros</h3>
+          <div class="row">
+            <div
+              v-for="(book, index) in userData.myBooks"
+              :key="index"
+              class="col-4 mb-4"
+            >
+              <div class="card" style="width: 18rem;">
+                <img :src="book.cover" class="card-img-top" alt="Book cover">
+                <div class="card-body">
+                  <h5 class="card-title">{{ book.title }}</h5>
+                  <p class="card-text">Autor: {{ book.author }}</p>
+                  <p class="card-text">Publicado: {{ book.publishDate }}</p>
+                  <!-- Edit and Delete buttons -->
+                  <button 
+                    v-if="username === userStore.userName"
+                    class="btn btn-sm btn-warning mt-2 me-2"
+                    data-bs-toggle="modal"
+                    data-bs-target="#editBookModal"
+                    @click="setBookIndex(index)"
+                  >
+                    Editar
+                  </button>
+
+                  <button 
+                    v-if="username === userStore.userName"
+                    class="btn btn-sm btn-danger mt-2"
+                    data-bs-toggle="modal"
+                    data-bs-target="#deleteBookModal"
+                    @click="setBookIndex(index)"
+                  >
+                    Eliminar
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
 
       <div class="row mt-4">
         <!-- Biblioteca -->
@@ -399,7 +660,111 @@ export default {
       </div>
     </div>
 
+        <!-- Modal to add a book -->
+        <div
+      v-if="username === userStore.userName"
+      class="modal fade"
+      id="addBookModal"
+      tabindex="-1"
+      aria-labelledby="addBookModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="addBookModalLabel">
+              Subir un libro
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="bookTitle">Título</label>
+              <input type="text" id="bookTitle" class="form-control" v-model="newBook.title" />
+            </div>
+            <div class="form-group">
+              <label for="bookAuthor">Autor</label>
+              <input type="text" id="bookAuthor" class="form-control" v-model="newBook.author" />
+            </div>
+            <div class="form-group">
+              <label for="bookCover">Link de la portada</label>
+              <input type="text" id="bookCover" class="form-control" v-model="newBook.cover" />
+            </div>
+            <div class="form-group">
+              <label for="bookDate">Fecha de publicación</label>
+              <input type="date" id="bookDate" class="form-control" v-model="newBook.publishDate" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button id="close-add-book-modal" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            <button type="button" class="btn btn-primary" @click="addBook">Subir</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Edit Book Modal -->
+    <div class="modal fade" id="editBookModal" tabindex="0" aria-labelledby="editBookModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editBookModalLabel">Editar Libro</h5>
+            <button type="button" id="editBookModalCloseButton" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <input v-model="newBook.title" class="form-control mb-2" placeholder="Título del libro" />
+            <input v-model="newBook.author" class="form-control mb-2" placeholder="Autor" />
+            <input v-model="newBook.cover" class="form-control mb-2" placeholder="Enlace de la portada" />
+            <input v-model="newBook.publishDate" type="date" class="form-control mb-2" placeholder="Fecha de publicación" />
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button @click="editBook(getBookIndex())" type="button" class="btn btn-primary">Guardar cambios</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Delete Book Modal -->
+    <div class="modal fade" id="deleteBookModal" tabindex="0" aria-labelledby="deleteBookModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="deleteBookModalLabel">Eliminar Libro</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <p>¿Estás seguro de que deseas eliminar este libro?</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" id="deleteBookModalCloseButton" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            <button type="button" class="btn btn-danger" @click="deleteBook(getBookIndex())">Eliminar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
 
 
   </template>
 </template>
+
+
+<style scoped>
+.author-badge {
+  top: 0;
+  right: 0;
+  background-color: #ffbb00;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 50%;
+  font-weight: bold;
+  position: absolute;
+  right: -35px;
+}
+</style>
