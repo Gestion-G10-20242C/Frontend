@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 
 export const useSearchStore = defineStore('search', {
   state: () => ({
-    search_query: '', 
+    search_query: '',
   }),
 
   actions: {
@@ -11,7 +11,7 @@ export const useSearchStore = defineStore('search', {
     },
     getSearchQuery() {
       return this.search_query
-    }
+    },
   },
 
   persist: true,
