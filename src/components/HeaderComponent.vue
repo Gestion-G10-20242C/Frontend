@@ -20,7 +20,10 @@ export default {
 
     const handleProfileClick = () => {
       // Forzar la recarga de la ruta actual
-      router.push({ path: '/user/' + userStore.userName, query: { refresh: Date.now() } })
+      router.push({
+        path: '/user/' + userStore.userName,
+        query: { refresh: Date.now() },
+      })
     }
 
     const setSearchQuery = query => {
@@ -33,7 +36,7 @@ export default {
       searchQuery,
       handleSubmit,
       setSearchQuery,
-      handleProfileClick
+      handleProfileClick,
     }
   },
 }

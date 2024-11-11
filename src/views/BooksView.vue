@@ -143,11 +143,7 @@ export default {
             <h2 class="mb-4">Autores</h2>
             <div v-for="book in results" :key="book.name" class="row mb-4">
               <div class="col-2 text-center">
-                <img
-                  alt="Book cover"
-                  :src="book.image_url"
-                  height="150vh"
-                />
+                <img alt="Book cover" :src="book.image_url" height="150vh" />
               </div>
               <div class="col">
                 <h5 class="text-body-emphasis">{{ book.title }}</h5>

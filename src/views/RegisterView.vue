@@ -150,7 +150,7 @@ export default {
           // Persist the user data in userStore
           const user = {
             userName: this.username,
-            name: "",
+            name: '',
           }
           userStore.logIn(user)
           // Redirect the user to feed
