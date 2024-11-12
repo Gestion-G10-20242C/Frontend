@@ -72,6 +72,12 @@ export default {
     setSelectedBook(book) {
       this.selectedBook = book
     },
+    navigateToBook(book) {
+      this.$router.push({
+        name: 'book',
+        params: { isbn: book.isbn },
+      })
+    },
   },
 }
 </script>
@@ -123,7 +129,9 @@ export default {
                 <img alt="Book cover" :src="book.image_url" height="150vh" />
               </div>
               <div class="col">
-                <h3 class="text-body-emphasis">{{ book.title }}</h3>
+                <h3 class="text-body-emphasis" @click="navigateToBook(book)">
+                  {{ book.title }}
+                </h3>
                 <h5 class="text-body-secondary">{{ book.author_name }}</h5>
                 <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
               </div>
@@ -146,7 +154,9 @@ export default {
                 <img alt="Book cover" :src="book.image_url" height="150vh" />
               </div>
               <div class="col">
-                <h5 class="text-body-emphasis">{{ book.title }}</h5>
+                <h3 class="text-body-emphasis" @click="navigateToBook(book)">
+                  {{ book.title }}
+                </h3>
                 <h5 class="text-body-secondary">{{ book.author_name }}</h5>
                 <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
               </div>
@@ -159,7 +169,9 @@ export default {
                 <img alt="Author cover" :src="book.image_url" height="150vh" />
               </div>
               <div class="col">
-                <h5 class="text-body-emphasis">{{ book.title }}</h5>
+                <h3 class="text-body-emphasis" @click="navigateToBook(book)">
+                  {{ book.title }}
+                </h3>
                 <h5 class="text-body-secondary">{{ book.author_name }}</h5>
                 <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
               </div>
