@@ -1,3 +1,39 @@
+<script>
+import HeaderComponent from '@/components/HeaderComponent.vue'
+import { ref } from 'vue'
+import booksData from '@/resources/books.json'
+
+export default {
+  name: 'SingleGenreView',
+  components: { HeaderComponent },
+  props: {
+    genreName: {
+      type: String,
+      required: true,
+    },
+  },
+  setup(props) {
+    const selectedBook = ref({})
+
+    // Filtra los libros según el género
+    const filteredBooks = booksData.filter(
+      book => book.genre.toLowerCase() === props.genreName.toLowerCase(),
+    )
+
+    // Establece el libro seleccionado para el modal
+    const setSelectedBook = book => {
+      selectedBook.value = book
+    }
+
+    return {
+      filteredBooks,
+      setSelectedBook,
+      selectedBook,
+    }
+  },
+}
+</script>
+
 <template>
   <HeaderComponent />
 
@@ -83,41 +119,6 @@
   </div>
 </template>
 
-<script>
-import HeaderComponent from '@/components/HeaderComponent.vue'
-import { ref } from 'vue'
-import booksData from '@/resources/books.json'
-
-export default {
-  name: 'SingleGenreView',
-  components: { HeaderComponent },
-  props: {
-    genreName: {
-      type: String,
-      required: true,
-    },
-  },
-  setup(props) {
-    const selectedBook = ref({})
-
-    // Filtra los libros según el género
-    const filteredBooks = booksData.filter(
-      book => book.genres.toLowerCase() === props.genreName.toLowerCase(),
-    )
-
-    // Establece el libro seleccionado para el modal
-    const setSelectedBook = book => {
-      selectedBook.value = book
-    }
-
-    return {
-      filteredBooks,
-      setSelectedBook,
-      selectedBook,
-    }
-  },
-}
-</script>
 
 <style scoped>
 .container {

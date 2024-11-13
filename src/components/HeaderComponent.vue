@@ -26,6 +26,13 @@ export default {
       })
     }
 
+    const handleConfigClick = () => {
+      router.push({
+        path: '/config',
+        query: { refresh: Date.now() },
+      })
+    }
+
     const setSearchQuery = query => {
       searchStore.setSearchQuery(query)
     }
@@ -37,6 +44,7 @@ export default {
       handleSubmit,
       setSearchQuery,
       handleProfileClick,
+      handleConfigClick,
     }
   },
 }
@@ -132,7 +140,15 @@ export default {
             />
           </a>
           <ul class="dropdown-menu text-small">
-            <li><a class="dropdown-item" href="#">Configuración</a></li>
+            <li>
+              <RouterLink
+                :to="`/user/${userStore.userName}`"
+                class="dropdown-item"
+                @click="handleConfigClick"
+              >
+                Configuración
+              </RouterLink>
+            </li>
             <li>
               <RouterLink
                 :to="`/user/${userStore.userName}`"

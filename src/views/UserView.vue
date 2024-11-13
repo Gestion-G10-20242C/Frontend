@@ -49,9 +49,6 @@ export default {
         publishDate: newBook.value.publishDate,
       }
 
-      // Add book to user's myBooks
-      userData.myBooks.push(book)
-
       // Close modal
       document.getElementById('close-add-book-modal').click()
 
@@ -61,22 +58,10 @@ export default {
 
       const token = localStorage.getItem('access_token')
 
-      // Turn userData.myBooks into an array
-      const myBooks = userData.myBooks.map(book => {
-        return {
-          title: book.title,
-          cover: book.cover,
-          author: book.author,
-          publishDate: book.publishDate,
-        }
-      })
+      const userData = userStore.getUserData()
 
-      const updatedData = {
-        myBooks: myBooks,
-        name: userData.name,
-        description: userData.description,
-        profilePicture: userData.profilePicture,
-      }
+      // Add book to user's myBooks
+      userData.myBooks = [...userData.myBooks, book]
 
       try {
         const response = await fetch(apiUrl, {
@@ -85,12 +70,15 @@ export default {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify(userData),
         })
 
         if (!response.ok) {
           throw new Error('Error al subir el libro')
         }
+
+        userStore.updateUser(userData)
+
         console.log('Libro subido con éxito')
       } catch (error) {
         console.error('Error al subir el libro:', error)
@@ -124,7 +112,7 @@ export default {
       }
 
       // Actualizar el libro en la lista local
-      userData.myBooks.splice(index, 1, updatedBook)
+      const userData = userStore.getUserData()
 
       // Crear una copia de la lista de libros. Son todos iguales excepto el de indice index
       const updatedBooks = userData.myBooks.map((book, i) => {
@@ -134,17 +122,11 @@ export default {
         return book
       })
 
+      userData.myBooks = updatedBooks
+
       // Subir los datos actualizados al backend
       const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username.value}`
       const token = localStorage.getItem('access_token')
-
-      // Prepara los datos actualizados
-      const updatedData = {
-        myBooks: updatedBooks,
-        name: userData.name,
-        description: userData.description,
-        profilePicture: userData.profilePicture,
-      }
 
       try {
         const response = await fetch(apiUrl, {
@@ -153,7 +135,7 @@ export default {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify(userData),
         })
 
         if (!response.ok) {
@@ -171,25 +153,18 @@ export default {
     const deleteBook = async index => {
       console.log('Eliminando libro:', index)
 
+      const userData = userStore.getUserData()
+
+      console.log('userData:', userData)
+
       // Remove the book from the local list
-      userData.myBooks.splice(index, 1)
+      const updatedBooks = userData.myBooks.splice(index, 1)
+
+      userData.myBooks = updatedBooks
 
       // Update user data in the database
       const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username.value}`
       const token = localStorage.getItem('access_token')
-
-      // Prepare the updated data
-      const updatedData = {
-        myBooks: userData.myBooks.map(book => ({
-          title: book.title,
-          cover: book.cover,
-          author: book.author,
-          publishDate: book.publishDate,
-        })),
-        name: userData.name,
-        description: userData.description,
-        profilePicture: userData.profilePicture,
-      }
 
       try {
         const response = await fetch(apiUrl, {
@@ -198,7 +173,7 @@ export default {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify(userData),
         })
 
         if (!response.ok) {
@@ -345,12 +320,11 @@ export default {
 
       this.isLoading = true
 
-      const updatedData = {
-        name: this.newUserData.name || this.userData.name,
-        description: this.newUserData.description || this.userData.description,
-        profilePicture:
-          this.newUserData.profilePictureLink || this.userData.profilePicture,
-      }
+      const userData = this.userStore.getUserData()
+
+      userData.name = this.newUserData.name
+      userData.description = this.newUserData.description
+      userData.profilePicture = this.newUserData.profilePictureLink
 
       const token = localStorage.getItem('access_token')
       const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}`
@@ -362,20 +336,12 @@ export default {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify(userData),
         })
 
         if (!response.ok) {
           throw new Error('Error al actualizar la información del usuario')
         }
-
-        // Actualizar los datos en `userData`
-        this.userData.name = updatedData.name
-        this.userData.description = updatedData.description
-        this.userData.profilePicture = updatedData.profilePicture
-
-        // Actualizar el usuario en el store
-        this.userStore.updateUser(updatedData)
 
         // Cerrar el modal
         document.getElementById('close-edit-user-info-modal').click()

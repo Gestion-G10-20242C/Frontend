@@ -14,6 +14,7 @@ export const useUserStore = defineStore('user', {
     myBooks: [],
     groups: [],
     readingChallenges: [],
+    favouriteGenres: [],
   }),
 
   actions: {
@@ -45,6 +46,14 @@ export const useUserStore = defineStore('user', {
       this.name = ''
       this.description = ''
       this.followingUsers = [] // Limpiar la lista al salir
+      this.favouriteBook = ''
+      this.favouriteBookCover = ''
+      this.favouriteBookReview = ''
+      this.bookShelf = []
+      this.myBooks = []
+      this.groups = []
+      this.readingChallenges = []
+      this.favouriteGenres = []
     },
 
     // Nueva acción para actualizar la información del usuario
@@ -52,6 +61,30 @@ export const useUserStore = defineStore('user', {
       this.name = updatedData.name
       this.profilePicture = updatedData.profilePicture
       this.description = updatedData.description
+      this.myBooks = updatedData.myBooks
+      this.favouriteBook = updatedData.favouriteBook
+      this.favouriteBookCover = updatedData.favouriteBookCover
+      this.favouriteBookReview = updatedData.favouriteBookReview
+      this.bookShelf = updatedData.bookShelf
+      this.groups = updatedData.groups
+      this.readingChallenges = updatedData.readingChallenges
+      this.favouriteGenres = updatedData.favouriteGenres
+    },
+
+    getUserData() {
+      return {
+        name: this.name,
+        profilePicture: this.profilePicture,
+        description: this.description,
+        myBooks: this.myBooks,
+        favouriteBook: this.favouriteBook,
+        favouriteBookCover: this.favouriteBookCover,
+        favouriteBookReview: this.favouriteBookReview,
+        bookShelf: this.bookShelf,
+        groups: this.groups,
+        readingChallenges: this.readingChallenges,
+        favouriteGenres: this.favouriteGenres,
+      }
     },
 
     async resetIfExpired() {
