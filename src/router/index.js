@@ -49,10 +49,21 @@ const router = createRouter({
       name: 'single-genre',
       component: () => import('../views/SingleGenreView.vue'),
       props: true,
-    }, // Catch-all route - redirect to home
+    },
+    {
+      path: '/communities',
+      name: 'communities',
+      component: () => import('../views/FollowCommunitiesView.vue'),
+    },
+    {
+      path: '/communities/:communityName',
+      name: 'community',
+      component: () => import('../views/CommunityView.vue'),
+    },
+    // Catch-all route - redirect to home
     {
       path: '/:pathMatch(.*)*',
-      redirect: '/',
+      redirect: '/feed',
     },
   ],
 })
