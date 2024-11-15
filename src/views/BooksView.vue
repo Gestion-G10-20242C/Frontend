@@ -45,6 +45,8 @@ export default {
 
       const rel_path = `/search?query=${this.searchInput}&field=${this.selectedOption}`
 
+      console.log('Fetching books from:', rel_path)
+
       await this.fetch_books(rel_path)
 
       this.results.forEach((book, index) => {

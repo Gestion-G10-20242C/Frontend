@@ -1,8 +1,9 @@
 <script>
-import { reactive, onMounted } from 'vue'
+import { reactive, onMounted, ref, computed } from 'vue'
+import { GET } from '@/utils/fetch_async'
 import { useUserStore } from '@/stores/user'
 import HeaderComponent from '@/components/HeaderComponent.vue'
-import { useRouter } from 'vue-router' // Importa useRouter
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'FeedView',
@@ -12,8 +13,77 @@ export default {
   setup() {
     const follows = reactive([])
     const userStore = useUserStore()
-    const router = useRouter() // Inicializa el router
+    const router = useRouter()
 
+    // Estado reactivo para almacenar los libros por género
+    const booksByGenre = reactive({})
+    const booksPerPage = 9      // Libros por página
+
+    // Estado reactivo para la página actual de cada género
+    const currentPages = reactive({})
+
+    const genreTranslations = {
+      "fiction": "Ficción",
+      "mystery": "Misterio",
+      "thriller": "Thriller", 
+      "crime": "Crimen",
+      "fantasy" : "Fantasía", 
+      "dark-fantasy" : "Fantasía oscura",
+      "horror" : "Terror",
+      "poetry": "Poesía", 
+      "romance": "Romance",
+      "comics": "Cómics",
+      "graphic": "Novela gráfica",
+      "young-adult": "Jóvenes adultos",
+      "children": "Infantil",
+      "non-fiction": "No ficción",
+      "historical": "Histórico",
+      "biography": "Biografía",
+    };
+
+    const feedFavouriteGenres = JSON.parse(userStore.favouriteGenres.replace(/'/g, '"'))
+
+    // Función para obtener los libros por género con paginación
+    const getBooksOfGenre = async (genre) => {
+      console.log('Buscando libros de género:', genre)
+
+      const relativePath = `/search?query=${encodeURIComponent("The")}&field=title`
+
+      try {
+        const books = await GET('GET', relativePath, null, null) // Obtener los libros
+        booksByGenre[genre] = books // Guardar los libros obtenidos en el estado reactivo
+
+        // Inicializar la página del género
+        if (!(genre in currentPages)) {
+          currentPages[genre] = 1; // Asignar la primera página si no se ha asignado una página aún
+        }
+      } catch (error) {
+        console.error('Error fetching books by genre:', error)
+      }
+    }
+
+    // Función para obtener los libros de un género, controlando las páginas.
+    const getPaginatedBooks = (genre) => {
+      const start = (currentPages[genre] - 1) * booksPerPage
+      const end = start + booksPerPage
+    
+      // Evitar que se solicite más allá del final de la lista de libros
+      if (booksByGenre[genre] && booksByGenre[genre].length > 0) {
+        return booksByGenre[genre].slice(start, end)
+      }
+      return []
+    }
+
+    // Función para cambiar de página para un género específico
+    const changePage = (genre, pageNumber) => {
+      // Asegurarse de que la página no sea menor que 1 ni mayor que el número de páginas disponibles
+      const totalPages = Math.ceil(booksByGenre[genre].length / booksPerPage) 
+      if (pageNumber >= 1 && pageNumber <= totalPages) {
+        currentPages[genre] = pageNumber
+      }
+    }
+
+    // Obtener la lista de usuarios que sigues
     const fetchFollowing = async () => {
       const currentUserName = userStore.userName
       try {
@@ -24,23 +94,32 @@ export default {
           throw new Error('Network response was not ok')
         }
         const data = await response.json()
-
-        console.log(data)
-
-        follows.push(...data) // Suponiendo que la respuesta es un array de usuarios
+        follows.push(...data)
       } catch (error) {
         console.error('Error fetching following:', error)
       }
     }
 
+    // Llamar a fetchFollowing cuando el componente se monte
     onMounted(() => {
-      console.log('User store:', userStore.getUserData())
       fetchFollowing()
+
+      // Llamar a la función para obtener los libros de cada género favorito
+      feedFavouriteGenres.forEach(genre => {
+        getBooksOfGenre(genre)
+      })
     })
 
     return {
       follows,
-      router, // Retorna el router
+      userStore,
+      router,
+      feedFavouriteGenres,
+      genreTranslations,
+      booksByGenre, 
+      currentPages,
+      getPaginatedBooks,
+      changePage,
     }
   },
 }
@@ -52,6 +131,7 @@ export default {
     <div class="row">
       <div class="col feed-column">
         <h1>Feed</h1>
+        <h2>Sigues a ...</h2>
         <div class="list-group">
           <div
             class="list-group-item"
@@ -63,10 +143,36 @@ export default {
               alt="Icono de seguimiento"
               class="follow-icon"
             />
-            <router-link class="user-link" :to="`/user/${user.following}`">{{
-              user.following
-            }}</router-link>
-            <!-- Envolver el nombre en un router-link -->
+            <router-link class="user-link" :to="`/user/${user.following}`">{{ user.following }}</router-link>
+          </div>
+        </div>
+
+        <!-- Mostrar libros por género -->
+        <div v-for="genre in feedFavouriteGenres" :key="genre" class="genre-section">
+          <h2>Te gustan los libros de {{ genreTranslations[genre] }}? Mira estos!</h2>
+          <div class="book-list">
+            <!-- Verificar si ya se cargaron los libros del género -->
+            <div v-if="booksByGenre[genre] && booksByGenre[genre].length > 0" class="horizontal-box">
+              <div v-for="book in getPaginatedBooks(genre)" :key="book.title" class="book-item">
+                <img :src="book.image_url" :alt="book.title" class="book-cover"/>
+                <p>{{ book.title }}</p>
+              </div>
+            </div>
+            <div v-else>
+              <p>No se encontraron libros para este género.</p>
+            </div>
+          </div>
+
+          <div class="pagination">
+            <button 
+              @click="changePage(genre, currentPages[genre] - 1)" 
+              :disabled="currentPages[genre] <= 1">Anterior</button>
+
+            <span>Página {{ currentPages[genre] }}</span>
+
+            <button 
+              @click="changePage(genre, currentPages[genre] + 1)" 
+              :disabled="!booksByGenre[genre] || currentPages[genre] === Math.ceil(booksByGenre[genre].length/booksPerPage)">Siguiente</button>
           </div>
         </div>
       </div>
@@ -82,17 +188,91 @@ export default {
 }
 
 .follow-icon {
-  width: 20px; /* Ajusta el tamaño según lo necesites */
-  height: 20px; /* Ajusta el tamaño según lo necesites */
-  margin-right: 10px; /* Espacio entre el icono y el nombre */
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
 }
 
 .user-link {
-  color: black; /* Cambia el color del texto a negro */
-  text-decoration: none; /* Quita el subrayado del enlace */
+  color: black;
+  text-decoration: none;
 }
 
 .user-link:hover {
-  text-decoration: underline; /* Agrega subrayado al pasar el mouse */
+  text-decoration: underline;
+}
+
+.genre-section {
+  margin-top: 30px;
+}
+
+.book-list {
+  display: center;
+  gap: 20px; /* Espacio entre los libros */
+  padding-bottom: 10px; /* Espacio extra para desplazamiento */
+}
+
+.horizontal-box {
+  display: flex;
+  gap: 20px; /* Espacio entre los libros */
+  overflow-x: auto; /* Permite el desplazamiento horizontal */
+}
+
+.book-item {
+  width: 120px; /* Define un tamaño para las cajas de los libros */
+  white-space: nowrap; /* Impide que el texto se envuelva */
+  overflow: hidden; /* Oculta el texto que se desborda */
+  text-overflow: ellipsis; /* Muestra puntos suspensivos cuando el texto excede el contenedor */
+  display: block; /* Asegura que el contenedor sea un bloque */
+}
+
+.book-item p {
+  text-align: center;
+  margin: 0;
+  padding: 0;
+  font-size: 20px; /* Ajusta el tamaño de la fuente según el espacio */
+  max-width: 120px; /* Limita el ancho del texto al tamaño del contenedor */
+  overflow: hidden; /* Oculta el texto que se desborda */
+  text-overflow: ellipsis; /* Aplica puntos suspensivos si el texto se desborda */
+  white-space: nowrap; /* Evita que el texto se envuelva en varias líneas */
+}
+
+.book-cover {
+  width: 100%;
+  height: 150px;
+  object-fit: cover; /* Mantiene la proporción de la imagen */
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.pagination button {
+  padding: 5px 10px;
+  cursor: pointer;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  font-size: 16px;
+}
+
+.pagination button:disabled {
+  background-color: #d3d3d3; /* Gris claro */
+  cursor: not-allowed;
+}
+
+.pagination button:disabled {
+  background-color: #ccc; /* Gris claro para el botón deshabilitado */
+  cursor: not-allowed;
+}
+
+.pagination span {
+  font-size: 16px;
+  line-height: 36px;
 }
 </style>
+
