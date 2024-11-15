@@ -28,6 +28,7 @@ export const useUserStore = defineStore('user', {
         const data = await response.json()
         this.userName = username
         this.name = data.name || username
+        this.description = data.description || ''
         this.profilePicture =
           data.profilePicture ||
           'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg'

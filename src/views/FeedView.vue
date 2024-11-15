@@ -34,6 +34,7 @@ export default {
     }
 
     onMounted(() => {
+      console.log('User store:', userStore.getUserData())
       fetchFollowing()
     })
 
