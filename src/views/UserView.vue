@@ -61,7 +61,9 @@ export default {
       const userData = userStore.getUserData()
 
       // Add book to user's myBooks
-      userData.myBooks = [...userData.myBooks, book]
+      const books = JSON.parse(userData.myBooks.replace(/'/g, '"'))
+      userData.myBooks = [...books, book]
+
 
       try {
         const response = await fetch(apiUrl, {
@@ -78,8 +80,7 @@ export default {
         }
 
         userStore.updateUser(userData)
-
-        console.log('Libro subido con éxito')
+        fetchUserData()
       } catch (error) {
         console.error('Error al subir el libro:', error)
       }
@@ -158,8 +159,14 @@ export default {
 
       const userData = userStore.getUserData()
 
+      console.log('User data Books:', JSON.parse(userData.myBooks.replace(/'/g, '"')))
+
+      const userDataBooks = JSON.parse(userData.myBooks.replace(/'/g, '"'))
+
       // Remove the book from the local list
-      const updatedBooks = userData.myBooks.splice(index, 1)
+      const updatedBooks = userDataBooks.splice(index, 1)
+
+      console.log('Updated Books:', updatedBooks)
 
       userData.myBooks = updatedBooks
 
@@ -212,7 +219,13 @@ export default {
     // Fetch user data from local Storeage
     const fetchUserData = async () => {
       try {
-        const username = userStore.userName
+        isLoading.value = true
+
+        // Fetch user data from the route
+        const username = route.params.username
+
+        console.log('Fetching user data for:', username)
+
         const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}`
 
         const response = await fetch(apiUrl)
@@ -221,23 +234,47 @@ export default {
         }
         const data = await response.json()
 
-        profileData.name = data.name
-        profileData.description = data.description
-        profileData.profilePicture = data.profilePicture
+        profileData.name = data.name || username
+        profileData.description = data.description || ''
+        profileData.profilePicture = data.profilePicture || 'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg'
         
-        profileData.myBooks = JSON.parse(data.myBooks.replace(/'/g, '"'))
-        profileData.favouriteBook = JSON.parse(data.favouriteBook.replace(/'/g, '"'))
-        profileData.groups = JSON.parse(data.groups.replace(/'/g, '"'))
-        profileData.bookShelf = JSON.parse(data.bookShelf.replace(/'/g, '"'))
-        profileData.readingChallenges = JSON.parse(data.readingChallenges.replace(/'/g, '"'))
+        if (data.myBooks) {
+          console.log('My Books:', data.myBooks)
+          profileData.myBooks = JSON.parse(data.myBooks.replace(/'/g, '"'))
+        }
 
-        // Inicializa `newUserData` con los datos de `userData`
-        newUserData.name = profileData.name
-        newUserData.description = profileData.description
-        newUserData.profilePictureLink = profileData.profilePicture
+        if (data.favouriteBook) {
+          profileData.favouriteBook = JSON.parse(data.favouriteBook.replace(/'/g, '"'))
+        } else {
+          profileData.favouriteBook = {
+            title: 'No hay Libro Favorito',
+            cover: 'https://bookstoreromanceday.org/wp-content/uploads/2020/08/book-cover-placeholder.png',
+            description: '',
+          }
+        }
 
-        // Actualiza local storage
-        userStore.updateUser(data)
+        if (data.groups) {
+          profileData.groups = JSON.parse(data.groups.replace(/'/g, '"'))
+        }
+
+        if (data.bookShelf) {
+          profileData.bookShelf = JSON.parse(data.bookShelf.replace(/'/g, '"'))
+        }
+
+        if (data.readingChallenges) {
+          profileData.readingChallenges = JSON.parse(data.readingChallenges.replace(/'/g, '"'))
+        }
+
+
+        if (username === userStore.userName) {
+          // Inicializa `newUserData` con los datos de `userData`
+          newUserData.name = profileData.name
+          newUserData.description = profileData.description
+          newUserData.profilePictureLink = profileData.profilePicture
+
+          // Si el usuario es el mismo que el usuario actual, actualiza los datos del usuario en el almacenamiento local
+          userStore.updateUser(data)
+        }
 
         userFound.value = true
         checkIfFollowing()

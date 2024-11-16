@@ -1,13 +1,11 @@
 <script>
-import HeaderComponent from '@/components/HeaderComponent.vue'
-import GenreSidebar from '@/components/GenreSidebar.vue'
-import { ref } from 'vue'
-import { useSearchStore } from '@/stores/search'
-import { GET } from '@/utils/fetch_async'
+import HeaderComponent from '@/components/HeaderComponent.vue';
+import GenreSidebar from '@/components/GenreSidebar.vue';
+import { ref } from 'vue';
+import { useSearchStore } from '@/stores/search';
+import { GET } from '@/utils/fetch_async';
 
-// Importa los datos de libros desde un archivo JSON o fuente similar
-
-const searchStore = useSearchStore()
+const searchStore = useSearchStore();
 
 export default {
   name: 'BooksView',
@@ -18,70 +16,88 @@ export default {
   setup() {
     const searchInput = ref(
       searchStore.getSearchQuery() ? searchStore.getSearchQuery() : '',
-    )
-    const selectedOption = ref('title')
-    var results = ref([])
-    const selectedBook = ref({})
+    );
+    const selectedOption = ref('title');
+    const results = ref([]);
+    const selectedBook = ref({});
+    const errorMessage = ref('');
 
     return {
       searchInput,
       selectedOption,
       results,
       selectedBook,
-    }
+      errorMessage,
+    };
   },
   methods: {
     async fetch_books(rel_path) {
-      console.log('Buscando...', this.searchInput)
+      console.log('Buscando...', this.searchInput);
 
-      this.results = await GET('GET', rel_path, null, null)
+      try {
+        const response = await GET('GET', rel_path, null, null);
+
+        if (!response || response.error) {
+          throw new Error('Error al obtener datos del servidor');
+        }
+
+        this.results = response;
+        
+        if (this.results.message) {
+          this.errorMessage = 'Hubo un problema al obtener los libros. Intenta nuevamente más tarde.';
+        } else {
+          this.errorMessage = '';
+        }
+
+      } catch (error) {
+        console.error('Error al obtener libros:', error);
+      }
     },
 
     async searchBooks() {
       if (this.searchInput.length < 3) {
-        return
+        return;
       }
-      console.log('Searching for:', this.searchInput, 'by', this.selectedOption)
+      console.log('Searching for:', this.searchInput, 'by', this.selectedOption);
 
-      const rel_path = `/search?query=${this.searchInput}&field=${this.selectedOption}`
+      const rel_path = `/search?query=${this.searchInput}&field=${this.selectedOption}`;
+      console.log('Fetching books from:', rel_path);
 
-      console.log('Fetching books from:', rel_path)
+      await this.fetch_books(rel_path);
 
-      await this.fetch_books(rel_path)
-
-      this.results.forEach((book, index) => {
-        console.log(`Book ${index + 1}:`, book)
-      })
-
-      // Filtra los libros según la búsqueda
-      this.results = this.results.filter(book => {
-        if (this.selectedOption === 'title') {
-          return book.title
-            .toLowerCase()
-            .includes(this.searchInput.toLowerCase())
-        } else if (this.selectedOption === 'author_name') {
-          return book.author_name
-            .toLowerCase()
-            .includes(this.searchInput.toLowerCase())
-        } else if (this.selectedOption === 'genres') {
-          return book.genres
-            .toLowerCase()
-            .includes(this.searchInput.toLowerCase())
-        }
-        return false
-      })
+      if (!this.errorMessage) {
+        // Filtra los libros según la búsqueda solo si no hubo errores
+        this.results = this.results.filter((book) => {
+          if (this.selectedOption === 'title') {
+            return book.title
+              .toLowerCase()
+              .includes(this.searchInput.toLowerCase());
+          } else if (this.selectedOption === 'author_name') {
+            return book.author_name
+              .toLowerCase()
+              .includes(this.searchInput.toLowerCase());
+          } else if (this.selectedOption === 'genres') {
+            return book.genres
+              .toLowerCase()
+              .includes(this.searchInput.toLowerCase());
+          }
+          return false;
+        });
+      }
     },
+
     setSelectedBook(book) {
-      this.selectedBook = book
+      this.selectedBook = book;
     },
+
     navigateToBook(book) {
       this.$router.push({
         name: 'book',
         params: { isbn: book.isbn },
-      })
+      });
     },
   },
-}
+};
 </script>
 
 <template>
@@ -121,10 +137,26 @@ export default {
         </div>
       </div>
 
+      <!-- Mensaje de error -->
+      <div v-if="errorMessage">
+        <div v-if="selectedOption === 'title'">
+          <h2>Libros</h2>
+        </div>
+        <div v-else-if="selectedOption === 'author_name'">
+          <h2>Autores</h2>
+        </div>
+        <div v-else-if="selectedOption === 'genres'">
+          <h2>Géneros</h2>
+        </div>
+        <div class="alert alert-danger">
+        {{ errorMessage }}
+        </div>
+      </div>
+
       <!-- Resultados -->
       <div>
         <div class="container">
-          <div v-if="selectedOption === 'title'">
+          <div v-if="selectedOption === 'title' && !errorMessage">
             <h2 class="mb-4">Libros</h2>
             <div v-for="book in results" :key="book.title" class="row mb-4">
               <div class="col-2 text-center">
@@ -149,7 +181,7 @@ export default {
               </div>
             </div>
           </div>
-          <div v-else-if="selectedOption === 'author_name'">
+          <div v-else-if="selectedOption === 'author_name' && !errorMessage">
             <h2 class="mb-4">Autores</h2>
             <div v-for="book in results" :key="book.name" class="row mb-4">
               <div class="col-2 text-center">
@@ -164,7 +196,7 @@ export default {
               </div>
             </div>
           </div>
-          <div v-else>
+          <div v-else-if="!errorMessage">
             <h2 class="mb-4">Generos</h2>
             <div v-for="book in results" :key="book.name" class="row mb-4">
               <div class="col-2 text-center">
@@ -224,15 +256,10 @@ export default {
                 <h5 class="text-body-tertiary mb-3">
                   {{ selectedBook.publication_date }}
                 </h5>
-                <!-- Esta info no la devuelve. Habria que pedirla -->
-                <!-- <div>
-                  <h5 class="text-body-emphasis">Sinopsis</h5>
-                  <p>{{ selectedBook.sinopsis }}</p>
-                </div>
                 <div>
                   <h5 class="text-body-emphasis">Género</h5>
                   <p>{{ selectedBook.genres }}</p>
-                </div> -->
+                </div>
               </div>
             </div>
           </div>

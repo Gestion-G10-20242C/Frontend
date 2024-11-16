@@ -1,6 +1,5 @@
 <script>
-import { reactive, onMounted, ref, computed } from 'vue'
-import { GET } from '@/utils/fetch_async'
+import { ref, reactive, onMounted} from 'vue'
 import { useUserStore } from '@/stores/user'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import { useRouter } from 'vue-router'
@@ -14,6 +13,7 @@ export default {
     const follows = reactive([])
     const userStore = useUserStore()
     const router = useRouter()
+    const errorMessage = ref('');
 
     // Estado reactivo para almacenar los libros por género
     const booksByGenre = reactive({})
@@ -43,22 +43,32 @@ export default {
 
     const feedFavouriteGenres = JSON.parse(userStore.favouriteGenres.replace(/'/g, '"'))
 
-    // Función para obtener los libros por género con paginación
+    // Función para obtener los libros por género 
     const getBooksOfGenre = async (genre) => {
       console.log('Buscando libros de género:', genre)
 
-      const relativePath = `/search?query=${encodeURIComponent("The")}&field=title`
+      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/search?query=${genre}&field=genres`
+      const token = localStorage.getItem('access_token')
 
       try {
-        const books = await GET('GET', relativePath, null, null) // Obtener los libros
-        booksByGenre[genre] = books // Guardar los libros obtenidos en el estado reactivo
-
-        // Inicializar la página del género
-        if (!(genre in currentPages)) {
-          currentPages[genre] = 1; // Asignar la primera página si no se ha asignado una página aún
+        const response = await fetch(apiUrl,
+          {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+          }
+        )
+        if (!response.ok) {
+          throw new Error('Error fetching following data')
         }
+        const data = await response.json()
+        console.log(data)
+        errorMessage.value = ''; // Limpia el mensaje de error en caso de éxito
       } catch (error) {
-        console.error('Error fetching books by genre:', error)
+        console.error(error)
+        errorMessage.value = 'Hubo un problema al obtener los libros. Intenta nuevamente más tarde.';
       }
     }
 
@@ -120,6 +130,7 @@ export default {
       currentPages,
       getPaginatedBooks,
       changePage,
+      errorMessage,
     }
   },
 }
@@ -158,6 +169,10 @@ export default {
                 <p>{{ book.title }}</p>
               </div>
             </div>
+            <!-- Mensaje de error -->
+              <div v-if="errorMessage" class="alert alert-danger">
+                {{ errorMessage }}
+              </div>
             <div v-else>
               <p>No se encontraron libros para este género.</p>
             </div>
