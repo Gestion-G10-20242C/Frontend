@@ -16,17 +16,18 @@ export default {
     }
   },
   async mounted() {
+    console.log('ISBN:', this.isbn)
     await this.fetchBookDetails()
   },
   methods: {
     async fetchBookDetails() {
       console.log('Isbn:', this.isbn)
       const relativePath = `/search?query=${encodeURIComponent(this.isbn)}&field=isbn`
-      const book = await GET('GET', relativePath, null, null)
-      console.log('Book:', book)
+      const data = await GET('GET', relativePath, null, null)
 
-      if (book && book.length > 0) {
-        this.book = book[0]
+      if (data && data.books.length > 0) {
+        console.log('Book:', data.books[0])
+        this.book = data.books[0]
       } else {
         this.error = true // Marca error si no se encuentran libros
       }

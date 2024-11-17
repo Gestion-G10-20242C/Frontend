@@ -1,6 +1,6 @@
 <script>
-import { useUserStore } from '@/stores/user'; 
-import HeaderComponent from '@/components/HeaderComponent.vue';
+import { useUserStore } from '@/stores/user'
+import HeaderComponent from '@/components/HeaderComponent.vue'
 
 export default {
   name: 'ConfigView',
@@ -8,144 +8,148 @@ export default {
     HeaderComponent,
   },
   setup() {
-    const userStore = useUserStore();
-    
+    const userStore = useUserStore()
+
     const genreTranslations = {
-      "fiction": "Ficción",
-      "mystery": "Misterio",
-      "thriller": "Thriller", 
-      "crime": "Crimen",
-      "fantasy" : "Fantasía", 
-      "dark-fantasy" : "Fantasía oscura",
-      "horror" : "Terror",
-      "poetry": "Poesía", 
-      "romance": "Romance",
-      "comics": "Cómics",
-      "graphic": "Novela gráfica",
-      "young-adult": "Jóvenes adultos",
-      "children": "Infantil",
-      "non-fiction": "No ficción",
-      "historical": "Histórico",
-      "biography": "Biografía",
-    };
+      fiction: 'Ficción',
+      mystery: 'Misterio',
+      thriller: 'Thriller',
+      crime: 'Crimen',
+      fantasy: 'Fantasía',
+      'dark-fantasy': 'Fantasía oscura',
+      horror: 'Terror',
+      poetry: 'Poesía',
+      romance: 'Romance',
+      comics: 'Cómics',
+      graphic: 'Novela gráfica',
+      'young-adult': 'Jóvenes adultos',
+      children: 'Infantil',
+      'non-fiction': 'No ficción',
+      historical: 'Histórico',
+      biography: 'Biografía',
+    }
 
     return {
       userStore,
       genreTranslations,
-    };
+    }
   },
   data() {
     return {
       selectedGenres: [], // Géneros seleccionados por el usuario
       isModalOpen: false, // Estado del modal
       availableGenres: [], // Géneros disponibles para seleccionar
-    };
+    }
   },
   mounted() {
-    this.selectedGenres = [...this.userPreferredGenres]; // Carga los géneros seleccionados al montar el componente
+    this.selectedGenres = [...this.userPreferredGenres] // Carga los géneros seleccionados al montar el componente
   },
   computed: {
-    // Obtener los géneros preferidos del usuario 
+    // Obtener los géneros preferidos del usuario
     userPreferredGenres() {
-      return JSON.parse(this.userStore.favouriteGenres.replace(/'/g, '"'));
+      return JSON.parse(this.userStore.favouriteGenres.replace(/'/g, '"'))
     },
     // Dividir géneros disponibles en columnas de 5
     genreColumns() {
-      const columns = [];
+      const columns = []
       for (let i = 0; i < this.availableGenres.length; i += 5) {
-        columns.push(this.availableGenres.slice(i, i + 5));
+        columns.push(this.availableGenres.slice(i, i + 5))
       }
-      return columns;
+      return columns
     },
   },
   methods: {
     toggleGenreSelection(genre) {
       if (this.selectedGenres.includes(genre)) {
-        this.selectedGenres = this.selectedGenres.filter((g) => g !== genre);
+        this.selectedGenres = this.selectedGenres.filter(g => g !== genre)
       } else {
-        this.selectedGenres.push(genre);
+        this.selectedGenres.push(genre)
       }
     },
 
     async fetchGenres() {
-      this.selectedGenres = [...this.userStore.favouriteGenres];
+      this.selectedGenres = [...this.userStore.favouriteGenres]
     },
 
     openEditGenresModal() {
-      this.fetchAllGenres(); // Llamada a la función para cargar los géneros
-      this.isModalOpen = true;
+      this.fetchAllGenres() // Llamada a la función para cargar los géneros
+      this.isModalOpen = true
     },
 
     async fetchAllGenres() {
-      const url = 'https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/book/genres';
-      const response = await fetch(url);
+      const url =
+        'https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/book/genres'
+      const response = await fetch(url)
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error('Network response was not ok')
       }
-      const data = await response.json();
-      const genresData = data.body.genres;
-      const genres = [];
-    
-      genresData.forEach((genreObj) => {
-        const genreList = genreObj.genre.split(', ');
-        genres.push(...genreList);
-      });
-    
-      this.availableGenres = genres;
+      const data = await response.json()
+      const genresData = data.body.genres
+      const genres = []
 
-      this.selectedGenres = [...this.userPreferredGenres];
+      genresData.forEach(genreObj => {
+        const genreList = genreObj.genre.split(', ')
+        genres.push(...genreList)
+      })
+
+      this.availableGenres = genres
+
+      this.selectedGenres = [...this.userPreferredGenres]
     },
-    
+
     async saveGenres() {
-      const token = localStorage.getItem('access_token');
-      const username = this.userStore.userName;
+      const token = localStorage.getItem('access_token')
+      const username = this.userStore.userName
 
-      const userData = this.userStore.getUserData();
+      const userData = this.userStore.getUserData()
 
-      console.log('User data:', this.selectedGenres);
+      console.log('User data:', this.selectedGenres)
 
-      userData.favouriteGenres = this.selectedGenres;
+      userData.favouriteGenres = this.selectedGenres
 
-      console.log('User data:', userData);
+      console.log('User data:', userData)
 
       try {
-        await this.saveFavouriteGenres(username, token, userData);
-        this.userStore.favouriteGenres = JSON.stringify(this.selectedGenres); // Actualiza el store
+        await this.saveFavouriteGenres(username, token, userData)
+        this.userStore.favouriteGenres = JSON.stringify(this.selectedGenres) // Actualiza el store
       } catch (error) {
-        console.error('Error saving genres:', error);
+        console.error('Error saving genres:', error)
       } finally {
-        this.fetchGenres(); 
-        this.isModalOpen = false;
+        this.fetchGenres()
+        this.isModalOpen = false
       }
     },
 
     closeEditGenresModal() {
-      this.isModalOpen = false;
+      this.isModalOpen = false
     },
 
     async saveFavouriteGenres(username, token, userData) {
       try {
-        const response = await fetch(`https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
+        const response = await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${token}`,
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(userData),
           },
-          body: JSON.stringify(userData),
-        });
+        )
 
         if (!response.ok) {
-          throw new Error('No se pudo guardar los géneros favoritos');
+          throw new Error('No se pudo guardar los géneros favoritos')
         }
 
-        const data = await response.json();
-        return data; // Retorna la respuesta de la API (si es necesario)
+        const data = await response.json()
+        return data // Retorna la respuesta de la API (si es necesario)
       } catch (error) {
-        console.error('Error saving favourite genres:', error);
+        console.error('Error saving favourite genres:', error)
       }
     },
   },
-};
+}
 </script>
 
 <template>
@@ -180,12 +184,16 @@ export default {
           <h3>Selecciona tus géneros</h3>
           <div class="genre-selection">
             <div class="columns">
-              <div v-for="(column, columnIndex) in genreColumns" :key="columnIndex" class="column">
+              <div
+                v-for="(column, columnIndex) in genreColumns"
+                :key="columnIndex"
+                class="column"
+              >
                 <button
                   v-for="genre in column"
                   :key="genre"
                   class="genre-button"
-                  :class="{'selected': selectedGenres.includes(genre)}"
+                  :class="{ selected: selectedGenres.includes(genre) }"
                   @click="toggleGenreSelection(genre)"
                 >
                   <span>{{ genreTranslations[genre] || genre }}</span>
@@ -211,8 +219,12 @@ export default {
             </div>
           </div>
           <div class="modal-buttons">
-            <button @click="saveGenres" class="btn btn-success">Guardar cambios</button>
-            <button @click="closeEditGenresModal" class="btn btn-secondary">Cerrar</button>
+            <button @click="saveGenres" class="btn btn-success">
+              Guardar cambios
+            </button>
+            <button @click="closeEditGenresModal" class="btn btn-secondary">
+              Cerrar
+            </button>
           </div>
         </div>
       </div>
@@ -286,7 +298,7 @@ export default {
 }
 
 .genre-button.selected {
-  background: #FFC300;
+  background: #ffc300;
   color: black;
 }
 

@@ -1,11 +1,11 @@
 <script>
-import HeaderComponent from '@/components/HeaderComponent.vue';
-import GenreSidebar from '@/components/GenreSidebar.vue';
-import { ref } from 'vue';
-import { useSearchStore } from '@/stores/search';
-import { GET } from '@/utils/fetch_async';
+import HeaderComponent from '@/components/HeaderComponent.vue'
+import GenreSidebar from '@/components/GenreSidebar.vue'
+import { ref } from 'vue'
+import { useSearchStore } from '@/stores/search'
+import { GET } from '@/utils/fetch_async'
 
-const searchStore = useSearchStore();
+const searchStore = useSearchStore()
 
 export default {
   name: 'BooksView',
@@ -14,13 +14,13 @@ export default {
     GenreSidebar,
   },
   setup() {
-    const searchInput = ref(
-      searchStore.getSearchQuery() ? searchStore.getSearchQuery() : '',
-    );
-    const selectedOption = ref('title');
-    const results = ref([]);
-    const selectedBook = ref({});
-    const errorMessage = ref('');
+    const searchInput = ref(searchStore.getSearchQuery() || '')
+    const selectedOption = ref('title')
+    const results = ref([])
+    const selectedBook = ref({})
+    const errorMessage = ref('')
+    const hasSearched = ref(false)
+    const isLoading = ref(false) // Estado de carga
 
     return {
       searchInput,
@@ -28,76 +28,87 @@ export default {
       results,
       selectedBook,
       errorMessage,
-    };
+      hasSearched,
+      isLoading, // Exportar la variable
+    }
   },
   methods: {
     async fetch_books(rel_path) {
-      console.log('Buscando...', this.searchInput);
+      console.log('Buscando...', this.searchInput)
 
       try {
-        const response = await GET('GET', rel_path, null, null);
+        const response = await GET('GET', rel_path, null, null)
 
         if (!response || response.error) {
-          throw new Error('Error al obtener datos del servidor');
+          throw new Error('Error al obtener datos del servidor')
         }
 
-        this.results = response;
-        
+        this.results = response.books
+
         if (this.results.message) {
-          this.errorMessage = 'Hubo un problema al obtener los libros. Intenta nuevamente más tarde.';
+          this.errorMessage =
+            'Hubo un problema al obtener los libros. Intenta nuevamente más tarde.'
         } else {
-          this.errorMessage = '';
+          this.errorMessage = ''
         }
-
       } catch (error) {
-        console.error('Error al obtener libros:', error);
+        console.error('Error al obtener libros:', error)
       }
     },
 
     async searchBooks() {
       if (this.searchInput.length < 3) {
-        return;
+        return
       }
-      console.log('Searching for:', this.searchInput, 'by', this.selectedOption);
 
-      const rel_path = `/search?query=${this.searchInput}&field=${this.selectedOption}`;
-      console.log('Fetching books from:', rel_path);
+      this.hasSearched = true
+      this.isLoading = true // Activa el estado de carga
+      console.log('Searching for:', this.searchInput, 'by', this.selectedOption)
 
-      await this.fetch_books(rel_path);
+      if (this.selectedOption === 'genres') {
+        this.searchInput = this.searchInput.toLowerCase()
+      }
+
+      const rel_path = `/search?query=${this.searchInput}&field=${this.selectedOption}`
+      console.log('Fetching books from:', rel_path)
+
+      await this.fetch_books(rel_path)
 
       if (!this.errorMessage) {
         // Filtra los libros según la búsqueda solo si no hubo errores
-        this.results = this.results.filter((book) => {
+        this.results = this.results.filter(book => {
           if (this.selectedOption === 'title') {
             return book.title
               .toLowerCase()
-              .includes(this.searchInput.toLowerCase());
+              .includes(this.searchInput.toLowerCase())
           } else if (this.selectedOption === 'author_name') {
             return book.author_name
               .toLowerCase()
-              .includes(this.searchInput.toLowerCase());
+              .includes(this.searchInput.toLowerCase())
           } else if (this.selectedOption === 'genres') {
             return book.genres
               .toLowerCase()
-              .includes(this.searchInput.toLowerCase());
+              .includes(this.searchInput.toLowerCase())
           }
-          return false;
-        });
+          return false
+        })
       }
+
+      this.isLoading = false // Desactiva el estado de carga
     },
 
     setSelectedBook(book) {
-      this.selectedBook = book;
+      this.selectedBook = book
     },
 
     navigateToBook(book) {
       this.$router.push({
         name: 'book',
         params: { isbn: book.isbn },
-      });
+      })
     },
   },
-};
+}
 </script>
 
 <template>
@@ -137,27 +148,24 @@ export default {
         </div>
       </div>
 
+      <!-- Rueda de carga -->
+      <div v-if="isLoading" class="text-center my-5">
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+
       <!-- Mensaje de error -->
-      <div v-if="errorMessage">
-        <div v-if="selectedOption === 'title'">
-          <h2>Libros</h2>
-        </div>
-        <div v-else-if="selectedOption === 'author_name'">
-          <h2>Autores</h2>
-        </div>
-        <div v-else-if="selectedOption === 'genres'">
-          <h2>Géneros</h2>
-        </div>
+      <div v-if="errorMessage && !isLoading">
         <div class="alert alert-danger">
-        {{ errorMessage }}
+          {{ errorMessage }}
         </div>
       </div>
 
       <!-- Resultados -->
-      <div>
+      <div v-else-if="!isLoading">
         <div class="container">
-          <div v-if="selectedOption === 'title' && !errorMessage">
-            <h2 class="mb-4">Libros</h2>
+          <div v-if="results.length > 0">
             <div v-for="book in results" :key="book.title" class="row mb-4">
               <div class="col-2 text-center">
                 <img alt="Book cover" :src="book.image_url" height="150vh" />
@@ -169,109 +177,27 @@ export default {
                 <h5 class="text-body-secondary">{{ book.author_name }}</h5>
                 <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
               </div>
-              <div class="col-1">
-                <button
-                  @click="setSelectedBook(book)"
-                  class="btn btn-sm btn-primary mt-n4 fs-5"
-                  data-bs-toggle="modal"
-                  data-bs-target="#changeFavouriteBookModal"
-                >
-                  +
-                </button>
-              </div>
             </div>
           </div>
-          <div v-else-if="selectedOption === 'author_name' && !errorMessage">
-            <h2 class="mb-4">Autores</h2>
-            <div v-for="book in results" :key="book.name" class="row mb-4">
-              <div class="col-2 text-center">
-                <img alt="Book cover" :src="book.image_url" height="150vh" />
-              </div>
-              <div class="col">
-                <h3 class="text-body-emphasis" @click="navigateToBook(book)">
-                  {{ book.title }}
-                </h3>
-                <h5 class="text-body-secondary">{{ book.author_name }}</h5>
-                <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
-              </div>
-            </div>
-          </div>
-          <div v-else-if="!errorMessage">
-            <h2 class="mb-4">Generos</h2>
-            <div v-for="book in results" :key="book.name" class="row mb-4">
-              <div class="col-2 text-center">
-                <img alt="Author cover" :src="book.image_url" height="150vh" />
-              </div>
-              <div class="col">
-                <h3 class="text-body-emphasis" @click="navigateToBook(book)">
-                  {{ book.title }}
-                </h3>
-                <h5 class="text-body-secondary">{{ book.author_name }}</h5>
-                <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
-              </div>
-            </div>
+          <div v-else>
+            <h3>Sin resultados</h3>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Barra de Géneros -->
     <GenreSidebar />
-  </div>
-
-  <!-- Modal Libro seleccionado -->
-  <div
-    class="modal fade"
-    id="changeFavouriteBookModal"
-    tabindex="-1"
-    aria-labelledby="changeFavouriteBookModalLabel"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog modal-xl">
-      <div class="modal-content">
-        <div class="modal-header">
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
-        </div>
-        <div class="modal-body">
-          <div class="container">
-            <div class="row">
-              <div class="col-4 text-center">
-                <img
-                  alt="Book cover"
-                  :src="selectedBook.image_url"
-                  height="300vh"
-                  width="auto"
-                />
-              </div>
-              <div class="col">
-                <h3 class="text-body-emphasis">{{ selectedBook.title }}</h3>
-                <h5 class="text-body-secondary">
-                  {{ selectedBook.author_name }}
-                </h5>
-                <h5 class="text-body-tertiary mb-3">
-                  {{ selectedBook.publication_date }}
-                </h5>
-                <div>
-                  <h5 class="text-body-emphasis">Género</h5>
-                  <p>{{ selectedBook.genres }}</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer"></div>
-      </div>
-    </div>
   </div>
 </template>
 
 <style scoped>
 .main-content {
   width: 70%;
+}
+
+.spinner-border {
+  width: 3rem;
+  height: 3rem;
+  color: #007bff;
 }
 </style>

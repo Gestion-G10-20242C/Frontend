@@ -1,5 +1,5 @@
 <script>
-import { ref, reactive, onMounted} from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import { useRouter } from 'vue-router'
@@ -13,71 +13,82 @@ export default {
     const follows = reactive([])
     const userStore = useUserStore()
     const router = useRouter()
-    const errorMessage = ref('');
+    const errorMessage = ref('')
 
     // Estado reactivo para almacenar los libros por género
     const booksByGenre = reactive({})
-    const booksPerPage = 9      // Libros por página
+    const booksPerPage = 9 // Libros por página
 
     // Estado reactivo para la página actual de cada género
     const currentPages = reactive({})
 
     const genreTranslations = {
-      "fiction": "Ficción",
-      "mystery": "Misterio",
-      "thriller": "Thriller", 
-      "crime": "Crimen",
-      "fantasy" : "Fantasía", 
-      "dark-fantasy" : "Fantasía oscura",
-      "horror" : "Terror",
-      "poetry": "Poesía", 
-      "romance": "Romance",
-      "comics": "Cómics",
-      "graphic": "Novela gráfica",
-      "young-adult": "Jóvenes adultos",
-      "children": "Infantil",
-      "non-fiction": "No ficción",
-      "historical": "Histórico",
-      "biography": "Biografía",
-    };
+      fiction: 'Ficción',
+      mystery: 'Misterio',
+      thriller: 'Thriller',
+      crime: 'Crimen',
+      fantasy: 'Fantasía',
+      'dark-fantasy': 'Fantasía oscura',
+      horror: 'Terror',
+      poetry: 'Poesía',
+      romance: 'Romance',
+      comics: 'Cómics',
+      graphic: 'Novela gráfica',
+      'young-adult': 'Jóvenes adultos',
+      children: 'Infantil',
+      'non-fiction': 'No ficción',
+      historical: 'Histórico',
+      biography: 'Biografía',
+    }
 
-    const feedFavouriteGenres = JSON.parse(userStore.favouriteGenres.replace(/'/g, '"'))
+    // Convertir géneros favoritos desde el store
+    const feedFavouriteGenres = JSON.parse(
+      userStore.favouriteGenres.replace(/'/g, '"'),
+    )
 
-    // Función para obtener los libros por género 
-    const getBooksOfGenre = async (genre) => {
+    // Inicializar las páginas actuales para cada género
+    feedFavouriteGenres.forEach(genre => {
+      currentPages[genre] = 1 // Página inicial para cada género
+    })
+
+    // Función para obtener los libros por género
+    const getBooksOfGenre = async genre => {
       console.log('Buscando libros de género:', genre)
 
       const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/search?query=${genre}&field=genres`
       const token = localStorage.getItem('access_token')
 
       try {
-        const response = await fetch(apiUrl,
-          {
-            method: 'GET',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
-            },
-          }
-        )
+        const response = await fetch(apiUrl, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
         if (!response.ok) {
-          throw new Error('Error fetching following data')
+          throw new Error('Error fetching books data')
         }
         const data = await response.json()
         console.log(data)
-        errorMessage.value = ''; // Limpia el mensaje de error en caso de éxito
+
+        // Almacenar los libros en el estado reactivo
+        booksByGenre[genre] = data.books || []
+        errorMessage.value = '' // Limpiar mensaje de error en caso de éxito
       } catch (error) {
         console.error(error)
-        errorMessage.value = 'Hubo un problema al obtener los libros. Intenta nuevamente más tarde.';
+        errorMessage.value =
+          'Hubo un problema al obtener los libros. Intenta nuevamente más tarde.'
       }
     }
 
-    // Función para obtener los libros de un género, controlando las páginas.
-    const getPaginatedBooks = (genre) => {
+    // Función para obtener los libros paginados de un género
+    const getPaginatedBooks = genre => {
       const start = (currentPages[genre] - 1) * booksPerPage
       const end = start + booksPerPage
-    
-      // Evitar que se solicite más allá del final de la lista de libros
+
+      // Retornar los libros paginados si están disponibles
       if (booksByGenre[genre] && booksByGenre[genre].length > 0) {
         return booksByGenre[genre].slice(start, end)
       }
@@ -86,8 +97,10 @@ export default {
 
     // Función para cambiar de página para un género específico
     const changePage = (genre, pageNumber) => {
-      // Asegurarse de que la página no sea menor que 1 ni mayor que el número de páginas disponibles
-      const totalPages = Math.ceil(booksByGenre[genre].length / booksPerPage) 
+      // Asegurarse de que la página no sea menor que 1 ni mayor que el número total de páginas
+      const totalPages = Math.ceil(
+        (booksByGenre[genre]?.length || 0) / booksPerPage,
+      )
       if (pageNumber >= 1 && pageNumber <= totalPages) {
         currentPages[genre] = pageNumber
       }
@@ -110,11 +123,11 @@ export default {
       }
     }
 
-    // Llamar a fetchFollowing cuando el componente se monte
+    // Llamar a fetchFollowing y obtener libros al montar el componente
     onMounted(() => {
       fetchFollowing()
 
-      // Llamar a la función para obtener los libros de cada género favorito
+      // Obtener los libros de cada género favorito
       feedFavouriteGenres.forEach(genre => {
         getBooksOfGenre(genre)
       })
@@ -126,7 +139,7 @@ export default {
       router,
       feedFavouriteGenres,
       genreTranslations,
-      booksByGenre, 
+      booksByGenre,
       currentPages,
       getPaginatedBooks,
       changePage,
@@ -154,40 +167,78 @@ export default {
               alt="Icono de seguimiento"
               class="follow-icon"
             />
-            <router-link class="user-link" :to="`/user/${user.following}`">{{ user.following }}</router-link>
+            <router-link class="user-link" :to="`/user/${user.following}`">{{
+              user.following
+            }}</router-link>
           </div>
         </div>
 
         <!-- Mostrar libros por género -->
-        <div v-for="genre in feedFavouriteGenres" :key="genre" class="genre-section">
-          <h2>Te gustan los libros de {{ genreTranslations[genre] }}? Mira estos!</h2>
+        <div
+          v-for="genre in feedFavouriteGenres"
+          :key="genre"
+          class="genre-section"
+        >
+          <h2>
+            Te gustan los libros de {{ genreTranslations[genre] }}? ¡Mira estos!
+          </h2>
           <div class="book-list">
             <!-- Verificar si ya se cargaron los libros del género -->
-            <div v-if="booksByGenre[genre] && booksByGenre[genre].length > 0" class="horizontal-box">
-              <div v-for="book in getPaginatedBooks(genre)" :key="book.title" class="book-item">
-                <img :src="book.image_url" :alt="book.title" class="book-cover"/>
+            <div
+              v-if="booksByGenre[genre] && booksByGenre[genre].length > 0"
+              class="horizontal-box"
+            >
+              <div
+                v-for="book in getPaginatedBooks(genre)"
+                :key="book.title"
+                class="book-item"
+              >
+                <img
+                  :src="book.image_url"
+                  :alt="book.title"
+                  class="book-cover"
+                />
                 <p>{{ book.title }}</p>
               </div>
             </div>
-            <!-- Mensaje de error -->
-              <div v-if="errorMessage" class="alert alert-danger">
-                {{ errorMessage }}
-              </div>
-            <div v-else>
+            <!-- Mostrar mensaje si no hay libros para este género -->
+            <div
+              v-else-if="
+                booksByGenre[genre] && booksByGenre[genre].length === 0
+              "
+            >
               <p>No se encontraron libros para este género.</p>
+            </div>
+            <!-- Mostrar mensaje de error general si ocurre un problema con la API -->
+            <div v-else-if="errorMessage" class="alert alert-danger">
+              {{ errorMessage }}
+            </div>
+            <!-- Mostrar mensaje de carga si aún no se han obtenido los libros -->
+            <div v-else>
+              <p>Cargando libros...</p>
             </div>
           </div>
 
           <div class="pagination">
-            <button 
-              @click="changePage(genre, currentPages[genre] - 1)" 
-              :disabled="currentPages[genre] <= 1">Anterior</button>
+            <button
+              @click="changePage(genre, currentPages[genre] - 1)"
+              :disabled="currentPages[genre] <= 1"
+            >
+              Anterior
+            </button>
 
             <span>Página {{ currentPages[genre] }}</span>
 
-            <button 
-              @click="changePage(genre, currentPages[genre] + 1)" 
-              :disabled="!booksByGenre[genre] || currentPages[genre] === Math.ceil(booksByGenre[genre].length/booksPerPage)">Siguiente</button>
+            <button
+              @click="changePage(genre, currentPages[genre] + 1)"
+              :disabled="
+                !booksByGenre[genre] ||
+                currentPages[genre] ===
+                  Math.ceil(booksByGenre[genre].length / booksPerPage)
+              "
+            >
+              Siguiente
+            </button>
           </div>
         </div>
       </div>
@@ -290,4 +341,3 @@ export default {
   line-height: 36px;
 }
 </style>
-

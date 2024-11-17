@@ -1,6 +1,6 @@
 <script>
-import { ref, computed, onMounted } from 'vue';
-import HeaderComponent from '@/components/HeaderComponent.vue';
+import { ref, computed, onMounted } from 'vue'
+import HeaderComponent from '@/components/HeaderComponent.vue'
 
 export default {
   name: 'SingleGenreView',
@@ -12,9 +12,9 @@ export default {
     },
   },
   setup(props) {
-    const books = ref([]);
-    const selectedBook = ref(null);
-    const errorMessage = ref('');
+    const books = ref([])
+    const selectedBook = ref(null)
+    const errorMessage = ref('')
 
     const genreTranslations = {
       fiction: 'Ficción',
@@ -33,19 +33,19 @@ export default {
       'non-fiction': 'No ficción',
       historical: 'Histórico',
       biography: 'Biografía',
-    };
+    }
 
     // Traducción del género
-    const translatedGenre = computed(() =>
-      genreTranslations[props.genreName] || props.genreName
-    );
+    const translatedGenre = computed(
+      () => genreTranslations[props.genreName] || props.genreName,
+    )
 
     // Función para obtener los libros por género
     const getBooksOfGenre = async () => {
-      const genre = props.genreName;
-      console.log('Buscando libros de género:', genre);
-      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/search?query=${genre}&field=genres`;
-      const token = localStorage.getItem('access_token');
+      const genre = props.genreName
+      console.log('Buscando libros de género:', genre)
+      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/search?query=${genre}&field=genres`
+      const token = localStorage.getItem('access_token')
 
       try {
         const response = await fetch(apiUrl, {
@@ -54,36 +54,37 @@ export default {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-        });
+        })
 
         if (!response.ok) {
-          throw new Error('Error al obtener los datos de libros');
+          throw new Error('Error al obtener los datos de libros')
         }
 
-        const data = await response.json();
-        books.value = data.books || []; // Suponiendo que los libros vienen en `data.books`
-        errorMessage.value = ''; // Limpia el mensaje de error en caso de éxito
-        console.log('Libros obtenidos:', books.value);
+        const data = await response.json()
+        books.value = data.books || [] // Suponiendo que los libros vienen en `data.books`
+        errorMessage.value = '' // Limpia el mensaje de error en caso de éxito
+        console.log('Libros obtenidos:', books.value)
       } catch (error) {
-        console.error('Error al obtener los libros:', error);
-        errorMessage.value = 'Hubo un problema al obtener los libros. Intenta nuevamente más tarde.';
+        console.error('Error al obtener los libros:', error)
+        errorMessage.value =
+          'Hubo un problema al obtener los libros. Intenta nuevamente más tarde.'
       }
-    };
+    }
 
     // Cargar libros al montar el componente
-    onMounted(getBooksOfGenre);
+    onMounted(getBooksOfGenre)
 
     return {
       books,
       selectedBook,
       errorMessage,
       translatedGenre,
-      setSelectedBook: (book) => {
-        selectedBook.value = book;
+      setSelectedBook: book => {
+        selectedBook.value = book
       },
-    };
+    }
   },
-};
+}
 </script>
 
 <template>
@@ -102,12 +103,12 @@ export default {
     <div v-if="!errorMessage && books.length" class="container">
       <div v-for="book in books" :key="book.title" class="row mb-4">
         <div class="col-2 text-center">
-          <img alt="Book cover" :src="book.cover" height="150vh" />
+          <img alt="Book cover" :src="book.image_url" height="150vh" />
         </div>
         <div class="col">
           <h3 class="text-body-emphasis">{{ book.title }}</h3>
           <h5 class="text-body-secondary">{{ book.author_name }}</h5>
-          <h5 class="text-body-tertiary">{{ book.releaseYear }}</h5>
+          <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
         </div>
       </div>
     </div>

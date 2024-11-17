@@ -64,7 +64,6 @@ export default {
       const books = JSON.parse(userData.myBooks.replace(/'/g, '"'))
       userData.myBooks = [...books, book]
 
-
       try {
         const response = await fetch(apiUrl, {
           method: 'POST',
@@ -159,7 +158,10 @@ export default {
 
       const userData = userStore.getUserData()
 
-      console.log('User data Books:', JSON.parse(userData.myBooks.replace(/'/g, '"')))
+      console.log(
+        'User data Books:',
+        JSON.parse(userData.myBooks.replace(/'/g, '"')),
+      )
 
       const userDataBooks = JSON.parse(userData.myBooks.replace(/'/g, '"'))
 
@@ -190,7 +192,6 @@ export default {
           throw new Error('Error al eliminar el libro')
         }
         console.log('Libro eliminado con éxito')
-      
       } catch (error) {
         console.error('Error al eliminar el libro:', error)
       } finally {
@@ -236,19 +237,24 @@ export default {
 
         profileData.name = data.name || username
         profileData.description = data.description || ''
-        profileData.profilePicture = data.profilePicture || 'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg'
-        
+        profileData.profilePicture =
+          data.profilePicture ||
+          'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg'
+
         if (data.myBooks) {
           console.log('My Books:', data.myBooks)
           profileData.myBooks = JSON.parse(data.myBooks.replace(/'/g, '"'))
         }
 
         if (data.favouriteBook) {
-          profileData.favouriteBook = JSON.parse(data.favouriteBook.replace(/'/g, '"'))
+          profileData.favouriteBook = JSON.parse(
+            data.favouriteBook.replace(/'/g, '"'),
+          )
         } else {
           profileData.favouriteBook = {
             title: 'No hay Libro Favorito',
-            cover: 'https://bookstoreromanceday.org/wp-content/uploads/2020/08/book-cover-placeholder.png',
+            cover:
+              'https://bookstoreromanceday.org/wp-content/uploads/2020/08/book-cover-placeholder.png',
             description: '',
           }
         }
@@ -262,9 +268,10 @@ export default {
         }
 
         if (data.readingChallenges) {
-          profileData.readingChallenges = JSON.parse(data.readingChallenges.replace(/'/g, '"'))
+          profileData.readingChallenges = JSON.parse(
+            data.readingChallenges.replace(/'/g, '"'),
+          )
         }
-
 
         if (username === userStore.userName) {
           // Inicializa `newUserData` con los datos de `userData`

@@ -4,87 +4,88 @@ export default {
   data() {
     return {
       topGenres: [], // Lista de los 4 géneros con más libros
-    };
+    }
   },
   methods: {
     async calculateTopGenres() {
-      const url = 'https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/book/genres';
+      const url =
+        'https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/book/genres'
       try {
-        const response = await fetch(url);
+        const response = await fetch(url)
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error('Network response was not ok')
         }
-        const data = await response.json();
-        const genresData = data.body.genres;
+        const data = await response.json()
+        const genresData = data.body.genres
 
         // Crear un objeto para contar los géneros
-        const genreCounts = {};
+        const genreCounts = {}
 
         // Contar cada género por separado
         genresData.forEach(item => {
-          const genres = item.genre.split(', ');
+          const genres = item.genre.split(', ')
           genres.forEach(genre => {
             if (genreCounts[genre]) {
-              genreCounts[genre] += item.count;
+              genreCounts[genre] += item.count
             } else {
-              genreCounts[genre] = item.count;
+              genreCounts[genre] = item.count
             }
-          });
-        });
+          })
+        })
 
         // Convertir el objeto en una matriz y ordenar por la cantidad de libros
         const sortedGenres = Object.entries(genreCounts)
           .map(([genre, count]) => ({ genre, count }))
-          .sort((a, b) => b.count - a.count);
+          .sort((a, b) => b.count - a.count)
 
         // Seleccionar los 4 géneros con más libros
-        this.topGenres = sortedGenres.slice(0, 4);
+        this.topGenres = sortedGenres.slice(0, 4)
 
-        console.log('Top Genres:', this.topGenres);
+        console.log('Top Genres:', this.topGenres)
       } catch (error) {
-        console.error('Error fetching genres:', error);
+        console.error('Error fetching genres:', error)
       }
     },
     selectGenre(genre) {
       // Redirige a la página de libros populares del género seleccionado
-      this.$router.push({ path: `/genres/${genre.genre}` });
+      this.$router.push({ path: `/genres/${genre.genre}` })
     },
     viewAllGenres() {
       // Redirige a la página de todos los géneros
-      this.$router.push('/genres');
+      this.$router.push('/genres')
     },
   },
   computed: {
     translatedTopGenres() {
       const genreTranslations = {
-        "fiction": "Ficción",
-        "mystery": "Misterio",
-        "thriller": "Thriller", 
-        "crime": "Crimen",
-        "fantasy" : "Fantasía", 
-        "dark-fantasy" : "Fantasía oscura",
-        "horror" : "Terror",
-        "poetry": "Poesía", 
-        "romance": "Romance",
-        "comics": "Cómics",
-        "graphic": "Novela gráfica",
-        "young-adult": "Jóvenes adultos",
-        "children": "Infantil",
-        "non-fiction": "No ficción",
-        "historical": "Histórico",
-        "biography": "Biografía",
-      };
+        fiction: 'Ficción',
+        mystery: 'Misterio',
+        thriller: 'Thriller',
+        crime: 'Crimen',
+        fantasy: 'Fantasía',
+        'dark-fantasy': 'Fantasía oscura',
+        horror: 'Terror',
+        poetry: 'Poesía',
+        romance: 'Romance',
+        comics: 'Cómics',
+        graphic: 'Novela gráfica',
+        'young-adult': 'Jóvenes adultos',
+        children: 'Infantil',
+        'non-fiction': 'No ficción',
+        historical: 'Histórico',
+        biography: 'Biografía',
+      }
 
       return this.topGenres.map(genre => ({
         ...genre,
-        translatedName: genreTranslations[genre.genre] || genre.genre
-      }));
-    }
+        translatedName: genreTranslations[genre.genre] || genre.genre,
+      }))
+    },
   },
   mounted() {
-    this.calculateTopGenres();
+    this.calculateTopGenres()
   },
-};
+}
 </script>
 
 <template>

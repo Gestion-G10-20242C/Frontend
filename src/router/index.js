@@ -46,9 +46,9 @@ const router = createRouter({
       props: true,
     },
     {
-      path: "/config",
-      name: "ConfigView",
-      component: () => import('../views/ConfigView.vue')
+      path: '/config',
+      name: 'ConfigView',
+      component: () => import('../views/ConfigView.vue'),
     },
     {
       path: '/genres',
