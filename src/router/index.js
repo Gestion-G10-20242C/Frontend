@@ -51,6 +51,11 @@ const router = createRouter({
       component: () => import('../views/ConfigView.vue'),
     },
     {
+      path: '/recommendations',
+      name: 'RecommendationsView',
+      component: () => import('../views/RecommendationsView.vue'),
+    },
+    {
       path: '/genres',
       name: 'all-genres',
       component: () => import('../views/AllGenresView.vue'),
