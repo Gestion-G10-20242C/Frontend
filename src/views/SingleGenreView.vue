@@ -62,6 +62,10 @@ export default {
 
         const data = await response.json()
         books.value = data.books || [] // Suponiendo que los libros vienen en `data.books`
+
+        // Mezclar los libros aleatoriamente
+        books.value = books.value.sort(() => Math.random() - 0.5)
+
         errorMessage.value = '' // Limpia el mensaje de error en caso de éxito
         console.log('Libros obtenidos:', books.value)
       } catch (error) {
@@ -106,7 +110,9 @@ export default {
           <img alt="Book cover" :src="book.image_url" height="150vh" />
         </div>
         <div class="col">
-          <h3 class="text-body-emphasis">{{ book.title }}</h3>
+          <RouterLink :to="`/book/${book.isbn}`">
+            <h3 class="text-body-emphasis">{{ book.title }}</h3>
+          </RouterLink>
           <h5 class="text-body-secondary">{{ book.author_name }}</h5>
           <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
         </div>

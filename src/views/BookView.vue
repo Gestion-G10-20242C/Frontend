@@ -107,12 +107,18 @@ export default {
         </div>
         <div class="col-md-8">
           <h2 class="text-body-emphasis">{{ book.title }}</h2>
-          <h4 class="text-body-secondary">{{ book.author_name }}</h4>
+          <RouterLink :to="`/author/${book.author_name}`">
+            <h4 class="text-body-secondary">{{ book.author_name }}</h4>
+          </RouterLink>
           <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
           <div class="stars">
-            <span v-for="n in 5" :key="n" :class="getStarClasses(n - 1)">★</span>
+            <span v-for="n in 5" :key="n" :class="getStarClasses(n - 1)"
+              >★</span
+            >
           </div>
-          <p><strong>Puntaje Promedio:</strong> {{ book.average_rating }} / 5</p>
+          <p>
+            <strong>Puntaje Promedio:</strong> {{ book.average_rating }} / 5
+          </p>
           <div class="genres-row">
             <p><strong>Géneros:</strong></p>
             <div class="genre-container">
@@ -215,5 +221,4 @@ export default {
   transform: scale(1.05); /* Efecto de zoom al pasar el ratón */
   background-color: #d1d5db; /* Cambia el color al hacer hover */
 }
-
 </style>

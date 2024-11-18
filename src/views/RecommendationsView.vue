@@ -1,17 +1,17 @@
 <script>
-import { reactive, ref, onMounted } from 'vue';
-import { useUserStore } from '@/stores/user';
-import HeaderComponent from '@/components/HeaderComponent.vue';
+import { reactive, ref, onMounted } from 'vue'
+import { useUserStore } from '@/stores/user'
+import HeaderComponent from '@/components/HeaderComponent.vue'
 
 export default {
   name: 'RecommendationsView',
   components: { HeaderComponent },
   setup() {
-    const userStore = useUserStore();
-    const booksByGenre = reactive({});
-    const errorMessage = ref('');
-    const booksPerPage = 9;
-    const currentPages = reactive({});
+    const userStore = useUserStore()
+    const booksByGenre = reactive({})
+    const errorMessage = ref('')
+    const booksPerPage = 9
+    const currentPages = reactive({})
     const genreTranslations = {
       fiction: 'Ficción',
       mystery: 'Misterio',
@@ -29,28 +29,28 @@ export default {
       'non-fiction': 'No ficción',
       historical: 'Histórico',
       biography: 'Biografía',
-    };
+    }
 
     const feedFavouriteGenres = JSON.parse(
       userStore.favouriteGenres.replace(/'/g, '"'),
-    );
+    )
 
     feedFavouriteGenres.forEach(genre => {
-      currentPages[genre] = 1;
-    });
+      currentPages[genre] = 1
+    })
 
     const shuffleArray = array => {
       for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]]; // Intercambia elementos
+        const j = Math.floor(Math.random() * (i + 1))
+        ;[array[i], array[j]] = [array[j], array[i]] // Intercambia elementos
       }
-      return array;
-    };
-    
+      return array
+    }
+
     const getBooksOfGenre = async genre => {
-      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/search?query=${genre}&field=genres`;
-      const token = localStorage.getItem('access_token');
-    
+      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/search?query=${genre}&field=genres`
+      const token = localStorage.getItem('access_token')
+
       try {
         const response = await fetch(apiUrl, {
           method: 'GET',
@@ -58,43 +58,43 @@ export default {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-        });
-    
+        })
+
         if (!response.ok) {
-          throw new Error('Error fetching books data');
+          throw new Error('Error fetching books data')
         }
-    
-        const data = await response.json();
-        const books = data.books || [];
-        booksByGenre[genre] = shuffleArray(books); // Mezcla antes de asignar
-        errorMessage.value = '';
+
+        const data = await response.json()
+        const books = data.books || []
+        booksByGenre[genre] = shuffleArray(books) // Mezcla antes de asignar
+        errorMessage.value = ''
       } catch (error) {
-        console.error(error);
+        console.error(error)
         errorMessage.value =
-          'Hubo un problema al obtener los libros. Intenta nuevamente más tarde.';
+          'Hubo un problema al obtener los libros. Intenta nuevamente más tarde.'
       }
-    };
+    }
 
     const getPaginatedBooks = genre => {
-      const start = (currentPages[genre] - 1) * booksPerPage;
-      const end = start + booksPerPage;
-      return booksByGenre[genre]?.slice(start, end) || [];
-    };
+      const start = (currentPages[genre] - 1) * booksPerPage
+      const end = start + booksPerPage
+      return booksByGenre[genre]?.slice(start, end) || []
+    }
 
     const changePage = (genre, pageNumber) => {
       const totalPages = Math.ceil(
         (booksByGenre[genre]?.length || 0) / booksPerPage,
-      );
+      )
       if (pageNumber >= 1 && pageNumber <= totalPages) {
-        currentPages[genre] = pageNumber;
+        currentPages[genre] = pageNumber
       }
-    };
+    }
 
     onMounted(() => {
       feedFavouriteGenres.forEach(genre => {
-        getBooksOfGenre(genre);
-      });
-    });
+        getBooksOfGenre(genre)
+      })
+    })
 
     return {
       feedFavouriteGenres,
@@ -104,80 +104,83 @@ export default {
       getPaginatedBooks,
       changePage,
       errorMessage,
-    };
+    }
   },
-};
+}
 </script>
 
 <template>
-    <HeaderComponent />
-    <div class="container pt-4 content-wrapper">
-      <h1>Recomendaciones</h1>
-      
-      <div v-if="feedFavouriteGenres.length === 0" class="no-genres-message">
-        <p>No tienes géneros favoritos seleccionados. Puedes seleccionarlos en la sección de Configuración.</p>
-      </div>
-  
-      <div
-        v-else
-        v-for="genre in feedFavouriteGenres"
-        :key="genre"
-        class="genre-section"
-      >
-        <h2>Te gustan los libros de {{ genreTranslations[genre] }}? ¡Mira estos!</h2>
-        <div class="book-list">
+  <HeaderComponent />
+  <div class="container pt-4 content-wrapper">
+    <h1>Recomendaciones</h1>
+
+    <div v-if="feedFavouriteGenres.length === 0" class="no-genres-message">
+      <p>
+        No tienes géneros favoritos seleccionados. Puedes seleccionarlos en la
+        sección de Configuración.
+      </p>
+    </div>
+
+    <div
+      v-else
+      v-for="genre in feedFavouriteGenres"
+      :key="genre"
+      class="genre-section"
+    >
+      <h2>
+        Te gustan los libros de {{ genreTranslations[genre] }}? ¡Mira estos!
+      </h2>
+      <div class="book-list">
+        <div
+          v-if="booksByGenre[genre] && booksByGenre[genre].length > 0"
+          class="horizontal-box"
+        >
           <div
-            v-if="booksByGenre[genre] && booksByGenre[genre].length > 0"
-            class="horizontal-box"
+            v-for="book in getPaginatedBooks(genre)"
+            :key="book.title"
+            class="book-item"
           >
-            <div
-              v-for="book in getPaginatedBooks(genre)"
-              :key="book.title"
-              class="book-item"
-            >
             <RouterLink :to="`/book/${book.isbn}`">
-                <img :src="book.image_url" :alt="book.title" class="book-cover" />
+              <img :src="book.image_url" :alt="book.title" class="book-cover" />
             </RouterLink>
-              <p>{{ book.title }}</p>
-            </div>
-          </div>
-          <div
-            v-else-if="
-              booksByGenre[genre] && booksByGenre[genre].length === 0
-            "
-          >
-            <p>No se encontraron libros para este género.</p>
-          </div>
-          <div v-else-if="errorMessage" class="alert alert-danger">
-            {{ errorMessage }}
-          </div>
-          <div v-else>
-            <p>Cargando libros...</p>
+            <p>{{ book.title }}</p>
           </div>
         </div>
-  
-        <div class="pagination">
-          <button
-            @click="changePage(genre, currentPages[genre] - 1)"
-            :disabled="currentPages[genre] <= 1"
-          >
-            Anterior
-          </button>
-          <span>Página {{ currentPages[genre] }}</span>
-          <button
-            @click="changePage(genre, currentPages[genre] + 1)"
-            :disabled="
-              !booksByGenre[genre] ||
-              currentPages[genre] ===
-                Math.ceil(booksByGenre[genre].length / booksPerPage)
-            "
-          >
-            Siguiente
-          </button>
+        <div
+          v-else-if="booksByGenre[genre] && booksByGenre[genre].length === 0"
+        >
+          <p>No se encontraron libros para este género.</p>
         </div>
+        <div v-else-if="errorMessage" class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+        <div v-else>
+          <p>Cargando libros...</p>
+        </div>
+      </div>
+
+      <div class="pagination">
+        <button
+          @click="changePage(genre, currentPages[genre] - 1)"
+          :disabled="currentPages[genre] <= 1"
+        >
+          Anterior
+        </button>
+        <span>Página {{ currentPages[genre] }}</span>
+        <button
+          @click="changePage(genre, currentPages[genre] + 1)"
+          :disabled="
+            !booksByGenre[genre] ||
+            currentPages[genre] ===
+              Math.ceil(booksByGenre[genre].length / booksPerPage)
+          "
+        >
+          Siguiente
+        </button>
       </div>
     </div>
-  </template>  
+  </div>
+</template>
 
 <style scoped>
 .list-group-item {
