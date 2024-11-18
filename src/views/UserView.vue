@@ -867,6 +867,13 @@ export default {
       </div>
     </div>
   </template>
+
+  <template v-else>
+    <HeaderComponent />
+    <div class="p-4 d-flex justify-content-center">
+      <h1>Usuario no encontrado!</h1>
+    </div></template
+  >
 </template>
 
 <style scoped>
