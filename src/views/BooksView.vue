@@ -174,7 +174,9 @@ export default {
                 <h3 class="text-body-emphasis" @click="navigateToBook(book)">
                   {{ book.title }}
                 </h3>
-                <h5 class="text-body-secondary">{{ book.author_name }}</h5>
+                <RouterLink :to="`/author/${book.author_name}`">
+                  <h5 class="text-body-secondary">{{ book.author_name }}</h5>
+                </RouterLink>
                 <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
               </div>
             </div>
