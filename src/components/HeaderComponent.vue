@@ -26,6 +26,13 @@ export default {
       })
     }
 
+    const handleConfigClick = () => {
+      router.push({
+        path: '/config',
+        query: { refresh: Date.now() },
+      })
+    }
+
     const setSearchQuery = query => {
       searchStore.setSearchQuery(query)
     }
@@ -37,6 +44,7 @@ export default {
       handleSubmit,
       setSearchQuery,
       handleProfileClick,
+      handleConfigClick,
     }
   },
 }
@@ -96,6 +104,25 @@ export default {
               >Libros</RouterLink
             >
           </li>
+          <li class="nav-item dropdown">
+            <!-- Nueva pestaña de Explorar -->
+            <a
+              class="nav-link dropdown-toggle text-white"
+              href="#"
+              role="button"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              Explorar
+            </a>
+            <ul class="dropdown-menu">
+              <li>
+                <RouterLink to="/recommendations" class="dropdown-item"
+                  >Recomendaciones</RouterLink
+                >
+              </li>
+            </ul>
+          </li>
         </ul>
 
         <form
@@ -137,7 +164,15 @@ export default {
             />
           </a>
           <ul class="dropdown-menu text-small">
-            <li><a class="dropdown-item" href="#">Configuración</a></li>
+            <li>
+              <RouterLink
+                :to="`/user/${userStore.userName}`"
+                class="dropdown-item"
+                @click="handleConfigClick"
+              >
+                Configuración
+              </RouterLink>
+            </li>
             <li>
               <RouterLink
                 :to="`/user/${userStore.userName}`"
