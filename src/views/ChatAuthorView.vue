@@ -2,29 +2,40 @@
 import { useRoute } from 'vue-router';
 import { ref, onMounted } from 'vue';
 import { useUserStore } from '@/stores/user';
+import { useChatStore } from '@/stores/chat';
 import HeaderComponent from '@/components/HeaderComponent.vue';
 
 export default {
-  name: 'ChatView',
+  name: 'ChatAuthorView',
+  props: {
+    authorName: {
+      type: String,
+      required: true, 
+    },
+  },
   components: {
     HeaderComponent,
   },
   setup() {
     const route = useRoute();
     const userStore = useUserStore();
+    const chatStore = useChatStore();
 
-    const authorName = ref(route.query.authorName);
+    const authorName = ref(route.params.authorName);
     const books = ref([]);
-    const messages = ref([]);
     const newMessage = ref('');
-    const isWaitingForResponse = ref(false); // Nueva variable de estado
-
+    const isWaitingResponse = ref(false); // Controla si se puede escribir
     const accessToken = localStorage.getItem('access_token');
 
+    // Recuperar mensajes del autor del store
+    const messages = ref(chatStore.getMessages(authorName.value));
+
     const sendMessage = async () => {
-      if (newMessage.value.trim() !== '') {
+      if (newMessage.value.trim() !== '' && !isWaitingResponse.value) {
         const userMessage = newMessage.value.trim();
-        messages.value.push({
+
+        // Guardar mensaje del usuario en el store
+        chatStore.addMessage(authorName.value, {
           sender: 'Usuario',
           content: userMessage,
         });
@@ -35,9 +46,7 @@ export default {
           name: authorName.value,
         });
 
-        // Activar estado de espera
-        isWaitingForResponse.value = true;
-
+        isWaitingResponse.value = true; 
         try {
           const username = userStore.userName;
           const response = await fetch(
@@ -53,26 +62,28 @@ export default {
           );
 
           if (response.ok) {
-            const data = await response.json();
-            messages.value.push({
+            const data = await response.text();
+
+            // Guardar respuesta del autor en el store
+            chatStore.addMessage(authorName.value, {
               sender: authorName.value,
-              content: data.reply,
+              content: data,
             });
           } else {
-            messages.value.push({
+            chatStore.addMessage(authorName.value, {
               sender: authorName.value,
               content: 'No puedo responder en este momento. Por favor, intenta más tarde.',
             });
           }
-        } catch {
-          messages.value.push({
+        } catch (error) {
+          console.log('Error al enviar mensaje:', error);
+          chatStore.addMessage(authorName.value, {
             sender: authorName.value,
             content: 'Hubo un problema al enviar tu mensaje. Intenta nuevamente.',
           });
+        } finally {
+          isWaitingResponse.value = false; // Desbloquear el input
         }
-
-        // Desactivar estado de espera
-        isWaitingForResponse.value = false;
 
         newMessage.value = '';
       }
@@ -89,35 +100,22 @@ export default {
     });
 
     return {
-      authorName,
       books,
       messages,
       newMessage,
+      isWaitingResponse,
       sendMessage,
       userStore,
-      isWaitingForResponse, // Pasamos la variable de estado
     };
   },
 };
+
 </script>
 
 <template>
   <HeaderComponent />
   <div class="container">
     <h1>Chatea con {{ authorName }}</h1>
-
-    <!-- Mostrar libros si existen -->
-    <div v-if="books.length > 0" class="mt-4">
-      <h3>Libros del autor:</h3>
-      <ul>
-        <li v-for="(book, index) in books" :key="index">
-          <strong>{{ book.title }}</strong> - {{ book.publication_date }}
-        </li>
-      </ul>
-    </div>
-    <div v-else>
-      <p>No se recibieron libros para este autor.</p>
-    </div>
 
     <!-- Chat -->
     <div class="chat-box mt-5">
@@ -134,19 +132,20 @@ export default {
       <div class="input-container">
         <input
           v-model="newMessage"
+          :disabled="isWaitingResponse" 
           @keyup.enter="sendMessage"
-          :disabled="isWaitingForResponse" 
           type="text"
           class="form-control"
           placeholder="Escribe tu mensaje..."
         />
-        <button @click="sendMessage" class="btn send-btn" :disabled="isWaitingForResponse">
+        <button @click="sendMessage" :disabled="isWaitingResponse" class="btn send-btn">
           <i class="fas fa-paper-plane"></i>
         </button>
       </div>
     </div>
   </div>
 </template>
+
 
 <style scoped>
 html, body {
@@ -247,26 +246,39 @@ input.form-control {
 }
 
 .user-message {
-  text-align: right;
-  background-color: #3498db;
-  color: #ffffff;
-  padding: 10px;
-  border-radius: 15px;
-  max-width: 70%;
-  margin-left: auto;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+text-align: right;
+background-color: #3498db;  /* Azul para el mensaje del usuario */
+color: #ffffff;  /* Texto blanco */
+padding: 10px;
+border-radius: 15px;
+max-width: 70%;
+margin-left: auto;
+margin-bottom: 12px;
+box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .author-message {
-  text-align: left;
-  background-color: #2c3e50;
-  color: #ffffff;
-  padding: 10px;
-  border-radius: 15px;
-  max-width: 70%;
-  margin-right: auto;
-  margin-bottom: 12px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+text-align: left;
+background-color: #2c3e50;  /* Gris oscuro para el mensaje del autor */
+color: #ffffff;  /* Texto blanco */
+padding: 10px;
+border-radius: 15px;
+max-width: 70%;
+margin-right: auto;
+margin-bottom: 12px;
+box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
+
+input:disabled {
+  background-color: #f0f0f0;
+  cursor: not-allowed;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
 </style>
+
+

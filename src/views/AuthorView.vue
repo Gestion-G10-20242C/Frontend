@@ -122,14 +122,7 @@ export default {
         <p class="mb-0">{{ authorData.description }}</p>
 
         <!-- Chat with Author -->
-        <RouterLink
-          :to="{
-            name: 'ChatView',
-            query: {
-              authorName: authorData.name, 
-              books: JSON.stringify(authorData.myBooks) },
-          }"
-        >
+        <RouterLink :to="`/chat-author/${authorData.name}`">
           <button class="btn btn-primary mt-3">Chatear con Autor</button>
         </RouterLink>
         
