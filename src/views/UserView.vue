@@ -246,17 +246,6 @@ export default {
           profileData.myBooks = JSON.parse(data.myBooks.replace(/'/g, '"'))
         }
 
-        const getGroupsResponse = await fetch(
-          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${userStore.userName}/groups`,
-        ).then(async response => response.json())
-
-        userData.groups = getGroupsResponse.groups || []
-        userData.bookShelf = data.bookShelf || []
-        userData.myBooks = data.myBooks
-          ? JSON.parse(data.myBooks.replace(/'/g, '"'))
-          : []
-        userData.readingChallenges = data.readingChallenges || []
-
         if (data.favouriteBook) {
           profileData.favouriteBook = JSON.parse(
             data.favouriteBook.replace(/'/g, '"'),
@@ -568,7 +557,7 @@ export default {
         </div>
       </div>
 
-      <div class="row my-4">
+      <div class="row mt-4">
         <!-- Biblioteca -->
         <div class="col">
           <h3>Biblioteca</h3>
@@ -588,14 +577,7 @@ export default {
               :key="group.name"
               class="list-group-item d-flex justify-content-between align-items-center"
             >
-              <RouterLink
-                :to="{
-                  name: 'community',
-                  params: { communityName: group.name },
-                }"
-              >
-                {{ group.name }}
-              </RouterLink>
+              {{ group.name }}
               <span class="badge bg-primary rounded-pill">
                 <div>
                   <template v-if="group.members < 1000">
