@@ -1,54 +1,54 @@
 <script>
-import { useRoute } from 'vue-router';
-import { ref, onMounted } from 'vue';
-import { useUserStore } from '@/stores/user';
-import { useChatStore } from '@/stores/chat';
-import HeaderComponent from '@/components/HeaderComponent.vue';
+import { useRoute } from 'vue-router'
+import { ref, onMounted } from 'vue'
+import { useUserStore } from '@/stores/user'
+import { useChatStore } from '@/stores/chat'
+import HeaderComponent from '@/components/HeaderComponent.vue'
 
 export default {
   name: 'ChatAuthorView',
   props: {
     authorName: {
       type: String,
-      required: true, 
+      required: true,
     },
   },
   components: {
     HeaderComponent,
   },
   setup() {
-    const route = useRoute();
-    const userStore = useUserStore();
-    const chatStore = useChatStore();
+    const route = useRoute()
+    const userStore = useUserStore()
+    const chatStore = useChatStore()
 
-    const authorName = ref(route.params.authorName);
-    const books = ref([]);
-    const newMessage = ref('');
-    const isWaitingResponse = ref(false); // Controla si se puede escribir
-    const accessToken = localStorage.getItem('access_token');
+    const authorName = ref(route.params.authorName)
+    const books = ref([])
+    const newMessage = ref('')
+    const isWaitingResponse = ref(false) // Controla si se puede escribir
+    const accessToken = localStorage.getItem('access_token')
 
     // Recuperar mensajes del autor del store
-    const messages = ref(chatStore.getMessages(authorName.value));
+    const messages = ref(chatStore.getMessages(authorName.value))
 
     const sendMessage = async () => {
       if (newMessage.value.trim() !== '' && !isWaitingResponse.value) {
-        const userMessage = newMessage.value.trim();
+        const userMessage = newMessage.value.trim()
 
         // Guardar mensaje del usuario en el store
         chatStore.addMessage(authorName.value, {
           sender: 'Usuario',
           content: userMessage,
-        });
+        })
 
         const chatBody = JSON.stringify({
           message: userMessage,
           role: 'author',
           name: authorName.value,
-        });
+        })
 
-        isWaitingResponse.value = true; 
+        isWaitingResponse.value = true
         try {
-          const username = userStore.userName;
+          const username = userStore.userName
           const response = await fetch(
             `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/chat`,
             {
@@ -58,46 +58,48 @@ export default {
                 'Content-Type': 'application/json',
               },
               body: chatBody,
-            }
-          );
+            },
+          )
 
           if (response.ok) {
-            const data = await response.text();
+            const data = await response.text()
 
             // Guardar respuesta del autor en el store
             chatStore.addMessage(authorName.value, {
               sender: authorName.value,
               content: data,
-            });
+            })
           } else {
             chatStore.addMessage(authorName.value, {
               sender: authorName.value,
-              content: 'No puedo responder en este momento. Por favor, intenta más tarde.',
-            });
+              content:
+                'No puedo responder en este momento. Por favor, intenta más tarde.',
+            })
           }
         } catch (error) {
-          console.log('Error al enviar mensaje:', error);
+          console.log('Error al enviar mensaje:', error)
           chatStore.addMessage(authorName.value, {
             sender: authorName.value,
-            content: 'Hubo un problema al enviar tu mensaje. Intenta nuevamente.',
-          });
+            content:
+              'Hubo un problema al enviar tu mensaje. Intenta nuevamente.',
+          })
         } finally {
-          isWaitingResponse.value = false; // Desbloquear el input
+          isWaitingResponse.value = false // Desbloquear el input
         }
 
-        newMessage.value = '';
+        newMessage.value = ''
       }
-    };
+    }
 
     onMounted(() => {
       if (route.query.books) {
         try {
-          books.value = JSON.parse(route.query.books);
+          books.value = JSON.parse(route.query.books)
         } catch (error) {
-          console.error('Error al parsear libros:', error);
+          console.error('Error al parsear libros:', error)
         }
       }
-    });
+    })
 
     return {
       books,
@@ -106,10 +108,9 @@ export default {
       isWaitingResponse,
       sendMessage,
       userStore,
-    };
+    }
   },
-};
-
+}
 </script>
 
 <template>
@@ -124,7 +125,10 @@ export default {
         <div
           v-for="(message, index) in messages"
           :key="index"
-          :class="['message', message.sender === 'Usuario' ? 'user-message' : 'author-message']"
+          :class="[
+            'message',
+            message.sender === 'Usuario' ? 'user-message' : 'author-message',
+          ]"
         >
           <strong>{{ message.sender }}:</strong> {{ message.content }}
         </div>
@@ -132,13 +136,17 @@ export default {
       <div class="input-container">
         <input
           v-model="newMessage"
-          :disabled="isWaitingResponse" 
+          :disabled="isWaitingResponse"
           @keyup.enter="sendMessage"
           type="text"
           class="form-control"
           placeholder="Escribe tu mensaje..."
         />
-        <button @click="sendMessage" :disabled="isWaitingResponse" class="btn send-btn">
+        <button
+          @click="sendMessage"
+          :disabled="isWaitingResponse"
+          class="btn send-btn"
+        >
           <i class="fas fa-paper-plane"></i>
         </button>
       </div>
@@ -146,9 +154,9 @@ export default {
   </div>
 </template>
 
-
 <style scoped>
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   font-family: 'Arial', sans-serif;
@@ -246,27 +254,27 @@ input.form-control {
 }
 
 .user-message {
-text-align: right;
-background-color: #3498db;  /* Azul para el mensaje del usuario */
-color: #ffffff;  /* Texto blanco */
-padding: 10px;
-border-radius: 15px;
-max-width: 70%;
-margin-left: auto;
-margin-bottom: 12px;
-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: right;
+  background-color: #3498db; /* Azul para el mensaje del usuario */
+  color: #ffffff; /* Texto blanco */
+  padding: 10px;
+  border-radius: 15px;
+  max-width: 70%;
+  margin-left: auto;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 .author-message {
-text-align: left;
-background-color: #2c3e50;  /* Gris oscuro para el mensaje del autor */
-color: #ffffff;  /* Texto blanco */
-padding: 10px;
-border-radius: 15px;
-max-width: 70%;
-margin-right: auto;
-margin-bottom: 12px;
-box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  text-align: left;
+  background-color: #2c3e50; /* Gris oscuro para el mensaje del autor */
+  color: #ffffff; /* Texto blanco */
+  padding: 10px;
+  border-radius: 15px;
+  max-width: 70%;
+  margin-right: auto;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
 input:disabled {
@@ -278,7 +286,4 @@ button:disabled {
   cursor: not-allowed;
   opacity: 0.6;
 }
-
 </style>
-
-

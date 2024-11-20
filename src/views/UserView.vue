@@ -259,9 +259,11 @@ export default {
           }
         }
 
-        if (data.groups) {
-          profileData.groups = JSON.parse(data.groups.replace(/'/g, '"'))
-        }
+        const userGroups = await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/groups`,
+        )
+        const groupsDataResponse = await userGroups.json()
+        profileData.groups = groupsDataResponse.groups
 
         if (data.bookShelf) {
           profileData.bookShelf = JSON.parse(data.bookShelf.replace(/'/g, '"'))
@@ -573,6 +575,9 @@ export default {
           <h3>Grupos</h3>
           <ul class="list-group">
             <li
+              @click="
+                $router.push(`/communities/${encodeURIComponent(group.name)}`)
+              "
               v-for="group in userData.groups"
               :key="group.name"
               class="list-group-item d-flex justify-content-between align-items-center"

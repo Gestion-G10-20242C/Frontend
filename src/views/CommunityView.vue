@@ -52,13 +52,9 @@ export default {
         const groupDataArray = await getGroupResponse.json()
         const groupData = groupDataArray[0]
 
-        const getGroupMembersResponse = await fetch(
-          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/groups/${groupData.id}`,
-        )
-        const groupMembersData = await getGroupMembersResponse.json()
-        communityData.members = groupMembersData.map(member => ({
-          name: member.name,
-          profilePicture: member.image_url,
+        communityData.members = groupData.members.map(member => ({
+          name: member.username,
+          profilePicture: member.profilePicture,
         }))
 
         communityData.id = groupData.id
@@ -69,7 +65,6 @@ export default {
         communityData.isFollowing = communityData.members.some(
           member => member.name === userStore.userName,
         )
-        communityData.isFollowing = false
       } catch (error) {
         console.log(error)
       }
@@ -122,14 +117,14 @@ export default {
         <div
           v-for="user in communityData.members"
           :key="user.name"
-          @click="$router.push(`/users/${user.name}`)"
+          @click="$router.push(`/user/${user.name}`)"
           style="cursor: pointer"
           class="mb-2 bg-light d-flex align-items-center p-2"
         >
           <img
             :src="user.profilePicture"
             alt="User profile picture"
-            class="rounded-circle"
+            class="rounded-circle p-2"
             style="height: 5vmax; width: 5vmax"
           />
           {{ user.name }}
