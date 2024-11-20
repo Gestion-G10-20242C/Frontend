@@ -120,6 +120,12 @@ export default {
 
         <!-- User description -->
         <p class="mb-0">{{ authorData.description }}</p>
+
+        <!-- Chat with Author -->
+        <RouterLink :to="`/chat-author/${authorData.name}`">
+          <button class="btn btn-primary mt-3">Chatear con Autor</button>
+        </RouterLink>
+        
       </div>
 
       <!-- Favourite book -->

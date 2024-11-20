@@ -1,6 +1,8 @@
 <script>
 import { useUserStore } from '@/stores/user'
 const userStore = useUserStore()
+import { useChatStore } from '@/stores/chat'
+const chatStore = useChatStore()
 
 export default {
   data() {
@@ -47,8 +49,10 @@ export default {
         localStorage.setItem('access_token', parsedBody.access_token)
         console.log('Access token saved:', parsedBody.access_token)
 
-        // Persist the user data in userStore
+        // Remove chat data from the store
+        chatStore.resetStore()
 
+        // Persist the user data in userStore
         userStore.logIn(this.username)
 
         // Redirect the user to feed
