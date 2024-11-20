@@ -18,7 +18,7 @@ export default {
     const isFollowing = ref(false)
     const isLoading = ref(false)
     let currIndex = -1
-    const userData = reactive({
+    const profileData = reactive({
       name: '',
       profilePicture: '',
       description: '',
@@ -49,9 +49,6 @@ export default {
         publishDate: newBook.value.publishDate,
       }
 
-      // Add book to user's myBooks
-      userData.myBooks.push(book)
-
       // Close modal
       document.getElementById('close-add-book-modal').click()
 
@@ -61,22 +58,11 @@ export default {
 
       const token = localStorage.getItem('access_token')
 
-      // Turn userData.myBooks into an array
-      const myBooks = userData.myBooks.map(book => {
-        return {
-          title: book.title,
-          cover: book.cover,
-          author: book.author,
-          publishDate: book.publishDate,
-        }
-      })
+      const userData = userStore.getUserData()
 
-      const updatedData = {
-        myBooks: myBooks,
-        name: userData.name,
-        description: userData.description,
-        profilePicture: userData.profilePicture,
-      }
+      // Add book to user's myBooks
+      const books = JSON.parse(userData.myBooks.replace(/'/g, '"'))
+      userData.myBooks = [...books, book]
 
       try {
         const response = await fetch(apiUrl, {
@@ -85,13 +71,15 @@ export default {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify(userData),
         })
 
         if (!response.ok) {
           throw new Error('Error al subir el libro')
         }
-        console.log('Libro subido con éxito')
+
+        userStore.updateUser(userData)
+        fetchUserData()
       } catch (error) {
         console.error('Error al subir el libro:', error)
       }
@@ -101,10 +89,10 @@ export default {
       currIndex = index
 
       newBook.value = {
-        title: userData.myBooks[index].title,
-        cover: userData.myBooks[index].cover,
-        author: userData.myBooks[index].author,
-        publishDate: userData.myBooks[index].publishDate,
+        title: profileData.myBooks[index].title,
+        cover: profileData.myBooks[index].cover,
+        author: profileData.myBooks[index].author,
+        publishDate: profileData.myBooks[index].publishDate,
       }
     }
 
@@ -124,27 +112,23 @@ export default {
       }
 
       // Actualizar el libro en la lista local
-      userData.myBooks.splice(index, 1, updatedBook)
+      const userData = userStore.getUserData()
+
+      const userBooks = JSON.parse(userData.myBooks.replace(/'/g, '"'))
 
       // Crear una copia de la lista de libros. Son todos iguales excepto el de indice index
-      const updatedBooks = userData.myBooks.map((book, i) => {
+      const updatedBooks = userBooks.map((book, i) => {
         if (i === index) {
           return updatedBook
         }
         return book
       })
 
+      userData.myBooks = updatedBooks
+
       // Subir los datos actualizados al backend
       const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username.value}`
       const token = localStorage.getItem('access_token')
-
-      // Prepara los datos actualizados
-      const updatedData = {
-        myBooks: updatedBooks,
-        name: userData.name,
-        description: userData.description,
-        profilePicture: userData.profilePicture,
-      }
 
       try {
         const response = await fetch(apiUrl, {
@@ -153,7 +137,7 @@ export default {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify(userData),
         })
 
         if (!response.ok) {
@@ -163,7 +147,8 @@ export default {
       } catch (error) {
         console.error('Error al actualizar el libro:', error)
       } finally {
-        // Cerrar el modal
+        // Actualiza y cierra el modal
+        fetchUserData()
         document.getElementById('editBookModalCloseButton').click()
       }
     }
@@ -171,25 +156,27 @@ export default {
     const deleteBook = async index => {
       console.log('Eliminando libro:', index)
 
+      const userData = userStore.getUserData()
+
+      console.log(
+        'User data Books:',
+        JSON.parse(userData.myBooks.replace(/'/g, '"')),
+      )
+
+      const userDataBooks = JSON.parse(userData.myBooks.replace(/'/g, '"'))
+
       // Remove the book from the local list
-      userData.myBooks.splice(index, 1)
+      const updatedBooks = userDataBooks.splice(index, 1)
+
+      console.log('Updated Books:', updatedBooks)
+
+      userData.myBooks = updatedBooks
+
+      const username = userStore.userName
 
       // Update user data in the database
-      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username.value}`
+      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}`
       const token = localStorage.getItem('access_token')
-
-      // Prepare the updated data
-      const updatedData = {
-        myBooks: userData.myBooks.map(book => ({
-          title: book.title,
-          cover: book.cover,
-          author: book.author,
-          publishDate: book.publishDate,
-        })),
-        name: userData.name,
-        description: userData.description,
-        profilePicture: userData.profilePicture,
-      }
 
       try {
         const response = await fetch(apiUrl, {
@@ -198,7 +185,7 @@ export default {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify(userData),
         })
 
         if (!response.ok) {
@@ -209,6 +196,7 @@ export default {
         console.error('Error al eliminar el libro:', error)
       } finally {
         // Close the modal
+        fetchUserData()
         document.getElementById('deleteBookModalCloseButton').click()
       }
     }
@@ -229,41 +217,71 @@ export default {
       },
     )
 
-    // Fetch user data from API
+    // Fetch user data from local Storeage
     const fetchUserData = async () => {
-      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username.value}`
       try {
+        isLoading.value = true
+
+        // Fetch user data from the route
+        const username = route.params.username
+
+        console.log('Fetching user data for:', username)
+
+        const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}`
+
         const response = await fetch(apiUrl)
         if (!response.ok) {
           throw new Error('Error fetching user data')
         }
         const data = await response.json()
-        userData.name = data.name
-        userData.profilePicture =
+
+        profileData.name = data.name || username
+        profileData.description = data.description || ''
+        profileData.profilePicture =
           data.profilePicture ||
           'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg'
-        userData.description = data.description || 'No hay descripción'
-        userData.favouriteBook = {
-          title: data.favouriteBook?.title || 'No hay libro favorito',
-          cover:
-            data.favouriteBook?.cover ||
-            'https://bookstoreromanceday.org/wp-content/uploads/2020/08/book-cover-placeholder.png',
-          description: data.favouriteBook?.description || 'No hay descripción',
+
+        if (data.myBooks) {
+          console.log('My Books:', data.myBooks)
+          profileData.myBooks = JSON.parse(data.myBooks.replace(/'/g, '"'))
         }
-        userData.groups = data.groups || []
-        userData.bookShelf = data.bookShelf || []
-        userData.myBooks = data.myBooks
-          ? JSON.parse(data.myBooks.replace(/'/g, '"'))
-          : []
-        userData.readingChallenges = data.readingChallenges || []
 
-        // Inicializa `newUserData` con los datos de `userData`
-        newUserData.name = userData.name
-        newUserData.description = userData.description
-        newUserData.profilePictureLink = userData.profilePicture
+        if (data.favouriteBook) {
+          profileData.favouriteBook = JSON.parse(
+            data.favouriteBook.replace(/'/g, '"'),
+          )
+        } else {
+          profileData.favouriteBook = {
+            title: 'No hay Libro Favorito',
+            cover:
+              'https://bookstoreromanceday.org/wp-content/uploads/2020/08/book-cover-placeholder.png',
+            description: '',
+          }
+        }
 
-        console.log('User data:', userData)
-        console.log('User books:', userData.myBooks)
+        if (data.groups) {
+          profileData.groups = JSON.parse(data.groups.replace(/'/g, '"'))
+        }
+
+        if (data.bookShelf) {
+          profileData.bookShelf = JSON.parse(data.bookShelf.replace(/'/g, '"'))
+        }
+
+        if (data.readingChallenges) {
+          profileData.readingChallenges = JSON.parse(
+            data.readingChallenges.replace(/'/g, '"'),
+          )
+        }
+
+        if (username === userStore.userName) {
+          // Inicializa `newUserData` con los datos de `userData`
+          newUserData.name = profileData.name
+          newUserData.description = profileData.description
+          newUserData.profilePictureLink = profileData.profilePicture
+
+          // Si el usuario es el mismo que el usuario actual, actualiza los datos del usuario en el almacenamiento local
+          userStore.updateUser(data)
+        }
 
         userFound.value = true
         checkIfFollowing()
@@ -323,7 +341,7 @@ export default {
 
     return {
       userFound,
-      userData,
+      userData: profileData,
       newUserData,
       username,
       userStore,
@@ -345,12 +363,12 @@ export default {
 
       this.isLoading = true
 
-      const updatedData = {
-        name: this.newUserData.name || this.userData.name,
-        description: this.newUserData.description || this.userData.description,
-        profilePicture:
-          this.newUserData.profilePictureLink || this.userData.profilePicture,
-      }
+      const userData = this.userStore.getUserData()
+
+      userData.name = this.newUserData.name
+      userData.description = this.newUserData.description
+      userData.profilePicture = this.newUserData.profilePictureLink
+      userData.favoriteGenres = []
 
       const token = localStorage.getItem('access_token')
       const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}`
@@ -362,22 +380,16 @@ export default {
             'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify(updatedData),
+          body: JSON.stringify(userData),
         })
 
         if (!response.ok) {
           throw new Error('Error al actualizar la información del usuario')
         }
 
-        // Actualizar los datos en `userData`
-        this.userData.name = updatedData.name
-        this.userData.description = updatedData.description
-        this.userData.profilePicture = updatedData.profilePicture
-
-        // Actualizar el usuario en el store
-        this.userStore.updateUser(updatedData)
-
-        // Cerrar el modal
+        // Cerrar el modal y actualizar
+        this.fetchUserData()
+        this.userStore.updateUser(userData)
         document.getElementById('close-edit-user-info-modal').click()
       } catch (error) {
         console.error('Error al actualizar:', error)
@@ -420,7 +432,7 @@ export default {
 
           <!-- User description -->
           <p class="mb-0">
-            {{ userData.description }}
+            {{ userData.description || '' }}
           </p>
 
           <!-- Follow/Unfollow button visible only for other users -->

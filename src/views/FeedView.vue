@@ -2,17 +2,15 @@
 import { reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import HeaderComponent from '@/components/HeaderComponent.vue'
-import { useRouter } from 'vue-router' // Importa useRouter
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'FeedView',
-  components: {
-    HeaderComponent,
-  },
+  components: { HeaderComponent },
   setup() {
     const follows = reactive([])
     const userStore = useUserStore()
-    const router = useRouter() // Inicializa el router
+    const router = useRouter()
 
     const fetchFollowing = async () => {
       const currentUserName = userStore.userName
@@ -24,10 +22,7 @@ export default {
           throw new Error('Network response was not ok')
         }
         const data = await response.json()
-
-        console.log(data)
-
-        follows.push(...data) // Suponiendo que la respuesta es un array de usuarios
+        follows.push(...data)
       } catch (error) {
         console.error('Error fetching following:', error)
       }
@@ -39,7 +34,7 @@ export default {
 
     return {
       follows,
-      router, // Retorna el router
+      router,
     }
   },
 }
@@ -51,6 +46,7 @@ export default {
     <div class="row">
       <div class="col feed-column">
         <h1>Feed</h1>
+        <h2>Sigues a:</h2>
         <div class="list-group">
           <div
             class="list-group-item"
@@ -62,10 +58,9 @@ export default {
               alt="Icono de seguimiento"
               class="follow-icon"
             />
-            <router-link class="user-link" :to="`/user/${user.following}`">{{
-              user.following
-            }}</router-link>
-            <!-- Envolver el nombre en un router-link -->
+            <router-link class="user-link" :to="`/user/${user.following}`">
+              {{ user.following }}
+            </router-link>
           </div>
         </div>
       </div>
@@ -74,6 +69,7 @@ export default {
 </template>
 
 <style scoped>
+/* Reutiliza estilos específicos del feed */
 .list-group-item {
   margin-bottom: 15px;
   display: flex;
@@ -81,17 +77,17 @@ export default {
 }
 
 .follow-icon {
-  width: 20px; /* Ajusta el tamaño según lo necesites */
-  height: 20px; /* Ajusta el tamaño según lo necesites */
-  margin-right: 10px; /* Espacio entre el icono y el nombre */
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
 }
 
 .user-link {
-  color: black; /* Cambia el color del texto a negro */
-  text-decoration: none; /* Quita el subrayado del enlace */
+  color: black;
+  text-decoration: none;
 }
 
 .user-link:hover {
-  text-decoration: underline; /* Agrega subrayado al pasar el mouse */
+  text-decoration: underline;
 }
 </style>

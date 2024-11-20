@@ -1,66 +1,108 @@
-<template>
-  <div class="genre-sidebar">
-    <h3>Géneros Populares</h3>
-    <ul>
-      <li
-        v-for="genre in topGenres"
-        :key="genre.name"
-        @click="selectGenre(genre)"
-      >
-        {{ genre.name }} ({{ genre.count }})
-      </li>
-    </ul>
-    <button @click="viewAllGenres">Más géneros</button>
-  </div>
-</template>
-
 <script>
-import booksData from '@/resources/books.json'
-
 export default {
   name: 'GenreSidebar',
   data() {
     return {
-      topGenres: [], // Aquí almacenaremos los géneros con su cantidad
+      topGenres: [], // Lista de los 4 géneros con más libros
     }
   },
-  created() {
-    this.calculateTopGenres()
-  },
   methods: {
-    calculateTopGenres() {
-      const genreCounts = {}
-
-      // Contamos cuántos libros hay por género
-      booksData.forEach(book => {
-        if (book.genre) {
-          if (genreCounts[book.genre]) {
-            genreCounts[book.genre]++
-          } else {
-            genreCounts[book.genre] = 1
-          }
+    async calculateTopGenres() {
+      const url =
+        'https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/book/genres'
+      try {
+        const response = await fetch(url)
+        if (!response.ok) {
+          throw new Error('Network response was not ok')
         }
-      })
+        const data = await response.json()
+        const genresData = data.body.genres
 
-      // Convertimos los géneros a un array y los ordenamos por cantidad
-      const sortedGenres = Object.keys(genreCounts)
-        .map(genre => ({ name: genre, count: genreCounts[genre] }))
-        .sort((a, b) => b.count - a.count) // Ordenar de mayor a menor
+        // Crear un objeto para contar los géneros
+        const genreCounts = {}
 
-      // Tomamos los 4 géneros más populares
-      this.topGenres = sortedGenres.slice(0, 4)
+        // Contar cada género por separado
+        genresData.forEach(item => {
+          const genres = item.genre.split(', ')
+          genres.forEach(genre => {
+            if (genreCounts[genre]) {
+              genreCounts[genre] += item.count
+            } else {
+              genreCounts[genre] = item.count
+            }
+          })
+        })
+
+        // Convertir el objeto en una matriz y ordenar por la cantidad de libros
+        const sortedGenres = Object.entries(genreCounts)
+          .map(([genre, count]) => ({ genre, count }))
+          .sort((a, b) => b.count - a.count)
+
+        // Seleccionar los 4 géneros con más libros
+        this.topGenres = sortedGenres.slice(0, 4)
+
+        console.log('Top Genres:', this.topGenres)
+      } catch (error) {
+        console.error('Error fetching genres:', error)
+      }
     },
     selectGenre(genre) {
       // Redirige a la página de libros populares del género seleccionado
-      this.$router.push({ path: `/genres/${genre.name}` })
+      this.$router.push({ path: `/genres/${genre.genre}` })
     },
     viewAllGenres() {
       // Redirige a la página de todos los géneros
       this.$router.push('/genres')
     },
   },
+  computed: {
+    translatedTopGenres() {
+      const genreTranslations = {
+        fiction: 'Ficción',
+        mystery: 'Misterio',
+        thriller: 'Thriller',
+        crime: 'Crimen',
+        fantasy: 'Fantasía',
+        'dark-fantasy': 'Fantasía oscura',
+        horror: 'Terror',
+        poetry: 'Poesía',
+        romance: 'Romance',
+        comics: 'Cómics',
+        graphic: 'Novela gráfica',
+        'young-adult': 'Jóvenes adultos',
+        children: 'Infantil',
+        'non-fiction': 'No ficción',
+        historical: 'Histórico',
+        biography: 'Biografía',
+      }
+
+      return this.topGenres.map(genre => ({
+        ...genre,
+        translatedName: genreTranslations[genre.genre] || genre.genre,
+      }))
+    },
+  },
+  mounted() {
+    this.calculateTopGenres()
+  },
 }
 </script>
+
+<template>
+  <div class="genre-sidebar">
+    <h3>Géneros Populares</h3>
+    <ul>
+      <li
+        v-for="genre in translatedTopGenres"
+        :key="genre.genre"
+        @click="selectGenre(genre)"
+      >
+        {{ genre.translatedName }} ({{ genre.count }})
+      </li>
+    </ul>
+    <button @click="viewAllGenres">Más géneros</button>
+  </div>
+</template>
 
 <style scoped>
 .genre-sidebar {

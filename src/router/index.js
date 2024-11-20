@@ -40,6 +40,27 @@ const router = createRouter({
       component: () => import('../views/BooksView.vue'),
     },
     {
+      path: '/book/:isbn',
+      name: 'book',
+      component: () => import('../views/BookView.vue'),
+      props: true,
+    },
+    {
+      path: '/author/:authorName',
+      name: 'AuthorView',
+      component: () => import('../views/AuthorView.vue'),
+    },
+    {
+      path: '/config',
+      name: 'ConfigView',
+      component: () => import('../views/ConfigView.vue'),
+    },
+    {
+      path: '/recommendations',
+      name: 'RecommendationsView',
+      component: () => import('../views/RecommendationsView.vue'),
+    },
+    {
       path: '/genres',
       name: 'all-genres',
       component: () => import('../views/AllGenresView.vue'),
