@@ -61,6 +61,12 @@ const router = createRouter({
       component: () => import('../views/RecommendationsView.vue'),
     },
     {
+      path: '/chat:authorName',
+      name: 'ChatView',
+      component: () => import('../views/ChatView.vue'),
+      props: true,
+    },
+    {
       path: '/genres',
       name: 'all-genres',
       component: () => import('../views/AllGenresView.vue'),
