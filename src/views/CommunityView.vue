@@ -2,6 +2,7 @@
 import { reactive, onMounted } from 'vue'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import { useRoute } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 
 export default {
   name: 'FeedView',
@@ -10,57 +11,65 @@ export default {
   },
   setup() {
     const route = useRoute() // Inicializa el router
+    const userStore = useUserStore()
 
     const communityName = route.params.communityName
     const communityData = reactive({
+      id: '',
       profilePicture: '',
       description: '',
       members: [],
+      isFollowing: false,
     })
+
+    const toggleJoin = async () => {
+      try {
+        const accessToken = localStorage.getItem('access_token')
+        const currentUser = userStore.userName
+        await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUser}/groups/${communityData.id}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({ active: !communityData.isFollowing }),
+          },
+        )
+        communityData.isFollowing = !communityData.isFollowing
+      } catch (error) {
+        console.error('Error al unirse a la comunidad:', error)
+      }
+    }
 
     // Replace with actual community data
     const fetchCommunityData = async () => {
       try {
-        // const response = await fetch(
-        //   `http://localhost:3000/api/community/${communityName}`,
-        // )
+        const getGroupResponse = await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/groups/${communityName}`,
+        )
+        const groupDataArray = await getGroupResponse.json()
+        const groupData = groupDataArray[0]
 
-        communityData.profilePicture =
-          'https://i.pinimg.com/736x/6d/92/bd/6d92bd31e49001b5035d75a6191802cb.jpg'
-        communityData.description =
-          'Grupo de lectura divertido y amigable donde los niños descubrirán la magia de los libros junto a Snoopy y la pandilla de Peanuts. Cada semana nos sumergiremos en nuevas historias, compartiremos personajes favoritos y exploraremos el maravilloso mundo de la lectura juntos. Al igual que Snoopy con su máquina de escribir, liberaremos nuestra imaginación y quizás hasta crearemos algunas historias propias.'
-        communityData.members = [
-          {
-            name: 'Snoopy 1',
-            profilePicture:
-              'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg',
-          },
-          {
-            name: 'Snoopy 2',
-            profilePicture:
-              'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg',
-          },
-          {
-            name: 'Snoopy 3',
-            profilePicture:
-              'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg',
-          },
-          {
-            name: 'Snoopy 4',
-            profilePicture:
-              'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg',
-          },
-          {
-            name: 'Snoopy 5',
-            profilePicture:
-              'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg',
-          },
-          {
-            name: 'Snoopy 6',
-            profilePicture:
-              'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg',
-          },
-        ]
+        const getGroupMembersResponse = await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/groups/${groupData.id}`,
+        )
+        const groupMembersData = await getGroupMembersResponse.json()
+        communityData.members = groupMembersData.map(member => ({
+          name: member.name,
+          profilePicture: member.image_url,
+        }))
+
+        communityData.id = groupData.id
+        communityData.profilePicture = groupData.image_url
+        communityData.description = new TextDecoder().decode(
+          Uint8Array.from(atob(groupData.description), c => c.charCodeAt(0)),
+        )
+        communityData.isFollowing = communityData.members.some(
+          member => member.name === userStore.userName,
+        )
+        communityData.isFollowing = false
       } catch (error) {
         console.log(error)
       }
@@ -71,6 +80,7 @@ export default {
     })
 
     return {
+      toggleJoin,
       communityName,
       communityData,
     }
@@ -93,7 +103,14 @@ export default {
       />
     </div>
     <div class="row d-flex justify-content-center mb-4">
-      <button class="btn btn-primary" style="max-width: 10vmax">Unirse</button>
+      <button
+        class="btn btn-primary"
+        style="max-width: 10vmax"
+        :class="communityData.isFollowing ? 'btn-danger' : 'btn-primary'"
+        @click="toggleJoin"
+      >
+        {{ communityData.isFollowing ? 'Abandonar' : 'Unirse' }}
+      </button>
     </div>
     <div class="row">
       <div class="col rounded text-center" style="min-height: 50vh">

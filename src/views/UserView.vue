@@ -250,7 +250,12 @@ export default {
             'https://bookstoreromanceday.org/wp-content/uploads/2020/08/book-cover-placeholder.png',
           description: data.favouriteBook?.description || 'No hay descripción',
         }
-        userData.groups = data.groups || []
+
+        const getGroupsResponse = await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${userStore.userName}/groups`,
+        ).then(async response => response.json())
+
+        userData.groups = getGroupsResponse.groups || []
         userData.bookShelf = data.bookShelf || []
         userData.myBooks = data.myBooks
           ? JSON.parse(data.myBooks.replace(/'/g, '"'))
@@ -261,9 +266,6 @@ export default {
         newUserData.name = userData.name
         newUserData.description = userData.description
         newUserData.profilePictureLink = userData.profilePicture
-
-        console.log('User data:', userData)
-        console.log('User books:', userData.myBooks)
 
         userFound.value = true
         checkIfFollowing()
@@ -545,7 +547,7 @@ export default {
         </div>
       </div>
 
-      <div class="row mt-4">
+      <div class="row my-4">
         <!-- Biblioteca -->
         <div class="col">
           <h3>Biblioteca</h3>
@@ -565,7 +567,14 @@ export default {
               :key="group.name"
               class="list-group-item d-flex justify-content-between align-items-center"
             >
-              {{ group.name }}
+              <RouterLink
+                :to="{
+                  name: 'community',
+                  params: { communityName: group.name },
+                }"
+              >
+                {{ group.name }}
+              </RouterLink>
               <span class="badge bg-primary rounded-pill">
                 <div>
                   <template v-if="group.members < 1000">

@@ -25,11 +25,8 @@ export default {
         )
         const data = await response.json()
 
-        console.log(data.body.users)
-
         // Recorrer los usuarios y verificar el estado de seguimiento
         for (const user of data.body.users) {
-          console.log('User: ', user)
           if (user.username !== currentUserName) {
             // Verificar si el usuario está siendo seguido
             const isFollowingResponse = await fetch(
@@ -37,11 +34,10 @@ export default {
             )
             const isFollowingData = await isFollowingResponse.json()
 
-            console.log(isFollowingData)
-
             users.push({
               name: user.username,
               profilePicture:
+                user.profilePicture ||
                 'https://cdn-icons-png.flaticon.com/512/1077/1077114.png',
               isFollowing: isFollowingData.active, // Estado de seguimiento
             })
@@ -59,10 +55,6 @@ export default {
       const accessToken = localStorage.getItem('access_token')
       const currentUser = userStore.userName
 
-      console.log(
-        `Cambiando el estado de seguimiento de ${user.name} a ${isFollowing}`,
-      )
-
       try {
         const response = await fetch(
           `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUser}/following/${user.name}`,
@@ -79,8 +71,6 @@ export default {
         if (!response.ok) {
           throw new Error('Error al actualizar el estado de seguimiento')
         }
-        console.log('Estado de seguimiento actualizado con éxito')
-        console.log(response)
       } catch (error) {
         console.error('Error al cambiar el estado de seguimiento:', error)
         user.isFollowing = !isFollowing // Revertir el estado si hay un error

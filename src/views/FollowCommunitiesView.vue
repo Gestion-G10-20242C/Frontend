@@ -15,36 +15,50 @@ export default {
     const communities = reactive([])
     const newCommunity = reactive({
       name: '',
+      image_url: '',
+      genres: '',
       description: '',
     })
     const router = useRouter() // Instancia del router
 
-    const fetchCommunities = async () => {
-      const currentUserName = userStore.userName
+    const filteredCommunities = computed(() => {
+      return communities.filter(community =>
+        community.name.toLowerCase().includes(searchTerm.value.toLowerCase()),
+      )
+    })
 
+    const fetchFollowedCommunities = async () => {
       try {
-        // Obtener la lista de usuarios
         const response = await fetch(
-          'https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users',
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${userStore.userName}/groups`,
+        )
+        const data = await response.json()
+        return data.groups.map(group => group.name)
+      } catch (error) {
+        console.error('Error al obtener las comunidades seguidas:', error)
+        return []
+      }
+    }
+
+    const fetchCommunities = async () => {
+      try {
+        // Obtener la lista de comunidades seguidas
+        const followedCommunities = await fetchFollowedCommunities()
+
+        // Obtener la lista de comunidades
+        const response = await fetch(
+          'https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/groups',
         )
         const data = await response.json()
 
-        // Recorrer los usuarios y verificar el estado de seguimiento
-        for (const user of data.body.users) {
-          if (user.username !== currentUserName) {
-            // Verificar si el usuario está siendo seguido
-            const isFollowingResponse = await fetch(
-              `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUserName}/following/${user.username}`,
-            )
-            const isFollowingData = await isFollowingResponse.json()
-
-            communities.push({
-              name: user.username,
-              profilePicture:
-                'https://cdn-icons-png.flaticon.com/512/1077/1077114.png',
-              isFollowing: isFollowingData.active, // Estado de seguimiento
-            })
-          }
+        // Recorrer las comunidades y verificar el estado de seguimiento
+        for (const group of data.groups) {
+          communities.push({
+            name: group.name,
+            profilePicture: group.image_url,
+            isFollowing: followedCommunities.includes(group.name),
+            id: group.id,
+          })
         }
       } catch (error) {
         console.error('Error al obtener los usuarios:', error)
@@ -55,18 +69,61 @@ export default {
       router.push(`/communities/${name}`) // Navegar a la vista de la comunidad
     }
 
-    const filteredCommunities = computed(() => {
-      return communities.filter(community =>
-        community.name.toLowerCase().includes(searchTerm.value.toLowerCase()),
-      )
-    })
-
     const toggleJoin = async community => {
-      console.log('Unirse a la comunidad', community.name)
+      try {
+        const accessToken = localStorage.getItem('access_token')
+        const currentUser = userStore.userName
+        await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUser}/groups/${community.id}`,
+          {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({ active: !community.isFollowing }),
+          },
+        )
+        community.isFollowing = !community.isFollowing
+      } catch (error) {
+        console.error('Error al unirse a la comunidad:', error)
+      }
     }
 
-    const createNewCommunity = () => {
+    const createNewCommunity = async () => {
+      if (
+        !newCommunity.name ||
+        !newCommunity.description ||
+        !newCommunity.image_url
+      ) {
+        alert('Por favor, complete todos los campos')
+        return
+      }
       console.log('Crear comunidad', newCommunity)
+
+      const accessToken = localStorage.getItem('access_token')
+      const currentUser = userStore.userName
+      try {
+        const response = await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUser}/groups`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: JSON.stringify({
+              name: newCommunity.name,
+              description: newCommunity.description,
+              image_url: newCommunity.image_url,
+              genres: newCommunity.genres,
+            }),
+          },
+        )
+        console.log('response', response)
+      } catch (error) {
+        console.error('Error al crear la comunidad:', error)
+      }
     }
 
     onMounted(() => {
@@ -174,6 +231,28 @@ export default {
             </div>
             <input
               v-model="newCommunity.name"
+              type="text"
+              class="form-control"
+            />
+          </div>
+
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text">URL imagen perfil</span>
+            </div>
+            <input
+              v-model="newCommunity.image_url"
+              type="text"
+              class="form-control"
+            />
+          </div>
+
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text">Generos</span>
+            </div>
+            <input
+              v-model="newCommunity.genres"
               type="text"
               class="form-control"
             />
