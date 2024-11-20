@@ -92,6 +92,11 @@ export default {
                   >Gente</RouterLink
                 >
               </li>
+              <li>
+                <RouterLink to="/communities" class="dropdown-item"
+                  >Comunidades</RouterLink
+                >
+              </li>
             </ul>
           </li>
           <li>
