@@ -31,9 +31,9 @@ export default {
       biography: 'Biografía',
     }
 
-    const feedFavouriteGenres = JSON.parse(
-      userStore.favouriteGenres.replace(/'/g, '"'),
-    )
+    const feedFavouriteGenres = userStore.favouriteGenres.length
+      ? JSON.parse(userStore.favouriteGenres.replace(/'/g, '"'))
+      : []
 
     feedFavouriteGenres.forEach(genre => {
       currentPages[genre] = 1

@@ -47,7 +47,9 @@ export default {
   computed: {
     // Obtener los géneros preferidos del usuario
     userPreferredGenres() {
-      return JSON.parse(this.userStore.favouriteGenres.replace(/'/g, '"'))
+      return this.userStore.favouriteGenres.length
+        ? JSON.parse(this.userStore.favouriteGenres.replace(/'/g, '"'))
+        : []
     },
     // Dividir géneros disponibles en columnas de 5
     genreColumns() {
