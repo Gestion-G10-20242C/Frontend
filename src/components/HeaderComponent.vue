@@ -33,6 +33,13 @@ export default {
       })
     }
 
+    const handleCloseSession = () => {
+      userStore.logOut()
+      router.push({
+        path: '/',
+      })
+    }
+
     const setSearchQuery = query => {
       searchStore.setSearchQuery(query)
     }
@@ -45,6 +52,7 @@ export default {
       setSearchQuery,
       handleProfileClick,
       handleConfigClick,
+      handleCloseSession,
     }
   },
 }
@@ -183,7 +191,15 @@ export default {
               </RouterLink>
             </li>
             <li><hr class="dropdown-divider" /></li>
-            <li><a class="dropdown-item" href="/">Cerrar Sesión</a></li>
+            <li>
+              <RouterLink
+                :to="`/`"
+                class="dropdown-item"
+                @click="handleCloseSession"
+              >
+                Cerrar Session
+              </RouterLink>
+            </li>
           </ul>
         </div>
       </div>
