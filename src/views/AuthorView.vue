@@ -36,8 +36,9 @@ export default {
           throw new Error('Error al obtener datos del servidor')
         }
 
-        console.log('Books fetched:', response.books)
-        results.value = response.books
+        console.log('Books fetched:', response)
+        results.value = response
+        loading.value = false
 
         if (results.value.length === 0) {
           authorData.errorMessage = 'No books found for this author.'
