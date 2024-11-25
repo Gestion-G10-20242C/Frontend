@@ -12,7 +12,7 @@ export default {
     const follows = reactive([])
     const userStore = useUserStore()
     const router = useRouter()
-    const isLoading = ref(false)
+    const isLoading = ref(true)
     const errorMessage = ref('')
 
     const fetchFollowing = async () => {
@@ -26,7 +26,7 @@ export default {
         }
         const data = await response.json()
         follows.push(...data)
-        isLoading.value = true
+        isLoading.value = false
       } catch (error) {
         console.error('Error fetching following:', error)
         errorMessage.value = `Error cargando feed. ErrorMessage ${error.message}`
@@ -52,7 +52,7 @@ export default {
   <div class="container pt-4 content-wrapper">
     <div class="row">
       <div
-        v-if="!isLoading"
+        v-if="isLoading"
         class="d-flex justify-content-center align-items-center my-5"
         style="height: 50vh"
       >
@@ -60,7 +60,7 @@ export default {
           <span class="visually-hidden">Cargando...</span>
         </div>
       </div>
-      <div v-else-if="errorMessage && isLoading">
+      <div v-else-if="errorMessage && !isLoading">
         <div class="alert alert-danger">
           {{ errorMessage }}
         </div>
