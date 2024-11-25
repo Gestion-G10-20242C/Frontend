@@ -38,7 +38,6 @@ export default {
 
         console.log('Books fetched:', response)
         results.value = response
-        loading.value = false
 
         if (results.value.length === 0) {
           authorData.errorMessage = 'No books found for this author.'
