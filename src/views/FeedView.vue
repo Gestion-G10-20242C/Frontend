@@ -3,6 +3,7 @@ import { reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 
 export default {
   name: 'FeedView',
@@ -11,6 +12,8 @@ export default {
     const follows = reactive([])
     const userStore = useUserStore()
     const router = useRouter()
+    const isLoading = ref(true)
+    const errorMessage = ref('')
 
     const fetchFollowing = async () => {
       const currentUserName = userStore.userName
@@ -23,8 +26,10 @@ export default {
         }
         const data = await response.json()
         follows.push(...data)
+        isLoading.value = false
       } catch (error) {
         console.error('Error fetching following:', error)
+        errorMessage.value = `Error cargando feed. ErrorMessage ${error.message}`
       }
     }
 
@@ -35,6 +40,8 @@ export default {
     return {
       follows,
       router,
+      isLoading,
+      errorMessage,
     }
   },
 }
@@ -44,23 +51,39 @@ export default {
   <HeaderComponent />
   <div class="container pt-4 content-wrapper">
     <div class="row">
-      <div class="col feed-column">
-        <h1>Feed</h1>
-        <h2>Sigues a:</h2>
-        <div class="list-group">
-          <div
-            class="list-group-item"
-            v-for="(user, index) in follows"
-            :key="index"
-          >
-            <img
-              src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
-              alt="Icono de seguimiento"
-              class="follow-icon"
-            />
-            <router-link class="user-link" :to="`/user/${user.following}`">
-              {{ user.following }}
-            </router-link>
+      <div
+        v-if="isLoading"
+        class="d-flex justify-content-center align-items-center my-5"
+        style="height: 50vh"
+      >
+        <div class="spinner-border" role="status">
+          <span class="visually-hidden">Cargando...</span>
+        </div>
+      </div>
+      <div v-else-if="errorMessage && !isLoading">
+        <div class="alert alert-danger">
+          {{ errorMessage }}
+        </div>
+      </div>
+      <div v-else>
+        <div class="col feed-column">
+          <h1>Feed</h1>
+          <h2>Sigues a:</h2>
+          <div class="list-group">
+            <div
+              class="list-group-item"
+              v-for="(user, index) in follows"
+              :key="index"
+            >
+              <img
+                src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+                alt="Icono de seguimiento"
+                class="follow-icon"
+              />
+              <router-link class="user-link" :to="`/user/${user.following}`">
+                {{ user.following }}
+              </router-link>
+            </div>
           </div>
         </div>
       </div>
