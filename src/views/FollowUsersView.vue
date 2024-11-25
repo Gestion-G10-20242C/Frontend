@@ -25,7 +25,6 @@ export default {
           'https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users',
         )
         const data = await response.json()
-        isLoading.value = false
 
         // Recorrer los usuarios y verificar el estado de seguimiento
         for (const user of data.body.users) {
@@ -45,6 +44,7 @@ export default {
             })
           }
         }
+        isLoading.value = false
       } catch (error) {
         console.error('Error al obtener los usuarios:', error)
       }
