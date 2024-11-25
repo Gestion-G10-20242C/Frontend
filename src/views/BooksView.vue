@@ -43,7 +43,7 @@ export default {
           throw new Error('Error al obtener datos del servidor')
         }
 
-        this.results = response.books
+        this.results = response
 
         if (this.results.message) {
           this.errorMessage =
