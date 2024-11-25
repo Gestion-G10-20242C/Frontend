@@ -13,7 +13,8 @@ export default {
     const userStore = useUserStore()
     const searchTerm = ref('')
     const users = reactive([])
-    const router = useRouter() // Instancia del router
+    const router = useRouter()
+    const isLoading = ref(true)
 
     const fetchUsers = async () => {
       const currentUserName = userStore.userName
@@ -24,6 +25,7 @@ export default {
           'https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users',
         )
         const data = await response.json()
+        isLoading.value = false
 
         // Recorrer los usuarios y verificar el estado de seguimiento
         for (const user of data.body.users) {
@@ -95,6 +97,7 @@ export default {
       searchTerm,
       users,
       filteredUsers,
+      isLoading,
       toggleFollow,
       viewUserProfile, // Exponer la función
     }
@@ -104,7 +107,18 @@ export default {
 
 <template>
   <HeaderComponent />
-  <div class="container pt-4">
+
+  <div
+    v-if="isLoading"
+    class="d-flex justify-content-center align-items-center my-5"
+    style="height: 80vh"
+  >
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <div v-else class="container pt-4">
     <div class="row">
       <div class="col">
         <h1>Otros Lectores</h1>
