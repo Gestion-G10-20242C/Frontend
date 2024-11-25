@@ -54,7 +54,7 @@ export default {
       <div
         v-if="isLoading"
         class="d-flex justify-content-center align-items-center my-5"
-        style="height: 50vh"
+        style="height: 80vh"
       >
         <div class="spinner-border" role="status">
           <span class="visually-hidden">Cargando...</span>
