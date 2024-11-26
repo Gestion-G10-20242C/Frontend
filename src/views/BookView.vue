@@ -25,9 +25,9 @@ export default {
       const relativePath = `/search?query=${encodeURIComponent(this.isbn)}&field=isbn`
       const data = await GET('GET', relativePath, null, null)
 
-      if (data && data.books.length > 0) {
-        console.log('Book:', data.books[0])
-        this.book = data.books[0]
+      if (data) {
+        console.log('Book:', data[0])
+        this.book = data[0]
       } else {
         this.error = true // Marca error si no se encuentran libros
       }

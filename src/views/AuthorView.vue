@@ -36,8 +36,8 @@ export default {
           throw new Error('Error al obtener datos del servidor')
         }
 
-        console.log('Books fetched:', response.books)
-        results.value = response.books
+        console.log('Books fetched:', response)
+        results.value = response
 
         if (results.value.length === 0) {
           authorData.errorMessage = 'No books found for this author.'
@@ -58,7 +58,7 @@ export default {
 
       console.log('Fetching author data for:', authorName)
 
-      const relPath = `/search?query=${authorName}&field=author_name`
+      const relPath = encodeURI(`/search?query=${authorName}&field=author_name`)
 
       await fetch_books(relPath)
 

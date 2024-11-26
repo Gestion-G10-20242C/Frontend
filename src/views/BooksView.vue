@@ -43,14 +43,14 @@ export default {
           throw new Error('Error al obtener datos del servidor')
         }
 
-        this.results = response.books
+        console.log('Response:', response)
 
-        if (this.results.message) {
-          this.errorMessage =
-            'Hubo un problema al obtener los libros. Intenta nuevamente más tarde.'
-        } else {
-          this.errorMessage = ''
+        if (!response) {
+          this.errorMessage = 'No se encontraron resultados'
+          return
         }
+
+        this.results = response
       } catch (error) {
         console.error('Error al obtener libros:', error)
       }

@@ -283,6 +283,9 @@ export default {
 
           // Si el usuario es el mismo que el usuario actual, actualiza los datos del usuario en el almacenamiento local
           userStore.updateUser(data)
+
+          // Busca las listas de libros
+          fetchBookLists()
         }
 
         userFound.value = true
@@ -337,6 +340,26 @@ export default {
       }
     }
 
+    const fetchBookLists = async () => {
+
+      console.log('Fetching book lists for:', username.value)
+      const url = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username.value}/booklist`
+      try {
+        const response = await fetch(url)
+        if (!response.ok) {
+          throw new Error('Error al obtener las listas de libros')
+        }
+        const data = await response.json()
+        console.log('Book lists fetched:', data)
+        profileData.bookShelf = data || []
+        console.log('Bookshelf:', profileData.bookShelf)
+      } catch (error) {
+        console.error('Error al obtener las listas de libros:', error)
+      } finally {
+        isLoading.value = false
+      }
+    }
+
     onMounted(() => {
       fetchUserData()
     })
@@ -357,6 +380,7 @@ export default {
       editBook,
       setBookIndex,
       getBookIndex,
+      fetchBookLists,
     }
   },
   methods: {
@@ -563,8 +587,19 @@ export default {
         <!-- Biblioteca -->
         <div class="col">
           <h3>Biblioteca</h3>
+        <ul class="list-group">
+          <li
+            v-for="booklist in userData.bookShelf"
+            :key="booklist.name"
+            class="list-group-item d-flex justify-content-between align-items-center"
+          >
+            {{ booklist.name }}
+            <span class="badge bg-primary rounded-pill">{{ booklist.books.length }}</span>
+          </li>
+        </ul>
         </div>
-
+      
+              
         <!-- Reading Challenges -->
         <div class="col">
           <h3>Reading Challenges</h3>
