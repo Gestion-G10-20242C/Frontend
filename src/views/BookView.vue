@@ -13,6 +13,7 @@ export default {
       book: null,
       loading: true,
       error: false,
+      reviewText: '',
     }
   },
   async mounted() {
@@ -20,19 +21,51 @@ export default {
     await this.fetchBookDetails()
   },
   methods: {
+    async handleAddReview() {
+      console.log(this.reviewText)
+
+      const relativePath = `book/${this.isbn}/review`
+      const accessToken = localStorage.getItem('access_token')
+
+      const data = JSON.stringify({
+        review: this.reviewText,
+      })
+
+      try {
+        await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/${relativePath}`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: data,
+          },
+        )
+      } catch (e) {
+        console.error('Error adding review:', e)
+      }
+
+      this.reviewText = ''
+    },
     async fetchBookDetails() {
       console.log('Isbn:', this.isbn)
       const relativePath = `/search?query=${encodeURIComponent(this.isbn)}&field=isbn`
-      const data = await GET('GET', relativePath, null, null)
+      try {
+        const data = await GET('GET', relativePath, null, null)
 
-      if (data && data.books.length > 0) {
-        console.log('Book:', data.books[0])
-        this.book = data.books[0]
-      } else {
-        this.error = true // Marca error si no se encuentran libros
+        if (data && data.books.length > 0) {
+          console.log('Book:', data.books[0])
+          this.book = data.books[0]
+        }
+
+        this.loading = false
+      } catch (error) {
+        console.error('Error fetching book:', error)
+        this.error = true
+        this.loading = false
       }
-
-      this.loading = false
     },
     getStarClasses(index) {
       const rating = this.book?.average_rating || 0
@@ -135,6 +168,13 @@ export default {
           <p><strong>Reseñas:</strong> {{ book.text_reviews_count }} reseñas</p>
         </div>
       </div>
+      <div>
+        <p>Deja una resena</p>
+        <textarea v-model="reviewText" class="square-input"></textarea>
+        <div class="button-container">
+          <button @click="handleAddReview">Publish</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -220,5 +260,17 @@ export default {
 .genre-badge:hover {
   transform: scale(1.05); /* Efecto de zoom al pasar el ratón */
   background-color: #d1d5db; /* Cambia el color al hacer hover */
+}
+
+.square-input {
+  width: 500px;
+  height: 100px;
+  resize: none;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
+}
+
+.button-container {
+  padding-top: 10px; /* Adjust the padding as needed */
 }
 </style>
