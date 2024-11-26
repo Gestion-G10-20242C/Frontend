@@ -286,6 +286,7 @@ export default {
         }
 
         userFound.value = true
+        isLoading.value = false
         checkIfFollowing()
       } catch (error) {
         console.error(error)
@@ -405,9 +406,19 @@ export default {
 </script>
 
 <template>
-  <!-- User found -->
-  <template v-if="userFound">
-    <HeaderComponent />
+  <HeaderComponent />
+
+  <div
+    v-if="isLoading"
+    class="d-flex justify-content-center align-items-center my-5"
+    style="height: 80vh"
+  >
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <template v-else-if="userFound">
     <div class="container pt-4">
       <div class="row">
         <div class="col-3 d-flex flex-column align-items-center">
@@ -672,11 +683,6 @@ export default {
                 v-model="newUserData.description"
               ></textarea>
             </div>
-
-            <!-- Mostrar mensaje de carga si isLoading es true -->
-            <div v-if="isLoading" class="text-center">
-              <p>Actualizando...</p>
-            </div>
           </div>
           <div class="modal-footer">
             <button
@@ -886,7 +892,6 @@ export default {
   </template>
 
   <template v-else>
-    <HeaderComponent />
     <div class="p-4 d-flex justify-content-center">
       <h1>Usuario no encontrado!</h1>
     </div></template

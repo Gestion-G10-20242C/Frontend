@@ -13,7 +13,8 @@ export default {
     const userStore = useUserStore()
     const searchTerm = ref('')
     const users = reactive([])
-    const router = useRouter() // Instancia del router
+    const router = useRouter()
+    const isLoading = ref(true)
 
     const fetchUsers = async () => {
       const currentUserName = userStore.userName
@@ -43,6 +44,7 @@ export default {
             })
           }
         }
+        isLoading.value = false
       } catch (error) {
         console.error('Error al obtener los usuarios:', error)
       }
@@ -95,6 +97,7 @@ export default {
       searchTerm,
       users,
       filteredUsers,
+      isLoading,
       toggleFollow,
       viewUserProfile, // Exponer la función
     }
@@ -104,7 +107,18 @@ export default {
 
 <template>
   <HeaderComponent />
-  <div class="container pt-4">
+
+  <div
+    v-if="isLoading"
+    class="d-flex justify-content-center align-items-center my-5"
+    style="height: 80vh"
+  >
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+
+  <div v-else class="container pt-4">
     <div class="row">
       <div class="col">
         <h1>Otros Lectores</h1>
