@@ -1,5 +1,6 @@
 <script>
 import HeaderComponent from '@/components/HeaderComponent.vue'
+import { useUserStore } from '@/stores/user';
 import { GET } from '@/utils/fetch_async'
 
 export default {
@@ -13,11 +14,14 @@ export default {
       book: null,
       loading: true,
       error: false,
+      isRead: false,
+      buttonLoading: false,
     }
   },
   async mounted() {
     console.log('ISBN:', this.isbn)
     await this.fetchBookDetails()
+    await this.isBookRead()
   },
   methods: {
     async fetchBookDetails() {
@@ -26,13 +30,106 @@ export default {
       const data = await GET('GET', relativePath, null, null)
 
       if (data) {
-        console.log('Book:', data[0])
+        console.log('Book:', data)
         this.book = data[0]
       } else {
         this.error = true // Marca error si no se encuentran libros
       }
 
       this.loading = false
+    },
+    async isBookRead() {
+      try {
+        const userStore = useUserStore()
+        const username = userStore.userName
+        const API_URL = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist`
+        const token = localStorage.getItem('access_token')
+
+        const response = await fetch(API_URL, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        })
+
+        if (response.ok) {
+          const data = await response.json()
+          const readBooks = data.find(list => list.name === 'Leidos')
+
+          console.log('Libros leídos:', readBooks)
+          console.log('Esta?', readBooks.books.some(book => book.id === this.book.id))
+
+          if (readBooks) {
+            this.isRead = readBooks.books.some(book => book.id === this.book.id)
+          }
+        } else {
+          throw new Error('Error al obtener los libros leídos')
+        }
+      } catch (error) {
+        console.error('Error al obtener los libros leídos:', error)
+        this.errorMessage = 'Hubo un error al obtener los libros leídos.'
+      }
+
+    },
+    async markAsRead() {
+      this.buttonLoading = true;
+      try {
+        const userStore = useUserStore()
+        const username = userStore.userName
+        const API_URL = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist/Leidos`
+        const token = localStorage.getItem('access_token')
+
+
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ id: this.book.id }),
+        })
+        
+        if (response) {
+          console.log('Libro marcado como leído:', this.book)
+          this.isRead = true
+        }
+      } catch (error) {
+        console.error('Error al marcar como leído:', error)
+        this.errorMessage = 'Hubo un error al marcar el libro como leído.'
+        this.successMessage = ''
+      } finally {
+        this.buttonLoading = false;
+      }
+    },
+    async removeFromRead() {
+      this.buttonLoading = true;
+      try {
+        const userStore = useUserStore()
+        const username = userStore.userName
+        const API_URL = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist/Leidos`
+        const token = localStorage.getItem('access_token')
+
+        const response = await fetch(API_URL, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ id: this.book.id }),
+        })
+
+        if (response) {
+          console.log('Libro eliminado de leídos:', this.book)
+          this.isRead = false
+        }
+      } catch (error) {
+        console.error('Error al eliminar de leídos:', error)
+        this.errorMessage = 'Hubo un error al eliminar el libro de leídos.'
+        this.successMessage = ''
+      } finally {
+        this.buttonLoading = false;
+      }
     },
     getStarClasses(index) {
       const rating = this.book?.average_rating || 0
@@ -133,6 +230,20 @@ export default {
             </div>
           </div>
           <p><strong>Reseñas:</strong> {{ book.text_reviews_count }} reseñas</p>
+          <button
+            v-if="!isRead"
+            class="mark-as-read-button"
+            @click="markAsRead"
+          >
+          {{ buttonLoading ? 'Procesando...' : 'Marcar Como Leído' }}
+          </button>
+          <button
+            v-else
+            class="read-button"
+            @click="removeFromRead"
+          >
+          {{ buttonLoading ? 'Procesando...' : 'Quitar de Leídos' }}
+          </button>
         </div>
       </div>
     </div>
@@ -220,5 +331,17 @@ export default {
 .genre-badge:hover {
   transform: scale(1.05); /* Efecto de zoom al pasar el ratón */
   background-color: #d1d5db; /* Cambia el color al hacer hover */
+}
+
+.mark-as-read-button {
+  color: black;
+  background-color: orange;
+  border-radius: 10px;
+}
+
+.read-button {
+  color: orange;
+  background-color: black;
+  border-radius: 10px;
 }
 </style>

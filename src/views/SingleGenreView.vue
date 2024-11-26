@@ -61,7 +61,7 @@ export default {
         }
 
         const data = await response.json()
-        books.value = data.books || [] // Suponiendo que los libros vienen en `data.books`
+        books.value = data || [] // Suponiendo que los libros vienen en `data.books`
 
         // Mezclar los libros aleatoriamente
         books.value = books.value.sort(() => Math.random() - 0.5)

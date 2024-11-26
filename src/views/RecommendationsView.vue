@@ -65,7 +65,7 @@ export default {
         }
 
         const data = await response.json()
-        const books = data.books || []
+        const books = data || []
         booksByGenre[genre] = shuffleArray(books) // Mezcla antes de asignar
         errorMessage.value = ''
       } catch (error) {

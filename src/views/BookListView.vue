@@ -61,21 +61,32 @@ export default {
 
   
       <!-- Lista de libros -->
-      <div v-for="book in books" :key="book.title" class="row mb-4">
-        <div class="col-2 text-center">
-          <img alt="Book cover" :src="book.image_url" height="150vh" />
-        </div>
-        <div class="col">
-          <RouterLink :to="`/book/${book.id}`">
-            <h3 class="text-body-emphasis">{{ book.title }}</h3>
-          </RouterLink>
-          <RouterLink :to="`/author/${book.author_name}`">
-            <h5 class="text-body-secondary">{{ book.author_name }}</h5>
-          </RouterLink>
-          <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
+      <div class="container">
+        <div class="row">
+          <div 
+            v-for="book in books" 
+            :key="book.title" 
+            class="col-md-4 mb-4 text-center"
+          >
+            <!-- Imagen del libro -->
+            <img 
+              alt="Book cover" 
+              :src="book.image_url" 
+              class="img-fluid" 
+              style="height: 150px; width: auto;"
+            />
+
+            <!-- Título del libro -->
+            <RouterLink 
+              :to="`/book/${book.isbn}`" 
+              class="d-block mt-2 text-decoration-none text-body-emphasis"
+            >
+              <h4>{{ book.title }}</h4>
+            </RouterLink>
+          </div>
         </div>
       </div>
-  
+      
       <!-- Mensaje de no hay libros -->
       <div v-if="books.length === 0" class="text-center mt-4">
         <p>No hay libros en esta lista.</p>
