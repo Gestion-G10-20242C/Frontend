@@ -1,4 +1,7 @@
 <script>
+import { ref } from 'vue';
+import { useUserStore } from '@/stores/user';
+
 export default {
   name: 'BookListsSidebar',
   props: {
@@ -7,37 +10,32 @@ export default {
       required: true,
     },
   },
-  data() {
-    return {
-      bookLists: [], // Listas de libros del usuario
-    };
-  },
-  methods: {
-    async fetchBookLists() {
-      const url = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}/booklist`;
+  setup() {
+    const user = useUserStore();
+    const username = user.userName;
+    const bookLists = ref([]);
+
+    const fetchBookLists = async () => {
+      const url = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist`;
       try {
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error('Network response was not ok');
         }
         const data = await response.json();
-        this.bookLists = data || [];
-        console.log('Book Lists:', this.bookLists);
+        bookLists.value = data || [];
+        console.log('Book Lists:', bookLists.value);
       } catch (error) {
         console.error('Error fetching book lists:', error);
       }
-    },
-    selectBookList(list) {
-      // Redirige a la página de la lista de libros seleccionada
-      this.$router.push({ path: `/booklist/${list.id}` });
-    },
-    viewAllBookLists() {
-      // Redirige a la página de todas las listas de libros
-      this.$router.push(`/users/${this.username}/booklists`);
-    },
-  },
-  mounted() {
-    this.fetchBookLists();
+    };
+
+    fetchBookLists();
+
+    return {
+      fetchBookLists,
+      bookLists,
+    };
   },
 };
 </script>
@@ -49,12 +47,13 @@ export default {
       <li
         v-for="list in bookLists"
         :key="list.id"
-        @click="selectBookList(list)"
       >
         {{ list.name }} ({{ list.books.length }} libros)
       </li>
     </ul>
-    <button @click="viewAllBookLists">Ver todas las listas</button>
+    <RouterLink :to="`/user/${username}/booklists`">
+      <button>Ver todas las listas</button>
+    </RouterLink>
   </div>
 </template>
 
