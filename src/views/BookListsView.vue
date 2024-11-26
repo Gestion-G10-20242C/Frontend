@@ -33,10 +33,6 @@ export default {
         this.isLoading = false;
       }
     },
-    goToBookList(listId) {
-      // Redirige a una lista de libros específica
-      this.$router.push({ path: `/booklist/${listId}` });
-    },
   },
   mounted() {   
     this.fetchBookLists();
@@ -45,7 +41,7 @@ export default {
 </script>
 
 <template>
-    <HeaderComponent />
+  <HeaderComponent />
   <div class="booklists-view">
     <h1>Mis Listas de Libros</h1>
 
@@ -62,11 +58,11 @@ export default {
       <li
         v-for="list in bookLists"
         :key="list.id"
-        @click="goToBookList(list.id)"
-        class="booklist-item"
-      >
-        <h3>{{ list.name }}</h3>
-        <p>{{ list.books.length }} libros</p>
+        class="booklist-item">
+        <RouterLink :to="`/user/${username}/booklists/${list.name}`" class="booklist-link">
+          <h3>{{ list.name }}</h3>
+          <p>{{ list.books.length }} libros</p>
+        </RouterLink>
       </li>
     </ul>
 
@@ -103,5 +99,15 @@ ul {
 
 .booklist-item:hover {
   background: #f9f9f9;
+}
+
+/* Cambia el color del texto de RouterLink */
+.booklist-link {
+  text-decoration: none; /* Elimina el subrayado */
+  color: #333; /* Cambia el color del texto */
+}
+
+.booklist-link:hover {
+  color: #007BFF; /* Cambia a azul al pasar el mouse */
 }
 </style>

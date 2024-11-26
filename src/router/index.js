@@ -20,7 +20,12 @@ const router = createRouter({
       component: () => import("../views/BookListsView.vue"),
       props: true, 
     },
-    
+    {
+      path: "/user/:username/booklists/:name",
+      name: "BookListView",
+      component: () => import("../views/BookListView.vue"),
+      props: true, 
+    },
     {
       path: '/feed', // Nueva ruta para el feed
       name: 'feed',
@@ -47,7 +52,7 @@ const router = createRouter({
       component: () => import('../views/BooksView.vue'),
     },
     {
-      path: '/book/:isbn',
+      path: '/book/:id',
       name: 'book',
       component: () => import('../views/BookView.vue'),
       props: true,

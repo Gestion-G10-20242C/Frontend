@@ -46,13 +46,14 @@ export default {
     <ul>
       <li
         v-for="list in bookLists"
-        :key="list.id"
-      >
-        {{ list.name }} ({{ list.books.length }} libros)
+        :key="list.id">
+        <RouterLink :to="`/user/${username}/booklists/${list.name}`" class="booklist-link">
+          {{ list.name }} ({{ list.books.length }} libros)
+        </RouterLink>
       </li>
     </ul>
     <RouterLink :to="`/user/${username}/booklists`">
-      <button>Ver todas las listas</button>
+      <button class="all-lists-button">Ver todas las listas</button>
     </RouterLink>
   </div>
 </template>
@@ -69,8 +70,22 @@ li {
   cursor: pointer;
   margin: 0.5em 0;
 }
-button {
+.all-lists-button {
   margin-top: 1em;
   cursor: pointer;
+}
+
+.all-lists-button:hover {
+  color: #007BFF;
+}
+
+
+.booklist-link {
+  text-decoration: none; /* Elimina el subrayado */
+  color: #333; /* Cambia el color del texto */
+}
+
+.booklist-link:hover {
+  color: #007BFF; /* Cambia a azul al pasar el mouse */
 }
 </style>
