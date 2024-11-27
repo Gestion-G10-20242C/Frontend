@@ -92,7 +92,7 @@ export default {
 <template>
   <HeaderComponent />
 
-  <div v-if="loadingPage" class="loading-container">
+  <div v-if="isLoading" class="loading-container">
     <div class="loading-spinner"></div>
     <p class="text-center">Cargando...</p>
   </div>
@@ -127,7 +127,7 @@ export default {
       </div>
     </div>
 
-    <div v-if="books.length === 0" class="text-center mt-4">
+    <div v-if="!isLoading && books.length === 0" class="text-center mt-4">
       <p>No hay libros en esta lista.</p>
     </div>
 
