@@ -12,7 +12,7 @@ export default {
     const router = useRouter()
     searchStore.setSearchQuery('')
 
-    const handleSubmit = () => {
+    const handleSearchSubmit = () => {
       setSearchQuery(searchQuery.value)
       searchQuery.value = ''
       router.push('/books')
@@ -48,7 +48,7 @@ export default {
       userStore,
       searchStore,
       searchQuery,
-      handleSubmit,
+      handleSearchSubmit,
       setSearchQuery,
       handleProfileClick,
       handleConfigClick,
@@ -136,12 +136,12 @@ export default {
         <form
           class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3"
           role="search"
-          @submit.prevent="handleSubmit"
+          @submit.prevent="handleSearchSubmit"
         >
           <input
             type="search"
-            class="form-control form-control-dark text-bg-dark"
-            placeholder="Search..."
+            class="form-control form-control-dark text-bg-light"
+            placeholder="Buscar..."
             aria-label="Search"
             v-model="searchQuery"
           />
@@ -168,7 +168,7 @@ export default {
               alt="Profile"
               width="32"
               height="32"
-              class="rounded-circle"
+              class="rounded-circle bg-light"
             />
           </a>
           <ul class="dropdown-menu text-small">
@@ -197,7 +197,7 @@ export default {
                 class="dropdown-item"
                 @click="handleCloseSession"
               >
-                Cerrar Session
+                Cerrar Sesión
               </RouterLink>
             </li>
           </ul>

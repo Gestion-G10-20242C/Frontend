@@ -28,10 +28,13 @@ export const useUserStore = defineStore('user', {
         const data = await response.json()
         this.userName = username
         this.name = data.name || username
+        this.favouriteBook = data.favourite_book.title || ''
+        this.favouriteBookCover = data.favourite_book.cover || ''
+        this.favouriteBookReview = data.favourite_book.description || ''
         this.description = data.description || ''
         this.profilePicture =
           data.profilePicture ||
-          'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg'
+          'https://cdn-icons-png.flaticon.com/512/1077/1077114.png'
         this.description = data.description || ''
         this.followingUsers = data.followingUsers || []
         this.isLoggedIn = true

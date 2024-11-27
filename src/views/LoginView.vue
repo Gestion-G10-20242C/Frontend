@@ -95,7 +95,7 @@ export default {
               placeholder=""
               v-model="username"
             />
-            <label for="floatingInput">Username</label>
+            <label for="floatingInput">Usuario</label>
           </div>
           <div class="form-floating">
             <input
@@ -105,7 +105,7 @@ export default {
               placeholder=""
               v-model="password"
             />
-            <label for="floatingPassword">Password</label>
+            <label for="floatingPassword">Contraseña</label>
           </div>
 
           <button
@@ -113,7 +113,7 @@ export default {
             type="submit"
             style="margin-top: 5%"
           >
-            Empieza a leer
+            Continuar leyendo
           </button>
         </form>
       </div>

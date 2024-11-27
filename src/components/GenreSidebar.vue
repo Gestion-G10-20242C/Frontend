@@ -40,8 +40,6 @@ export default {
 
         // Seleccionar los 4 géneros con más libros
         this.topGenres = sortedGenres.slice(0, 4)
-
-        console.log('Top Genres:', this.topGenres)
       } catch (error) {
         console.error('Error fetching genres:', error)
       }
@@ -100,7 +98,7 @@ export default {
         {{ genre.translatedName }} ({{ genre.count }})
       </li>
     </ul>
-    <button @click="viewAllGenres">Más géneros</button>
+    <button class="btn btn-primary" @click="viewAllGenres">Más géneros</button>
   </div>
 </template>
 

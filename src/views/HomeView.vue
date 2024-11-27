@@ -40,7 +40,7 @@ export default {
       </p>
       <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
         <RouterLink to="/login" class="btn btn-primary btn-lg px-4 gap-3">
-          Iniciar Sesión
+          Inicia Sesión
         </RouterLink>
         <RouterLink to="/register" class="btn btn-primary btn-lg px-4 gap-3">
           Regístrate

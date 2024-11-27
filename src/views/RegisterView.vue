@@ -64,7 +64,7 @@ export default {
         alert('Usuario inválido o en uso')
         return
       } else if (this.validEmail === false) {
-        alert('Email inválido o en uso')
+        alert('Correo electrónico inválido o en uso')
         return
       }
 
@@ -94,7 +94,7 @@ export default {
             console.log('User already exists')
             this.showErrorModal('Usuario ya existente.')
           } else if (parsedBody.error.includes('EmailAlreadyExists')) {
-            this.showErrorModal('Email ya registrado.')
+            this.showErrorModal('Correo electrónico ya registrado.')
           }
           return
         } else {
@@ -178,7 +178,7 @@ export default {
         />
       </div>
       <div class="d-flex justify-content-center">
-        <h1 class="h3 mb-3 fw-normal">Welcome to Readme</h1>
+        <h1 class="h3 mb-3 fw-normal">Te damos la bienvenida a Readme</h1>
       </div>
 
       <!-- Registo datos iniciales -->
@@ -205,8 +205,8 @@ export default {
                   'is-invalid': validUsername === false,
                 }"
               />
-              <div class="invalid-feedback">Usuario invalido o en uso.</div>
-              <label for="floatingInput">Username</label>
+              <div class="invalid-feedback">Usuario inválido o en uso.</div>
+              <label for="floatingInput">Usuario</label>
             </div>
             <!-- Password -->
             <div class="form-floating">
@@ -226,7 +226,7 @@ export default {
                 La contraseña debe tener mínimo 8 caracteres, una letra
                 mayúscula, una minúscula, un número y un caracter especial.
               </div>
-              <label for="floatingPassword">Password</label>
+              <label for="floatingPassword">Contraseña</label>
             </div>
             <!-- Repeat password -->
             <div class="form-floating">
@@ -259,8 +259,8 @@ export default {
                 }"
                 @input="validateEmail"
               />
-              <label for="floatingEmail">Email</label>
-              <div class="invalid-feedback">Correo invalido o en uso.</div>
+              <label for="floatingEmail">Correo electrónico</label>
+              <div class="invalid-feedback">Correo inválido o en uso.</div>
             </div>
 
             <button
@@ -280,7 +280,7 @@ export default {
           class="container d-flex justify-content-center"
           style="margin-top: 3%"
         >
-          <h3>Revise su casilla de correo para validar su cuenta.</h3>
+          <h3>Revisa tu casilla de correo para validar tu cuenta.</h3>
         </div>
         <div
           class="container d-flex justify-content-center"
