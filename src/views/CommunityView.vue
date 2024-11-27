@@ -1,5 +1,5 @@
 <script>
-import { reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import { useRoute } from 'vue-router'
 import { useUserStore } from '@/stores/user'
@@ -10,6 +10,7 @@ export default {
     HeaderComponent,
   },
   setup() {
+    const loadingPage = ref(true)
     const route = useRoute() // Inicializa el router
     const userStore = useUserStore()
 
@@ -68,6 +69,7 @@ export default {
       } catch (error) {
         console.log(error)
       }
+      loadingPage.value = false
     }
 
     onMounted(() => {
@@ -75,6 +77,7 @@ export default {
     })
 
     return {
+      loadingPage,
       toggleJoin,
       communityName,
       communityData,
@@ -85,51 +88,68 @@ export default {
 
 <template>
   <HeaderComponent />
-  <div class="container pt-4 content-wrapper">
-    <div
-      class="row d-flex justify-content-center align-items-center text-center mb-4"
-    >
-      <h1>{{ communityName }}</h1>
-      <img
-        :src="communityData.profilePicture"
-        alt="Community profile picture"
-        class="rounded-circle mx-auto"
-        style="height: 25vmax; width: 25vmax"
-      />
-    </div>
-    <div class="row d-flex justify-content-center mb-4">
-      <button
-        class="btn btn-primary"
-        style="max-width: 10vmax"
-        :class="communityData.isFollowing ? 'btn-danger' : 'btn-primary'"
-        @click="toggleJoin"
+
+  <div v-if="loadingPage" class="loading-spinner"></div>
+
+  <template v-else>
+    <div class="container pt-4 content-wrapper">
+      <div
+        class="row d-flex justify-content-center align-items-center text-center mb-4"
       >
-        {{ communityData.isFollowing ? 'Abandonar' : 'Unirse' }}
-      </button>
-    </div>
-    <div class="row">
-      <div class="col rounded text-center" style="min-height: 50vh">
-        <h4 class="text-primary">Descripción</h4>
-        {{ communityData.description }}
+        <h1>{{ communityName }}</h1>
+        <img
+          :src="communityData.profilePicture"
+          alt="Community profile picture"
+          class="rounded-circle mx-auto"
+          style="height: 25vmax; width: 25vmax"
+        />
       </div>
-      <div class="col">
-        <h4 class="text-primary">Miembros</h4>
-        <div
-          v-for="user in communityData.members"
-          :key="user.name"
-          @click="$router.push(`/user/${user.name}`)"
-          style="cursor: pointer"
-          class="mb-2 bg-light d-flex align-items-center p-2"
+      <div class="row d-flex justify-content-center mb-4">
+        <button
+          class="btn btn-primary"
+          style="max-width: 10vmax"
+          :class="communityData.isFollowing ? 'btn-danger' : 'btn-primary'"
+          @click="toggleJoin"
         >
-          <img
-            :src="user.profilePicture"
-            alt="User profile picture"
-            class="rounded-circle p-2"
-            style="height: 5vmax; width: 5vmax"
-          />
-          {{ user.name }}
+          {{ communityData.isFollowing ? 'Abandonar' : 'Unirse' }}
+        </button>
+      </div>
+      <div class="row">
+        <div class="col rounded text-center" style="min-height: 50vh">
+          <h4 class="text-primary">Descripción</h4>
+          {{ communityData.description }}
+        </div>
+        <div class="col">
+          <h4 class="text-primary">Miembros</h4>
+          <div
+            v-for="user in communityData.members"
+            :key="user.name"
+            @click="$router.push(`/user/${user.name}`)"
+            style="cursor: pointer"
+            class="mb-2 bg-light d-flex align-items-center p-2"
+          >
+            <img
+              :src="user.profilePicture"
+              alt="User profile picture"
+              class="rounded-circle p-2"
+              style="height: 5vmax; width: 5vmax"
+            />
+            {{ user.name }}
+          </div>
         </div>
       </div>
     </div>
-  </div>
+  </template>
 </template>
+
+<style scoped>
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #fad155;
+  border-radius: 50%;
+  animation: spin 1s ease-in-out infinite;
+  margin: 50px auto;
+}
+</style>
