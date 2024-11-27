@@ -93,7 +93,9 @@ export default {
 <template>
   <HeaderComponent />
 
-  <div class="container mt-5">
+  <div v-if="isLoading" class="loading-spinner"></div>
+
+  <div v-else class="container mt-5">
     <h1>{{ bookListName }}</h1>
 
     <!-- Lista de libros -->
@@ -206,5 +208,15 @@ export default {
 /* Estilos para el modal */
 .modal-content {
   z-index: 1050;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #fad155;
+  border-radius: 50%;
+  animation: spin 1s ease-in-out infinite;
+  margin: 50px auto;
 }
 </style>

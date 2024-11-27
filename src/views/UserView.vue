@@ -226,8 +226,6 @@ export default {
         // Fetch user data from the route
         const username = route.params.username
 
-        console.log('Fetching user data for:', username)
-
         const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}`
 
         const response = await fetch(apiUrl)
@@ -243,7 +241,6 @@ export default {
           'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg'
 
         if (data.myBooks) {
-          console.log('My Books:', data.myBooks)
           profileData.myBooks = JSON.parse(data.myBooks.replace(/'/g, '"'))
         }
 
@@ -335,7 +332,6 @@ export default {
         if (!response.ok) {
           throw new Error('Error al actualizar el estado de seguimiento')
         }
-        console.log('Estado de seguimiento actualizado con éxito')
       } catch (error) {
         console.error('Error al cambiar el estado de seguimiento:', error)
         isFollowing.value = !newIsFollowing // Revertir el estado si hay un error
@@ -343,7 +339,6 @@ export default {
     }
 
     const fetchBookLists = async () => {
-      console.log('Fetching book lists for:', username.value)
       const url = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username.value}/booklist`
       try {
         const response = await fetch(url)
@@ -351,9 +346,7 @@ export default {
           throw new Error('Error al obtener las listas de libros')
         }
         const data = await response.json()
-        console.log('Book lists fetched:', data)
         profileData.bookShelf = data || []
-        console.log('Bookshelf:', profileData.bookShelf)
       } catch (error) {
         console.error('Error al obtener las listas de libros:', error)
       } finally {
@@ -411,9 +404,9 @@ export default {
           body: JSON.stringify(userData),
         })
 
-        if (!response.ok) {
-          throw new Error('Error al actualizar la información del usuario')
-        }
+        // if (!response.ok) {
+        //   throw new Error('Error al actualizar la información del usuario')
+        // }
 
         // Cerrar el modal y actualizar
         this.fetchUserData()
@@ -597,6 +590,11 @@ export default {
           <h3>Biblioteca</h3>
           <ul class="list-group">
             <li
+              @click="
+                $router.push(
+                  `/user/${this.username}/booklists/${booklist.name}`,
+                )
+              "
               v-for="booklist in userData.bookShelf"
               :key="booklist.name"
               class="list-group-item d-flex justify-content-between align-items-center"
