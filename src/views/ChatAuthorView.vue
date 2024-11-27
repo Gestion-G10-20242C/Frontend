@@ -116,11 +116,9 @@ export default {
 <template>
   <HeaderComponent />
   <div class="container">
-    <h1>Chatea con {{ authorName }}</h1>
-
     <!-- Chat -->
     <div class="chat-box mt-5">
-      <h3>Chat</h3>
+      <h3>Chatea con {{ authorName }}</h3>
       <div class="messages">
         <div
           v-for="(message, index) in messages"

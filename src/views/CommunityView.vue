@@ -89,7 +89,10 @@ export default {
 <template>
   <HeaderComponent />
 
-  <div v-if="loadingPage" class="loading-spinner"></div>
+  <div v-if="loadingPage" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="text-center">Cargando...</p>
+  </div>
 
   <template v-else>
     <div class="container pt-4 content-wrapper">
@@ -146,6 +149,13 @@ export default {
 </template>
 
 <style scoped>
+.loading-container {
+  display: vertical;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
 .loading-spinner {
   width: 50px;
   height: 50px;
