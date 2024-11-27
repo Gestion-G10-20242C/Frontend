@@ -98,14 +98,6 @@ export default {
     setSelectedBook(book) {
       this.selectedBook = book
     },
-
-    navigateToBook(book) {
-      console.log('ACA ESTA FALLANDO')
-      this.$router.push({
-        name: 'book',
-        params: { isbn: book.isbn },
-      })
-    },
   },
 }
 </script>
@@ -150,8 +142,8 @@ export default {
       <!-- Rueda de carga -->
       <div v-if="isLoading" class="text-center my-5">
         <div class="spinner-border" role="status">
-          <span class="visually-hidden">Cargando...</span>
         </div>
+        <p class="text-center">Cargando...</p>
       </div>
 
       <!-- Mensaje de error -->
@@ -170,12 +162,12 @@ export default {
                 <img alt="Book cover" :src="book.image_url" height="150vh" />
               </div>
               <div class="col">
-                <h3
-                  class="text-body-emphasis cursor-pointer"
-                  @click="navigateToBook(book)"
-                >
-                  {{ book.title }}
-                </h3>
+                <RouterLink :to="`/book/${book.isbn}`">
+                  <h3 class="text-body-emphasis cursor-pointer">
+                    {{ book.title }}
+                  </h3>
+                </RouterLink>
+                  
                 <RouterLink :to="`/author/${book.author_name}`">
                   <h5 class="text-body-secondary">{{ book.author_name }}</h5>
                 </RouterLink>
@@ -183,7 +175,7 @@ export default {
               </div>
             </div>
           </div>
-          <div v-else>
+          <div v-else-if="hasSearched">
             <h3>Sin resultados</h3>
           </div>
         </div>

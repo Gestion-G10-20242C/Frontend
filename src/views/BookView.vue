@@ -196,6 +196,8 @@ export default {
         const API_URL = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist/Leidos`
         const token = localStorage.getItem('access_token')
 
+        console.log('Marking as read:', this.book)
+
         const response = await fetch(API_URL, {
           method: 'POST',
           headers: {
@@ -292,7 +294,11 @@ export default {
 <template>
   <div class="book-view">
     <HeaderComponent />
-    <div v-if="loading" class="loading-spinner"></div>
+    
+    <div v-if="loading" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="text-center">Cargando...</p>
+  </div>
 
     <!-- Mostrar error si no hay resultados de libros -->
     <div v-else-if="error" class="error-message">
@@ -441,6 +447,13 @@ export default {
 
 .book-view .star.empty {
   color: lightgray;
+}
+
+.loading-container {
+  display: vertical;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
 }
 
 .loading-spinner {

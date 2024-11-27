@@ -98,123 +98,128 @@ export default {
 </script>
 
 <template>
-  <HeaderComponent />
-  <div class="container pt-4">
-    <div class="row">
-      <div class="col-3 d-flex flex-column align-items-center">
-        <!-- Profile picture with author badge -->
-        <div class="position-relative">
-          <img
-            :src="authorData.profilePicture"
-            alt="Profile picture"
-            class="logo rounded-circle mx-auto"
-            width="140"
-            height="140"
-          />
-          <!-- Display author badge -->
-          <span class="author-badge">Autor</span>
-        </div>
-
-        <!-- Name -->
-        <h2 class="mb-0">{{ authorData.name }}</h2>
-
-        <!-- User description -->
-        <p class="mb-0">{{ authorData.description }}</p>
-
-        <!-- Chat with Author -->
-        <RouterLink :to="`/chat-author/${authorData.name}`">
-          <button class="btn btn-primary mt-3">Chatear con Autor</button>
-        </RouterLink>
-      </div>
-
-      <!-- Favourite book -->
-      <div class="col-9">
-        <div class="container bg-primary p-4 rounded">
-          <div class="row">
-            <h1>{{ authorData.favouriteBook.title }}</h1>
-          </div>
-          <div class="row">
-            <div class="col-2">
-              <img
-                alt="Book cover"
-                class="logo"
-                :src="authorData.favouriteBook.cover"
-                width="100%"
-              />
-            </div>
-            <div class="col">
-              {{ authorData.favouriteBook.description }}
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Loading spinner -->
-  <div v-if="loading" class="spinner-overlay">
-    <div class="spinner"></div>
+  <div v-if="loading" class="loading-container">
+    <HeaderComponent />
+    <div class="loading-spinner"></div>
+    <p class="text-center">Cargando...</p>
   </div>
 
-  <!-- Books section, only shown after author data is loaded -->
-  <div
-    class="row mt-4"
-    style="padding-left: 120px"
-    v-if="!loading && authorData.myBooks && authorData.myBooks.length > 0"
-  >
-    <div class="col">
-      <h3>Mis Libros</h3>
+  <!-- Contenido principal, visible solo cuando loading es false -->
+  <div v-else>
+    <HeaderComponent />
+    <div class="container pt-4">
       <div class="row">
-        <div
-          v-for="(book, index) in authorData.myBooks"
-          :key="index"
-          class="col-4 mb-4"
-        >
-          <div class="card" style="width: 18rem">
-            <!-- Book cover with fixed size and centered -->
-            <div
-              style="
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 45vh;
-                overflow: hidden;
-              "
-            >
-              <img
-                :src="book.image_url"
-                class="card-img-top"
-                alt="Book cover"
-                style="height: 45vh; width: auto"
-              />
+        <div class="col-3 d-flex flex-column align-items-center">
+          <!-- Profile picture with author badge -->
+          <div class="position-relative">
+            <img
+              :src="authorData.profilePicture"
+              alt="Profile picture"
+              class="logo rounded-circle mx-auto"
+              width="140"
+              height="140"
+            />
+            <!-- Display author badge -->
+            <span class="author-badge">Autor</span>
+          </div>
+
+          <!-- Name -->
+          <h2 class="mb-0">{{ authorData.name }}</h2>
+
+          <!-- User description -->
+          <p class="mb-0">{{ authorData.description }}</p>
+
+          <!-- Chat with Author -->
+          <RouterLink :to="`/chat-author/${authorData.name}`">
+            <button class="btn btn-primary mt-3">Chatear con Autor</button>
+          </RouterLink>
+        </div>
+
+        <!-- Favourite book -->
+        <div class="col-9">
+          <div class="container bg-primary p-4 rounded">
+            <div class="row">
+              <h1>{{ authorData.favouriteBook.title }}</h1>
             </div>
-            <div class="card-body">
-              <RouterLink :to="`/book/${book.isbn}`">
-                <h5 class="card-title">{{ book.title }}</h5>
-              </RouterLink>
-              <p class="card-text">Autor: {{ book.author_name }}</p>
-              <p class="card-text">Publicado: {{ book.publication_date }}</p>
+            <div class="row">
+              <div class="col-2">
+                <img
+                  alt="Book cover"
+                  class="logo"
+                  :src="authorData.favouriteBook.cover"
+                  width="100%"
+                />
+              </div>
+              <div class="col">
+                {{ authorData.favouriteBook.description }}
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <div class="row mt-4" style="padding-left: 120px; margin-bottom: 20px">
-    <!-- Biblioteca -->
-    <div class="col">
-      <h3>Biblioteca</h3>
+    <!-- Books section -->
+    <div
+      class="row mt-4"
+      style="padding-left: 120px"
+      v-if="authorData.myBooks && authorData.myBooks.length > 0"
+    >
+      <div class="col">
+        <h3>Mis Libros</h3>
+        <div class="row">
+          <div
+            v-for="(book, index) in authorData.myBooks"
+            :key="index"
+            class="col-4 mb-4"
+          >
+            <div class="card" style="width: 18rem">
+              <!-- Book cover with fixed size and centered -->
+              <div
+                style="
+                  display: flex;
+                  justify-content: center;
+                  align-items: center;
+                  height: 45vh;
+                  overflow: hidden;
+                "
+              >
+                <img
+                  :src="book.image_url"
+                  class="card-img-top"
+                  alt="Book cover"
+                  style="height: 45vh; width: auto"
+                />
+              </div>
+              <div class="card-body">
+                <RouterLink :to="`/book/${book.isbn}`">
+                  <h5 class="card-title">{{ book.title }}</h5>
+                </RouterLink>
+                <p class="card-text">Autor: {{ book.author_name }}</p>
+                <p class="card-text">Publicado: {{ book.publication_date }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <!-- Reading Challenges -->
-    <div class="col">
-      <h3>Reading Challenges</h3>
-    </div>
+    <div class="row mt-4" style="padding-left: 120px; margin-bottom: 20px">
+      <!-- Biblioteca -->
+      <div class="col">
+        <h3>Biblioteca</h3>
+      </div>
 
-    <!-- Grupos -->
-    <div class="col">
-      <h3>Grupos</h3>
+      <!-- Reading Challenges -->
+      <div class="col">
+        <h3>Reading Challenges</h3>
+      </div>
+
+      <!-- Grupos -->
+      <div class="col">
+        <h3>Grupos</h3>
+      </div>
     </div>
   </div>
 </template>
@@ -232,33 +237,19 @@ export default {
   right: -35px;
 }
 
-.spinner-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(255, 255, 255, 0.8);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-}
 
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #3498db;
-  border-radius: 50%;
+.loading-spinner {
   width: 50px;
   height: 50px;
-  animation: spin 1s linear infinite;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #fad155;
+  border-radius: 50%;
+  animation: spin 1s ease-in-out infinite;
+  margin: 50px auto;
 }
 
 @keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
+  to {
     transform: rotate(360deg);
   }
 }

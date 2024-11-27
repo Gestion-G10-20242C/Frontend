@@ -92,7 +92,10 @@ export default {
 <template>
   <HeaderComponent />
 
-  <div v-if="isLoading" class="loading-spinner"></div>
+  <div v-if="loadingPage" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="text-center">Cargando...</p>
+  </div>
 
   <div v-else class="container mt-5">
     <h1>{{ bookListName }}</h1>
@@ -217,6 +220,13 @@ export default {
   border-radius: 50%;
   animation: spin 1s ease-in-out infinite;
   margin: 50px auto;
+}
+
+.loading-container {
+  display: vertical;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
 }
 
 @keyframes spin {
