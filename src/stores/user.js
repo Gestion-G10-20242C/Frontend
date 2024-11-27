@@ -31,7 +31,7 @@ export const useUserStore = defineStore('user', {
         this.description = data.description || ''
         this.profilePicture =
           data.profilePicture ||
-          'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg'
+          'https://cdn-icons-png.flaticon.com/512/1077/1077114.png'
         this.description = data.description || ''
         this.followingUsers = data.followingUsers || []
         this.isLoggedIn = true

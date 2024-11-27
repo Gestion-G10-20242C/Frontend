@@ -238,7 +238,7 @@ export default {
         profileData.description = data.description || ''
         profileData.profilePicture =
           data.profilePicture ||
-          'https://i.pinimg.com/736x/c4/86/8f/c4868fc3f718f95e10eb6341e1305bb6.jpg'
+          'https://cdn-icons-png.flaticon.com/512/1077/1077114.png'
 
         if (data.myBooks) {
           profileData.myBooks = JSON.parse(data.myBooks.replace(/'/g, '"'))

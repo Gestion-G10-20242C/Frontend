@@ -129,7 +129,10 @@ export default {
             class="mb-2 bg-light d-flex align-items-center p-2"
           >
             <img
-              :src="user.profilePicture"
+              :src="
+                user.profilePicture ??
+                'https://cdn-icons-png.flaticon.com/512/1077/1077114.png'
+              "
               alt="User profile picture"
               class="rounded-circle p-2"
               style="height: 5vmax; width: 5vmax"
