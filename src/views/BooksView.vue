@@ -24,11 +24,11 @@ export default {
 
     // Search books acá afuera en el setup, para poder llamarla en el onMounted,
     // Como están acá afuera, no se puede usar "this." y hay que usar ".value" sobre las refs.
-    const fetch_books = async (rel_path) => {
+    const fetch_books = async rel_path => {
       console.log('Buscando...', searchInput.value)
 
       try {
-        const response = await GET('GET', rel_path, null, null);
+        const response = await GET('GET', rel_path, null, null)
 
         if (!response || response.error) {
           throw new Error('Error al obtener datos del servidor')
@@ -43,7 +43,7 @@ export default {
       } catch (error) {
         console.error('Error al obtener libros:', error)
       }
-    };
+    }
 
     const searchBooks = async () => {
       if (searchInput.value.length < 3) {
@@ -84,7 +84,7 @@ export default {
       }
 
       isLoading.value = false // Desactiva el estado de carga
-    };
+    }
 
     onMounted(async () => {
       await searchBooks()

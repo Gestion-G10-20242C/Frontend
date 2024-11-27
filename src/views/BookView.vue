@@ -353,17 +353,13 @@ export default {
           <p><strong>Reseñas:</strong> {{ book.text_reviews_count }} reseñas</p>
 
           <div class="button-container">
-            <button
-              v-if="!isRead"
-              class="mark-as-read-button"
-              @click="markAsRead"
-            >
+            <button v-if="!isRead" class="btn btn-success" @click="markAsRead">
               {{ buttonLoading ? 'Procesando...' : 'Marcar como leído' }}
             </button>
-            <button v-else class="read-button" @click="removeFromRead">
+            <button v-else class="btn btn-danger" @click="removeFromRead">
               {{ buttonLoading ? 'Procesando...' : 'Quitar de Leídos' }}
             </button>
-            <button class="add-to-list-button" @click="openAddToListModal">
+            <button class="btn btn-primary" @click="openAddToListModal">
               Agregar a lista
             </button>
           </div>
@@ -514,24 +510,6 @@ export default {
   background-color: #d1d5db; /* Cambia el color al hacer hover */
 }
 
-.mark-as-read-button {
-  color: black;
-  background-color: orange;
-  border-radius: 10px;
-}
-
-.read-button {
-  color: orange;
-  background-color: black;
-  border-radius: 10px;
-}
-
-.add-to-list-button {
-  color: black;
-  background-color: lightskyblue;
-  border-radius: 10px;
-}
-
 .button-container {
   display: flex;
   gap: 10px;
@@ -597,10 +575,6 @@ export default {
   border: none;
   border-radius: 5px;
   cursor: pointer;
-}
-
-.cancel-button:hover {
-  background: #bbb;
 }
 
 .vertical-line {

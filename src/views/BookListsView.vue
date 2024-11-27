@@ -116,7 +116,10 @@ export default {
           class="booklist-link"
         >
           <h3>{{ list.name }}</h3>
-          <p>{{ list.books.length }} {{ list.books.length === 1 ? 'libro' : 'libros' }}</p>
+          <p>
+            {{ list.books.length }}
+            {{ list.books.length === 1 ? 'libro' : 'libros' }}
+          </p>
         </RouterLink>
       </li>
     </ul>
