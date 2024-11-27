@@ -43,8 +43,6 @@ export default {
           throw new Error('Error al obtener datos del servidor')
         }
 
-        console.log('Response:', response)
-
         if (!response) {
           this.errorMessage = 'No se encontraron resultados'
           return
@@ -102,6 +100,7 @@ export default {
     },
 
     navigateToBook(book) {
+      console.log('ACA ESTA FALLANDO')
       this.$router.push({
         name: 'book',
         params: { isbn: book.isbn },
@@ -171,7 +170,10 @@ export default {
                 <img alt="Book cover" :src="book.image_url" height="150vh" />
               </div>
               <div class="col">
-                <h3 class="text-body-emphasis" @click="navigateToBook(book)">
+                <h3
+                  class="text-body-emphasis cursor-pointer"
+                  @click="navigateToBook(book)"
+                >
                   {{ book.title }}
                 </h3>
                 <RouterLink :to="`/author/${book.author_name}`">
@@ -201,5 +203,9 @@ export default {
   width: 3rem;
   height: 3rem;
   color: #fad155;
+}
+
+.cursor-pointer {
+  cursor: pointer;
 }
 </style>

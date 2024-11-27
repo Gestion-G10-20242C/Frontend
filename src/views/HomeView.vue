@@ -1,3 +1,27 @@
+<script>
+import { onMounted } from 'vue'
+import { useUserStore } from '@/stores/user'
+import { useRouter } from 'vue-router'
+
+export default {
+  name: 'HomeView',
+  setup() {
+    const userStore = useUserStore()
+    const router = useRouter()
+
+    const fetchFollowing = () => {
+      if (userStore.isLoggedIn === true) {
+        console.log(`User Logged: ${userStore.getUserData()}`)
+        router.push('/feed')
+      }
+    }
+    onMounted(() => {
+      fetchFollowing()
+    })
+  },
+}
+</script>
+
 <template>
   <div class="px-4 py-5 my-5 text-center">
     <img

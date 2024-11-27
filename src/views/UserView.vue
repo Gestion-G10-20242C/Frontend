@@ -287,6 +287,7 @@ export default {
         }
 
         userFound.value = true
+        isLoading.value = false
         checkIfFollowing()
       } catch (error) {
         console.error(error)
@@ -404,9 +405,9 @@ export default {
           body: JSON.stringify(userData),
         })
 
-        // if (!response.ok) {
-        //   throw new Error('Error al actualizar la información del usuario')
-        // }
+        if (!response.ok) {
+          throw new Error('Error al actualizar la información del usuario')
+        }
 
         // Cerrar el modal y actualizar
         this.fetchUserData()
@@ -714,11 +715,6 @@ export default {
                 v-model="newUserData.description"
               ></textarea>
             </div>
-
-            <!-- Mostrar mensaje de carga si isLoading es true -->
-            <div v-if="isLoading" class="text-center">
-              <p>Actualizando...</p>
-            </div>
           </div>
           <div class="modal-footer">
             <button
@@ -928,7 +924,6 @@ export default {
   </template>
 
   <template v-else>
-    <HeaderComponent />
     <div class="p-4 d-flex justify-content-center">
       <h1>Usuario no encontrado!</h1>
     </div></template

@@ -12,6 +12,7 @@ export default {
   setup() {
     const userStore = useUserStore()
     const searchTerm = ref('')
+    const isLoading = ref(true)
     const communities = reactive([])
     const newCommunity = reactive({
       name: '',
@@ -60,6 +61,7 @@ export default {
             id: group.id,
           })
         }
+        isLoading.value = false
       } catch (error) {
         console.error('Error al obtener los usuarios:', error)
       }
@@ -134,6 +136,7 @@ export default {
     return {
       searchTerm,
       communities,
+      isLoading,
       filteredCommunities,
       viewCommunities,
       toggleJoin,
@@ -146,7 +149,16 @@ export default {
 
 <template>
   <HeaderComponent />
-  <div class="container pt-4">
+  <div
+    v-if="isLoading"
+    class="d-flex justify-content-center align-items-center my-5"
+    style="height: 80vh"
+  >
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Cargando...</span>
+    </div>
+  </div>
+  <div v-else class="container pt-4">
     <div class="row">
       <div class="col-10">
         <h1>Comunidades</h1>

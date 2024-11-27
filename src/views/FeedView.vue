@@ -4,6 +4,7 @@ import { useUserStore } from '@/stores/user'
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import BookListsSidebar from '@/components/BookListsSidebar.vue' // Importa el nuevo componente
 import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 
 export default {
   name: 'FeedView',
@@ -12,16 +13,18 @@ export default {
     const follows = reactive([])
     const userStore = useUserStore()
     const router = useRouter()
+    const isLoading = ref(true)
+    const errorMessage = ref('')
 
     const fetchFollowing = async () => {
       const currentUserName = userStore.userName
       try {
-        console.log('before')
         const response = await fetch(
           `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUserName}/following/`,
         )
         const data = await response.json()
         follows.push(...data)
+        isLoading.value = false
       } catch (error) {
         // Cuando el usuario no sigue a nadie, la respuesta es un array vacío
         // Sin embargo se detecta como un error, bug?
@@ -37,6 +40,8 @@ export default {
       follows,
       userName: userStore.userName, // Retorna el nombre del usuario para pasarlo como prop
       router,
+      isLoading,
+      errorMessage,
     }
   },
 }
