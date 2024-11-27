@@ -76,10 +76,12 @@ export default {
     },
     async redirectToBook(bookId) {
       console.log('go to book', bookId)
-      // this.$router.push(`/books/${bookId}`)
-      // const response = await fetch(
-      //   `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/books/${bookId}`,
-      // )
+      const response = await fetch(
+        `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/book/${bookId}`,
+      )
+      const data = await response.json()
+      console.log(data.isbn)
+      this.$router.push(`/book/${data.isbn}`)
     },
     openModal(book) {
       this.bookToDelete = book // Almacena el libro a eliminar
