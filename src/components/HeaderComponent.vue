@@ -160,7 +160,7 @@ export default {
               alt="Profile"
               width="32"
               height="32"
-              class="rounded-circle"
+              class="rounded-circle bg-light"
             />
           </a>
           <ul class="dropdown-menu text-small">
