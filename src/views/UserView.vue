@@ -280,7 +280,7 @@ export default {
           newUserData.profilePictureLink = profileData.profilePicture
 
           // Si el usuario es el mismo que el usuario actual, actualiza los datos del usuario en el almacenamiento local
-          userStore.updateUser(data)
+          // userStore.updateUser(data)
 
           // Busca las listas de libros
           fetchBookLists()
