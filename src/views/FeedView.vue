@@ -1,45 +1,45 @@
 <script>
-import { reactive, onMounted } from 'vue';
-import { useUserStore } from '@/stores/user';
-import HeaderComponent from '@/components/HeaderComponent.vue';
-import BookListsSidebar from '@/components/BookListsSidebar.vue'; // Importa el nuevo componente
-import { useRouter } from 'vue-router';
+import { reactive, onMounted } from 'vue'
+import { useUserStore } from '@/stores/user'
+import HeaderComponent from '@/components/HeaderComponent.vue'
+import BookListsSidebar from '@/components/BookListsSidebar.vue' // Importa el nuevo componente
+import { useRouter } from 'vue-router'
 
 export default {
   name: 'FeedView',
   components: { HeaderComponent, BookListsSidebar }, // Agrega el componente aquí
   setup() {
-    const follows = reactive([]);
-    const userStore = useUserStore();
-    const router = useRouter();
+    const follows = reactive([])
+    const userStore = useUserStore()
+    const router = useRouter()
 
     const fetchFollowing = async () => {
-      const currentUserName = userStore.userName;
+      const currentUserName = userStore.userName
       try {
         const response = await fetch(
           `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUserName}/following/`,
-        );
+        )
         if (!response.ok) {
-          throw new Error('Network response was not ok');
+          throw new Error('Network response was not ok')
         }
-        const data = await response.json();
-        follows.push(...data);
+        const data = await response.json()
+        follows.push(...data)
       } catch (error) {
-        console.error('Error fetching following:', error);
+        console.error('Error fetching following:', error)
       }
-    };
+    }
 
     onMounted(() => {
-      fetchFollowing();
-    });
+      fetchFollowing()
+    })
 
     return {
       follows,
       userName: userStore.userName, // Retorna el nombre del usuario para pasarlo como prop
       router,
-    };
+    }
   },
-};
+}
 </script>
 
 <template>
@@ -70,7 +70,7 @@ export default {
 
       <!-- Columna del sidebar -->
       <div class="col-3 booklist-sidebar">
-        <BookListsSidebar :username="userName" /> 
+        <BookListsSidebar :username="userName" />
       </div>
     </div>
   </div>

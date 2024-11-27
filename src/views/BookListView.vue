@@ -1,8 +1,8 @@
 <script>
-import HeaderComponent from "@/components/HeaderComponent.vue";
+import HeaderComponent from '@/components/HeaderComponent.vue'
 
 export default {
-  name: "BookListView",
+  name: 'BookListView',
   components: { HeaderComponent },
   props: {
     username: {
@@ -17,42 +17,42 @@ export default {
   data() {
     return {
       books: [],
-      bookListName: "",
+      bookListName: '',
       isLoading: true,
       error: null,
       bookToDelete: null, // Almacena el libro a eliminar
       showModal: false, // Controla la visibilidad del modal
-    };
+    }
   },
   methods: {
     async fetchBookList() {
-      const url = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}/booklist`;
+      const url = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}/booklist`
       try {
-        const response = await fetch(url);
+        const response = await fetch(url)
         if (!response.ok) {
-          throw new Error("Error al obtener los libros de la lista");
+          throw new Error('Error al obtener los libros de la lista')
         }
-        const data = await response.json();
+        const data = await response.json()
 
-        const list = data.find((list) => list.name === this.name);
+        const list = data.find(list => list.name === this.name)
 
-        this.books = list.books || [];
-        this.bookListName = list.name;
+        this.books = list.books || []
+        this.bookListName = list.name
       } catch (error) {
-        this.error = error.message;
+        this.error = error.message
       } finally {
-        this.isLoading = false;
+        this.isLoading = false
       }
     },
     async deleteBook() {
-      if (!this.bookToDelete) return;
+      if (!this.bookToDelete) return
 
-      const url = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}/booklist/${this.bookListName}`;
+      const url = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}/booklist/${this.bookListName}`
       const payload = {
         id: this.bookToDelete.id,
-      };
+      }
 
-      const token = localStorage.getItem("access_token");
+      const token = localStorage.getItem('access_token')
 
       try {
         const response = await fetch(url, {
@@ -62,32 +62,32 @@ export default {
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(payload),
-        });
+        })
 
         if (!response.ok) {
-          throw new Error('Error al eliminar el libro');
+          throw new Error('Error al eliminar el libro')
         }
 
         // Elimina el libro de la lista después de la eliminación exitosa
-        this.books = this.books.filter((book) => book.id !== this.bookToDelete.id);
-        this.showModal = false;
+        this.books = this.books.filter(book => book.id !== this.bookToDelete.id)
+        this.showModal = false
       } catch (error) {
-        this.error = error.message;
+        this.error = error.message
       }
     },
     openModal(book) {
-      this.bookToDelete = book; // Almacena el libro a eliminar
-      this.showModal = true; // Muestra el modal
+      this.bookToDelete = book // Almacena el libro a eliminar
+      this.showModal = true // Muestra el modal
     },
     closeModal() {
-      this.showModal = false;
-      this.bookToDelete = null;
+      this.showModal = false
+      this.bookToDelete = null
     },
   },
   mounted() {
-    this.fetchBookList();
+    this.fetchBookList()
   },
-};
+}
 </script>
 
 <template>
@@ -99,17 +99,26 @@ export default {
     <!-- Lista de libros -->
     <div class="container">
       <div class="row">
-        <div v-for="book in books" :key="book.title" class="col-md-4 mb-4 text-center">
+        <div
+          v-for="book in books"
+          :key="book.title"
+          class="col-md-4 mb-4 text-center"
+        >
           <img
             alt="Book cover"
             :src="book.image_url"
             class="img-fluid"
-            style="height: 150px; width: auto;"
+            style="height: 150px; width: auto"
           />
-          <RouterLink :to="`/book/${book.isbn}`" class="d-block mt-2 text-decoration-none text-body-emphasis">
+          <RouterLink
+            :to="`/book/${book.isbn}`"
+            class="d-block mt-2 text-decoration-none text-body-emphasis"
+          >
             <h4>{{ book.title }}</h4>
           </RouterLink>
-          <button @click="openModal(book)" class="btn btn-danger mt-2">Borrar</button>
+          <button @click="openModal(book)" class="btn btn-danger mt-2">
+            Borrar
+          </button>
         </div>
       </div>
     </div>
@@ -122,19 +131,36 @@ export default {
     <div v-if="showModal" class="overlay" @click="closeModal"></div>
 
     <!-- Modal de confirmación -->
-    <div v-if="showModal" class="modal show" tabindex="-1" style="display: block;">
+    <div
+      v-if="showModal"
+      class="modal show"
+      tabindex="-1"
+      style="display: block"
+    >
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Confirmar eliminación</h5>
-            <button type="button" class="btn-close" @click="closeModal"></button>
+            <button
+              type="button"
+              class="btn-close"
+              @click="closeModal"
+            ></button>
           </div>
           <div class="modal-body">
-            <p>¿Estás seguro de que deseas eliminar el libro "{{ bookToDelete ? bookToDelete.title : '' }}"?</p>
+            <p>
+              ¿Estás seguro de que deseas eliminar el libro "{{
+                bookToDelete ? bookToDelete.title : ''
+              }}"?
+            </p>
           </div>
           <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" @click="closeModal">Cancelar</button>
-            <button type="button" class="btn btn-danger" @click="deleteBook">Eliminar</button>
+            <button type="button" class="btn btn-secondary" @click="closeModal">
+              Cancelar
+            </button>
+            <button type="button" class="btn btn-danger" @click="deleteBook">
+              Eliminar
+            </button>
           </div>
         </div>
       </div>

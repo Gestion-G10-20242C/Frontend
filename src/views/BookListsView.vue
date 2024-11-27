@@ -1,8 +1,8 @@
 <script>
-import HeaderComponent from '@/components/HeaderComponent.vue';
+import HeaderComponent from '@/components/HeaderComponent.vue'
 
 export default {
-  name: "BookListsView",
+  name: 'BookListsView',
   components: { HeaderComponent },
   props: {
     username: {
@@ -17,122 +17,134 @@ export default {
       error: null, // Errores en la carga
       // Modal para nueva lista
       showModal: false,
-      newListName: "", // Nombre de la nueva lista
-      nameError: "", // Error relacionado al nombre
-    };
+      newListName: '', // Nombre de la nueva lista
+      nameError: '', // Error relacionado al nombre
+    }
   },
   methods: {
     // Fetch de las listas
     async fetchBookLists() {
-      const url = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}/booklist`;
+      const url = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}/booklist`
       try {
-        const response = await fetch(url);
+        const response = await fetch(url)
         if (!response.ok) {
-          throw new Error("Error al obtener las listas de libros");
+          throw new Error('Error al obtener las listas de libros')
         }
-        const data = await response.json();
-        this.bookLists = data || [];
+        const data = await response.json()
+        this.bookLists = data || []
       } catch (error) {
-        this.error = error.message;
+        this.error = error.message
       } finally {
-        this.isLoading = false;
+        this.isLoading = false
       }
     },
     // Validar nombre de la lista
     validateListName(name) {
       if (!name.trim()) {
-        this.nameError = "El nombre de la lista no puede estar vacío.";
-        return false;
+        this.nameError = 'El nombre de la lista no puede estar vacío.'
+        return false
       }
-      if (this.bookLists.some((list) => list.name.toLowerCase() === name.toLowerCase())) {
-        this.nameError = "El nombre de la lista ya existe.";
-        return false;
+      if (
+        this.bookLists.some(
+          list => list.name.toLowerCase() === name.toLowerCase(),
+        )
+      ) {
+        this.nameError = 'El nombre de la lista ya existe.'
+        return false
       }
-      this.nameError = "";
-      return true;
+      this.nameError = ''
+      return true
     },
     // Crear nueva lista
     async createBookList() {
       if (!this.validateListName(this.newListName)) {
-        return;
+        return
       }
-      const url = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}/booklist`;
-      const body = { name: this.newListName };
-      const accessToken = localStorage.getItem("access_token");
+      const url = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}/booklist`
+      const body = { name: this.newListName }
+      const accessToken = localStorage.getItem('access_token')
 
       try {
         const response = await fetch(url, {
-          method: "POST",
-          headers: { 
+          method: 'POST',
+          headers: {
             Authorization: `Bearer ${accessToken}`,
-            "Content-Type": "application/json"},
+            'Content-Type': 'application/json',
+          },
           body: JSON.stringify(body),
-        });
+        })
         if (!response.ok) {
-          throw new Error("Error al crear la nueva lista");
+          throw new Error('Error al crear la nueva lista')
         }
         // Si se crea con éxito, agregar a bookLists y cerrar modal
-        this.bookLists.push({ name: this.newListName, books: [] });
-        this.newListName = "";
-        this.showModal = false;
+        this.bookLists.push({ name: this.newListName, books: [] })
+        this.newListName = ''
+        this.showModal = false
       } catch (error) {
-        console.error(error);
-        alert(`No se pudo crear la lista. Intenta nuevamente.`);
+        console.error(error)
+        alert(`No se pudo crear la lista. Intenta nuevamente.`)
       }
     },
   },
   mounted() {
-    this.fetchBookLists();
+    this.fetchBookLists()
   },
-};
+}
 </script>
 
 <template>
-    <HeaderComponent />
-    <div class="booklists-view">
-      <h1>Mis Listas de Libros</h1>
+  <HeaderComponent />
+  <div class="booklists-view">
+    <h1>Mis Listas de Libros</h1>
 
-      <!-- Botón para agregar lista -->
-      <button @click="showModal = true" class="add-list-button">Agregar Lista</button>
-  
-      <!-- Mostrar indicador de carga -->
-      <div v-if="isLoading">Cargando listas de libros...</div>
-  
-      <!-- Mostrar error si ocurre -->
-      <div v-else-if="error" class="error">
-        Error: {{ error }}
-      </div>
-  
-      <!-- Mostrar listas de libros -->
-      <ul v-else>
-        <li v-for="list in bookLists" :key="list.id" class="booklist-item">
-          <RouterLink :to="`/user/${username}/booklists/${list.name}`" class="booklist-link">
-            <h3>{{ list.name }}</h3>
-            <p>{{ list.books.length }} libros</p>
-          </RouterLink>
-        </li>
-      </ul>
-  
-      <!-- Mostrar mensaje si no hay listas -->
-      <div v-if="!isLoading && bookLists.length === 0">No tienes listas de libros.</div>
-  
-      <!-- Modal para nueva lista -->
-      <div v-if="showModal" class="modal">
-        <div class="modal-content">
-          <h2>Crear Nueva Lista</h2>
-          <label class="error" v-if="nameError">{{ nameError }}</label>
-          <input
-            v-model="newListName"
-            type="text"
-            placeholder="Nombre de la lista"
-            @input="validateListName(newListName)"
-          />
-          <button @click="createBookList">Crear</button>
-          <button class="btn btn-sm btn-danger mt-2" @click="showModal = false">Cancelar</button>
-        </div>
+    <!-- Botón para agregar lista -->
+    <button @click="showModal = true" class="btn btn-primary">
+      Agregar Lista
+    </button>
+
+    <!-- Mostrar indicador de carga -->
+    <div v-if="isLoading">Cargando listas de libros...</div>
+
+    <!-- Mostrar error si ocurre -->
+    <div v-else-if="error" class="error">Error: {{ error }}</div>
+
+    <!-- Mostrar listas de libros -->
+    <ul v-else>
+      <li v-for="list in bookLists" :key="list.id" class="booklist-item">
+        <RouterLink
+          :to="`/user/${username}/booklists/${list.name}`"
+          class="booklist-link"
+        >
+          <h3>{{ list.name }}</h3>
+          <p>{{ list.books.length }} libros</p>
+        </RouterLink>
+      </li>
+    </ul>
+
+    <!-- Mostrar mensaje si no hay listas -->
+    <div v-if="!isLoading && bookLists.length === 0">
+      No tienes listas de libros.
+    </div>
+
+    <!-- Modal para nueva lista -->
+    <div v-if="showModal" class="modal">
+      <div class="modal-content">
+        <h2>Crear Nueva Lista</h2>
+        <label class="error" v-if="nameError">{{ nameError }}</label>
+        <input
+          v-model="newListName"
+          type="text"
+          placeholder="Nombre de la lista"
+          @input="validateListName(newListName)"
+        />
+        <button @click="createBookList">Crear</button>
+        <button class="btn btn-sm btn-danger mt-2" @click="showModal = false">
+          Cancelar
+        </button>
       </div>
     </div>
-  </template>  
+  </div>
+</template>
 
 <style scoped>
 .booklists-view {
@@ -168,22 +180,7 @@ ul {
 }
 
 .booklist-link:hover {
-  color: #007BFF;
-}
-
-.add-list-button {
-  margin-top: 2em;
-  padding: 0.5em 1em;
-  font-size: 1em;
-  background-color: #007BFF;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.add-list-button:hover {
-  background-color: #0056b3;
+  color: #fad155;
 }
 
 .modal {

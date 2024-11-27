@@ -10,6 +10,7 @@ export default {
     HeaderComponent,
   },
   setup() {
+    const loadingPage = ref(true)
     const route = useRoute()
     const username = ref(route.params.username)
     const userStore = useUserStore()
@@ -294,6 +295,7 @@ export default {
         console.error(error)
         userFound.value = false
       }
+      loadingPage.value = false
     }
 
     const checkIfFollowing = async () => {
@@ -341,7 +343,6 @@ export default {
     }
 
     const fetchBookLists = async () => {
-
       console.log('Fetching book lists for:', username.value)
       const url = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username.value}/booklist`
       try {
@@ -365,6 +366,7 @@ export default {
     })
 
     return {
+      loadingPage,
       userFound,
       userData: profileData,
       newUserData,
@@ -429,8 +431,14 @@ export default {
 </script>
 
 <template>
+  <!-- Loading page -->
+  <template v-if="loadingPage">
+    <HeaderComponent />
+    <div class="loading-spinner"></div>
+  </template>
+
   <!-- User found -->
-  <template v-if="userFound">
+  <template v-else-if="!loadingPage && userFound">
     <HeaderComponent />
     <div class="container pt-4">
       <div class="row">
@@ -587,19 +595,20 @@ export default {
         <!-- Biblioteca -->
         <div class="col">
           <h3>Biblioteca</h3>
-        <ul class="list-group">
-          <li
-            v-for="booklist in userData.bookShelf"
-            :key="booklist.name"
-            class="list-group-item d-flex justify-content-between align-items-center"
-          >
-            {{ booklist.name }}
-            <span class="badge bg-primary rounded-pill">{{ booklist.books.length }}</span>
-          </li>
-        </ul>
+          <ul class="list-group">
+            <li
+              v-for="booklist in userData.bookShelf"
+              :key="booklist.name"
+              class="list-group-item d-flex justify-content-between align-items-center"
+            >
+              {{ booklist.name }}
+              <span class="badge bg-primary rounded-pill">{{
+                booklist.books.length
+              }}</span>
+            </li>
+          </ul>
         </div>
-      
-              
+
         <!-- Reading Challenges -->
         <div class="col">
           <h3>Reading Challenges</h3>
@@ -939,5 +948,15 @@ export default {
   font-weight: bold;
   position: absolute;
   right: -35px;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #fad155;
+  border-radius: 50%;
+  animation: spin 1s ease-in-out infinite;
+  margin: 50px auto;
 }
 </style>

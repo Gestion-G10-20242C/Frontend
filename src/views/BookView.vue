@@ -1,6 +1,6 @@
 <script>
 import HeaderComponent from '@/components/HeaderComponent.vue'
-import { useUserStore } from '@/stores/user';
+import { useUserStore } from '@/stores/user'
 import { GET } from '@/utils/fetch_async'
 
 export default {
@@ -33,108 +33,111 @@ export default {
       try {
         // Iterar sobre las listas seleccionadas y agregar el libro
         for (const listName of this.selectedLists) {
-          await this.addBookToList(listName);
+          await this.addBookToList(listName)
         }
-        this.showModal = false; // Cerrar el modal al finalizar
+        this.showModal = false // Cerrar el modal al finalizar
       } catch (error) {
-        console.error('Error al agregar libro a las listas seleccionadas:', error);
+        console.error(
+          'Error al agregar libro a las listas seleccionadas:',
+          error,
+        )
       }
     },
     async createNewList() {
       try {
-        const userStore = useUserStore();
-        const username = userStore.userName;
-        const API_URL = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist`;
-        const token = localStorage.getItem("access_token");
+        const userStore = useUserStore()
+        const username = userStore.userName
+        const API_URL = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist`
+        const token = localStorage.getItem('access_token')
 
-        const body = { name: this.newListName };
+        const body = { name: this.newListName }
 
         const response = await fetch(API_URL, {
-          method: "POST",
+          method: 'POST',
           headers: {
-            "Content-Type": "application/json",
+            'Content-Type': 'application/json',
             Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify(body),
-        });
+        })
 
         if (response.ok) {
-          console.log(`Lista creada: ${this.newListName}`);
-          this.newListName = ''; // Limpiar el campo de entrada
-          await this.fetchUserLists(); // Actualizar las listas
+          console.log(`Lista creada: ${this.newListName}`)
+          this.newListName = '' // Limpiar el campo de entrada
+          await this.fetchUserLists() // Actualizar las listas
         } else {
-          throw new Error("Error al crear la nueva lista");
+          throw new Error('Error al crear la nueva lista')
         }
       } catch (error) {
-        console.error("Error al crear la nueva lista:", error);
+        console.error('Error al crear la nueva lista:', error)
       }
     },
     async fetchUserLists() {
-    try {
-      const userStore = useUserStore();
-      const username = userStore.userName;
-      const API_URL = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist`;
-      const token = localStorage.getItem("access_token");
+      try {
+        const userStore = useUserStore()
+        const username = userStore.userName
+        const API_URL = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist`
+        const token = localStorage.getItem('access_token')
 
-      const response = await fetch(API_URL, {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+        const response = await fetch(API_URL, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+        })
 
-      if (response.ok) {
-        const data = await response.json();
-        this.userLists = data;
+        if (response.ok) {
+          const data = await response.json()
+          this.userLists = data
 
-        // Filtra las listas: excluye "Leídos" y las listas que ya contienen el libro
-        this.filteredLists = this.userLists.filter(
-          (list) =>
-            list.name !== "Leidos" &&
-            !list.books.some((book) => book.id === this.book.id)
-        );
-      } else {
-        throw new Error("Error al obtener las listas del usuario");
+          // Filtra las listas: excluye "Leídos" y las listas que ya contienen el libro
+          this.filteredLists = this.userLists.filter(
+            list =>
+              list.name !== 'Leidos' &&
+              !list.books.some(book => book.id === this.book.id),
+          )
+        } else {
+          throw new Error('Error al obtener las listas del usuario')
+        }
+      } catch (error) {
+        console.error('Error al obtener las listas:', error)
       }
-    } catch (error) {
-      console.error("Error al obtener las listas:", error);
-    }
-  },
-  async addBookToList(listName) {
-    try {
-      const userStore = useUserStore();
-      const username = userStore.userName;
-      const API_URL = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist/${listName}`;
-      const token = localStorage.getItem("access_token");
+    },
+    async addBookToList(listName) {
+      try {
+        const userStore = useUserStore()
+        const username = userStore.userName
+        const API_URL = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist/${listName}`
+        const token = localStorage.getItem('access_token')
 
-      const response = await fetch(API_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ id: this.book.id }),
-      });
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ id: this.book.id }),
+        })
 
-      if (response.ok) {
-        console.log(`Libro agregado a la lista ${listName}`);
-        this.showModal = false; // Cierra el modal
-        await this.fetchUserLists(); // Actualiza las listas
-      } else {
-        throw new Error("Error al agregar el libro a la lista");
+        if (response.ok) {
+          console.log(`Libro agregado a la lista ${listName}`)
+          this.showModal = false // Cierra el modal
+          await this.fetchUserLists() // Actualiza las listas
+        } else {
+          throw new Error('Error al agregar el libro a la lista')
+        }
+      } catch (error) {
+        console.error('Error al agregar el libro a la lista:', error)
       }
-    } catch (error) {
-      console.error("Error al agregar el libro a la lista:", error);
-    }
-  },
-  openAddToListModal() {
-    this.showModal = true;
-    this.fetchUserLists();
-  },
-  closeAddToListModal() {
-    this.showModal = false;
-  },
+    },
+    openAddToListModal() {
+      this.showModal = true
+      this.fetchUserLists()
+    },
+    closeAddToListModal() {
+      this.showModal = false
+    },
     async fetchBookDetails() {
       console.log('Isbn:', this.isbn)
       const relativePath = `/search?query=${encodeURIComponent(this.isbn)}&field=isbn`
@@ -169,7 +172,10 @@ export default {
           const readBooks = data.find(list => list.name === 'Leidos')
 
           console.log('Libros leídos:', readBooks)
-          console.log('Esta?', readBooks.books.some(book => book.id === this.book.id))
+          console.log(
+            'Esta?',
+            readBooks.books.some(book => book.id === this.book.id),
+          )
 
           if (readBooks) {
             this.isRead = readBooks.books.some(book => book.id === this.book.id)
@@ -181,16 +187,14 @@ export default {
         console.error('Error al obtener los libros leídos:', error)
         this.errorMessage = 'Hubo un error al obtener los libros leídos.'
       }
-
     },
     async markAsRead() {
-      this.buttonLoading = true;
+      this.buttonLoading = true
       try {
         const userStore = useUserStore()
         const username = userStore.userName
         const API_URL = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist/Leidos`
         const token = localStorage.getItem('access_token')
-
 
         const response = await fetch(API_URL, {
           method: 'POST',
@@ -200,7 +204,7 @@ export default {
           },
           body: JSON.stringify({ id: this.book.id }),
         })
-        
+
         if (response) {
           console.log('Libro marcado como leído:', this.book)
           this.isRead = true
@@ -210,11 +214,11 @@ export default {
         this.errorMessage = 'Hubo un error al marcar el libro como leído.'
         this.successMessage = ''
       } finally {
-        this.buttonLoading = false;
+        this.buttonLoading = false
       }
     },
     async removeFromRead() {
-      this.buttonLoading = true;
+      this.buttonLoading = true
       try {
         const userStore = useUserStore()
         const username = userStore.userName
@@ -239,7 +243,7 @@ export default {
         this.errorMessage = 'Hubo un error al eliminar el libro de leídos.'
         this.successMessage = ''
       } finally {
-        this.buttonLoading = false;
+        this.buttonLoading = false
       }
     },
     getStarClasses(index) {
@@ -350,17 +354,10 @@ export default {
             >
               {{ buttonLoading ? 'Procesando...' : 'Marcar Como Leído' }}
             </button>
-            <button
-              v-else
-              class="read-button"
-              @click="removeFromRead"
-            >
+            <button v-else class="read-button" @click="removeFromRead">
               {{ buttonLoading ? 'Procesando...' : 'Quitar de Leídos' }}
             </button>
-            <button
-              class="add-to-list-button"
-              @click="openAddToListModal"
-            >
+            <button class="add-to-list-button" @click="openAddToListModal">
               Agregar a lista
             </button>
           </div>
@@ -369,64 +366,56 @@ export default {
     </div>
   </div>
 
-<!-- Modal para agregar a lista -->
-<div v-if="showModal" class="modal">
-  <div class="modal-content">
+  <!-- Modal para agregar a lista -->
+  <div v-if="showModal" class="modal">
+    <div class="modal-content">
       <div class="header-container">
-        
         <div class="checklist-container">
           <h2>Agregar a listas</h2>
           <p>Selecciona las listas a las que deseas agregar este libro:</p>
-          <div v-for="list in filteredLists" :key="list.name" class="checklist-item">
-            <input 
-              type="checkbox" 
-              :id="list.name" 
-              :value="list.name" 
-              v-model="selectedLists" 
+          <div
+            v-for="list in filteredLists"
+            :key="list.name"
+            class="checklist-item"
+          >
+            <input
+              type="checkbox"
+              :id="list.name"
+              :value="list.name"
+              v-model="selectedLists"
             />
             <label :for="list.name">{{ list.name }}</label>
           </div>
           <hr />
-          <button 
-            @click="addBookToSelectedLists" 
-            class="btn btn-success"
-          >
-            Agregar 
+          <button @click="addBookToSelectedLists" class="btn btn-success">
+            Agregar
           </button>
-          <button 
-            @click="closeAddToListModal" 
-            class="btn btn-danger mt-2"
-          >
+          <button @click="closeAddToListModal" class="btn btn-danger mt-2">
             Cancelar
           </button>
-      </div>
+        </div>
 
-      <div class="vertical-line"></div>
+        <div class="vertical-line"></div>
 
         <div class="new-list-container">
           <h3>Crear nueva lista</h3>
-          <input 
-            v-model="newListName" 
-            type="text" 
-            placeholder="Nombre de la nueva lista" 
+          <input
+            v-model="newListName"
+            type="text"
+            placeholder="Nombre de la nueva lista"
             class="form-control"
           />
-          <button 
-            @click="createNewList" 
+          <button
+            @click="createNewList"
             class="btn btn-primary mt-2"
             :disabled="!newListName.trim()"
           >
             Crear lista
           </button>
         </div>
-      
       </div>
-      
+    </div>
   </div>
-</div>
-
-
-
 </template>
 
 <style scoped>
@@ -458,7 +447,7 @@ export default {
   width: 50px;
   height: 50px;
   border: 5px solid rgba(0, 0, 0, 0.1);
-  border-top-color: #3498db;
+  border-top-color: #fad155;
   border-radius: 50%;
   animation: spin 1s ease-in-out infinite;
   margin: 50px auto;
@@ -556,7 +545,6 @@ export default {
   text-align: center;
 }
 
-
 .lists-container {
   display: flex;
   gap: 30px; /* Espacio entre la lista de checkboxes y el input de nueva lista */
@@ -608,5 +596,4 @@ export default {
   background-color: #ddd; /* Color de la línea */
   margin: 0 auto; /* Alineación centrada */
 }
-
 </style>
