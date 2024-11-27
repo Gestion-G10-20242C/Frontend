@@ -16,6 +16,11 @@ export default {
       error: false,
       isRead: false,
       buttonLoading: false,
+      showModal: false,
+      userLists: [],
+      filteredLists: [],
+      selectedLists: [],
+      newListName: '',
     }
   },
   async mounted() {
@@ -24,6 +29,112 @@ export default {
     await this.isBookRead()
   },
   methods: {
+    async addBookToSelectedLists() {
+      try {
+        // Iterar sobre las listas seleccionadas y agregar el libro
+        for (const listName of this.selectedLists) {
+          await this.addBookToList(listName);
+        }
+        this.showModal = false; // Cerrar el modal al finalizar
+      } catch (error) {
+        console.error('Error al agregar libro a las listas seleccionadas:', error);
+      }
+    },
+    async createNewList() {
+      try {
+        const userStore = useUserStore();
+        const username = userStore.userName;
+        const API_URL = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist`;
+        const token = localStorage.getItem("access_token");
+
+        const body = { name: this.newListName };
+
+        const response = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(body),
+        });
+
+        if (response.ok) {
+          console.log(`Lista creada: ${this.newListName}`);
+          this.newListName = ''; // Limpiar el campo de entrada
+          await this.fetchUserLists(); // Actualizar las listas
+        } else {
+          throw new Error("Error al crear la nueva lista");
+        }
+      } catch (error) {
+        console.error("Error al crear la nueva lista:", error);
+      }
+    },
+    async fetchUserLists() {
+    try {
+      const userStore = useUserStore();
+      const username = userStore.userName;
+      const API_URL = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist`;
+      const token = localStorage.getItem("access_token");
+
+      const response = await fetch(API_URL, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        this.userLists = data;
+
+        // Filtra las listas: excluye "Leídos" y las listas que ya contienen el libro
+        this.filteredLists = this.userLists.filter(
+          (list) =>
+            list.name !== "Leidos" &&
+            !list.books.some((book) => book.id === this.book.id)
+        );
+      } else {
+        throw new Error("Error al obtener las listas del usuario");
+      }
+    } catch (error) {
+      console.error("Error al obtener las listas:", error);
+    }
+  },
+  async addBookToList(listName) {
+    try {
+      const userStore = useUserStore();
+      const username = userStore.userName;
+      const API_URL = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/booklist/${listName}`;
+      const token = localStorage.getItem("access_token");
+
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ id: this.book.id }),
+      });
+
+      if (response.ok) {
+        console.log(`Libro agregado a la lista ${listName}`);
+        this.showModal = false; // Cierra el modal
+        await this.fetchUserLists(); // Actualiza las listas
+      } else {
+        throw new Error("Error al agregar el libro a la lista");
+      }
+    } catch (error) {
+      console.error("Error al agregar el libro a la lista:", error);
+    }
+  },
+  openAddToListModal() {
+    this.showModal = true;
+    this.fetchUserLists();
+  },
+  closeAddToListModal() {
+    this.showModal = false;
+  },
     async fetchBookDetails() {
       console.log('Isbn:', this.isbn)
       const relativePath = `/search?query=${encodeURIComponent(this.isbn)}&field=isbn`
@@ -230,24 +341,92 @@ export default {
             </div>
           </div>
           <p><strong>Reseñas:</strong> {{ book.text_reviews_count }} reseñas</p>
-          <button
-            v-if="!isRead"
-            class="mark-as-read-button"
-            @click="markAsRead"
-          >
-          {{ buttonLoading ? 'Procesando...' : 'Marcar Como Leído' }}
-          </button>
-          <button
-            v-else
-            class="read-button"
-            @click="removeFromRead"
-          >
-          {{ buttonLoading ? 'Procesando...' : 'Quitar de Leídos' }}
-          </button>
+
+          <div class="button-container">
+            <button
+              v-if="!isRead"
+              class="mark-as-read-button"
+              @click="markAsRead"
+            >
+              {{ buttonLoading ? 'Procesando...' : 'Marcar Como Leído' }}
+            </button>
+            <button
+              v-else
+              class="read-button"
+              @click="removeFromRead"
+            >
+              {{ buttonLoading ? 'Procesando...' : 'Quitar de Leídos' }}
+            </button>
+            <button
+              class="add-to-list-button"
+              @click="openAddToListModal"
+            >
+              Agregar a lista
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
+
+<!-- Modal para agregar a lista -->
+<div v-if="showModal" class="modal">
+  <div class="modal-content">
+      <div class="header-container">
+        
+        <div class="checklist-container">
+          <h2>Agregar a listas</h2>
+          <p>Selecciona las listas a las que deseas agregar este libro:</p>
+          <div v-for="list in filteredLists" :key="list.name" class="checklist-item">
+            <input 
+              type="checkbox" 
+              :id="list.name" 
+              :value="list.name" 
+              v-model="selectedLists" 
+            />
+            <label :for="list.name">{{ list.name }}</label>
+          </div>
+          <hr />
+          <button 
+            @click="addBookToSelectedLists" 
+            class="btn btn-success"
+          >
+            Agregar libro a listas seleccionadas
+          </button>
+          <button 
+            @click="closeAddToListModal" 
+            class="btn btn-danger mt-2"
+          >
+            Cancelar
+          </button>
+      </div>
+
+      <div class="vertical-line"></div>
+
+        <div class="new-list-container">
+          <h3>Crear nueva lista</h3>
+          <input 
+            v-model="newListName" 
+            type="text" 
+            placeholder="Nombre de la nueva lista" 
+            class="form-control"
+          />
+          <button 
+            @click="createNewList" 
+            class="btn btn-primary mt-2"
+            :disabled="!newListName.trim()"
+          >
+            Crear lista
+          </button>
+        </div>
+      
+      </div>
+      
+  </div>
+</div>
+
+
+
 </template>
 
 <style scoped>
@@ -344,4 +523,90 @@ export default {
   background-color: black;
   border-radius: 10px;
 }
+
+.add-to-list-button {
+  color: black;
+  background-color: lightskyblue;
+  border-radius: 10px;
+}
+
+.button-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: white;
+  padding: 2em;
+  border-radius: 8px;
+  width: 1000px;
+  text-align: center;
+}
+
+
+.lists-container {
+  display: flex;
+  gap: 30px; /* Espacio entre la lista de checkboxes y el input de nueva lista */
+}
+
+.checklist-container {
+  display: horizontal;
+}
+
+.new-list-container {
+  flex: 1; /* Toma el mismo espacio que la lista de checkboxes */
+  max-width: 300px; /* Limita el ancho del formulario de nueva lista */
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between; /* Coloca los elementos en los extremos */
+  align-items: flex-start; /* Alinea los elementos en la parte superior */
+}
+
+.new-list-container input {
+  width: 100%;
+}
+
+.modal-content input {
+  margin: 1em 0;
+  padding: 0.5em;
+  width: 100%;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.modal-content button {
+  margin: 0.5em;
+  padding: 0.5em 1em;
+  font-size: 1em;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.cancel-button:hover {
+  background: #bbb;
+}
+
+.vertical-line {
+  width: 2px; /* Ancho de la línea */
+  height: 400px; /* Altura de la línea */
+  background-color: #ddd; /* Color de la línea */
+  margin: 0 auto; /* Alineación centrada */
+}
+
 </style>
