@@ -294,11 +294,11 @@ export default {
 <template>
   <div class="book-view">
     <HeaderComponent />
-    
+
     <div v-if="loading" class="loading-container">
-    <div class="loading-spinner"></div>
-    <p class="text-center">Cargando...</p>
-  </div>
+      <div class="loading-spinner"></div>
+      <p class="text-center">Cargando...</p>
+    </div>
 
     <!-- Mostrar error si no hay resultados de libros -->
     <div v-else-if="error" class="error-message">

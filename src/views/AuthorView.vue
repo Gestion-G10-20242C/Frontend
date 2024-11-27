@@ -237,7 +237,6 @@ export default {
   right: -35px;
 }
 
-
 .loading-spinner {
   width: 50px;
   height: 50px;

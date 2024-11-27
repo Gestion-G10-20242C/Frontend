@@ -141,8 +141,7 @@ export default {
 
       <!-- Rueda de carga -->
       <div v-if="isLoading" class="text-center my-5">
-        <div class="spinner-border" role="status">
-        </div>
+        <div class="spinner-border" role="status"></div>
         <p class="text-center">Cargando...</p>
       </div>
 
@@ -167,7 +166,7 @@ export default {
                     {{ book.title }}
                   </h3>
                 </RouterLink>
-                  
+
                 <RouterLink :to="`/author/${book.author_name}`">
                   <h5 class="text-body-secondary">{{ book.author_name }}</h5>
                 </RouterLink>
