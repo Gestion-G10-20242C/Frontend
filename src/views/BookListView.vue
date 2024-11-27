@@ -124,7 +124,7 @@ export default {
           />
           <h4>{{ book.title }}</h4>
           <button @click="openModal(book)" class="btn btn-danger mt-2">
-            Borrar
+            Eliminar
           </button>
         </div>
       </div>
@@ -156,7 +156,7 @@ export default {
           </div>
           <div class="modal-body">
             <p>
-              ¿Estás seguro de que deseas eliminar el libro "{{
+              ¿Realmente deseas eliminar el libro "{{
                 bookToDelete ? bookToDelete.title : ''
               }}"?
             </p>

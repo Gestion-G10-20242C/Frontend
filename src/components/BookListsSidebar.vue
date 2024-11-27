@@ -48,7 +48,7 @@ export default {
           :to="`/user/${username}/booklists/${list.name}`"
           class="booklist-link"
         >
-          {{ list.name }} ({{ list.books.length }} libros)
+          {{ list.name }} ({{ list.books.length }} {{ list.books.length === 1 ? 'libro' : 'libros' }})
         </RouterLink>
       </li>
     </ul>
