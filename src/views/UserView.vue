@@ -899,7 +899,7 @@ export default {
             ></button>
           </div>
           <div class="modal-body">
-            <p>¿Estás seguro de que deseas eliminar este libro?</p>
+            <p>¿Realmente deseas eliminar este libro?</p>
           </div>
           <div class="modal-footer">
             <button

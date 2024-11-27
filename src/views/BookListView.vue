@@ -150,7 +150,7 @@ export default {
           </div>
           <div class="modal-body">
             <p>
-              ¿Estás seguro de que deseas eliminar el libro "{{
+              ¿Realmente deseas eliminar el libro "{{
                 bookToDelete ? bookToDelete.title : ''
               }}"?
             </p>
