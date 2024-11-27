@@ -42,6 +42,12 @@ export default {
       publishDate: '',
     })
 
+    const newFavouriteBook = ref({
+      title: '',
+      cover: '',
+      description: '',
+    })
+
     const addBook = async () => {
       const book = {
         title: newBook.value.title,
@@ -83,6 +89,28 @@ export default {
         fetchUserData()
       } catch (error) {
         console.error('Error al subir el libro:', error)
+      }
+    }
+
+    const addFavouriteBook = async () => {
+      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username.value}`
+      const token = localStorage.getItem('access_token')
+      try {
+        await fetch(apiUrl, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            favourite_book: newFavouriteBook.value,
+          }),
+        })
+
+        fetchUserData()
+        document.getElementById('close-favourite-book-modal').click()
+      } catch (error) {
+        console.error('Error al subir el libro favorito:', error)
       }
     }
 
@@ -244,10 +272,15 @@ export default {
           profileData.myBooks = JSON.parse(data.myBooks.replace(/'/g, '"'))
         }
 
-        if (data.favouriteBook) {
-          profileData.favouriteBook = JSON.parse(
-            data.favouriteBook.replace(/'/g, '"'),
+        if (data.favourite_book) {
+          const favouriteBookData = JSON.parse(
+            data.favourite_book.replace(/'/g, '"'),
           )
+          profileData.favouriteBook = {
+            title: favouriteBookData.title,
+            cover: favouriteBookData.description,
+            description: favouriteBookData.cover, // BUG: Somehow interchanged
+          }
         } else {
           profileData.favouriteBook = {
             title: 'No hay Libro Favorito',
@@ -372,6 +405,8 @@ export default {
       isLoading,
       addBook,
       newBook,
+      newFavouriteBook,
+      addFavouriteBook,
       deleteBook,
       editBook,
       setBookIndex,
@@ -500,12 +535,12 @@ export default {
               <h1>{{ userData.favouriteBook.title }}</h1>
             </div>
             <div class="row">
-              <div class="col-2">
+              <div class="col-3">
                 <img
                   alt="Book cover"
                   class="logo"
                   :src="userData.favouriteBook.cover"
-                  width="100%"
+                  height="100vh"
                 />
               </div>
               <div class="col">
@@ -916,6 +951,78 @@ export default {
               @click="deleteBook(getBookIndex())"
             >
               Eliminar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Change favourite book -->
+    <div
+      v-if="username === userStore.userName"
+      class="modal fade"
+      id="changeFavouriteBookModal"
+      tabindex="-1"
+      aria-labelledby="changeFavouriteBookModalLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h1 class="modal-title fs-5" id="changeFavouriteBookModalLabel">
+              Cambiar libro favorito
+            </h1>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="newFavBookTitle">Título</label>
+              <input
+                type="text"
+                id="newFavBookTitle"
+                class="form-control"
+                v-model="newFavouriteBook.title"
+              />
+            </div>
+            <div class="form-group">
+              <label for="newFavBookDescription">Descripción</label>
+              <input
+                type="text"
+                id="newFavBookDescription"
+                class="form-control"
+                v-model="newFavouriteBook.cover"
+              />
+            </div>
+            <div class="form-group">
+              <label for="newFavBookCover">Link de la portada</label>
+              <input
+                type="text"
+                id="newFavBookCover"
+                class="form-control"
+                v-model="newFavouriteBook.description"
+              />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button
+              id="close-favourite-book-modal"
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Cerrar
+            </button>
+            <button
+              @click="addFavouriteBook"
+              type="button"
+              class="btn btn-success"
+            >
+              Guardar cambios
             </button>
           </div>
         </div>
