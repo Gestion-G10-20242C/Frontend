@@ -49,7 +49,7 @@ export default {
           this.errorMessage = 'No se encontraron resultados'
           return
         }
-
+        console.log(response)
         this.results = response
       } catch (error) {
         console.error('Error al obtener libros:', error)
@@ -200,6 +200,6 @@ export default {
 .spinner-border {
   width: 3rem;
   height: 3rem;
-  color: #007bff;
+  color: #fad155;
 }
 </style>

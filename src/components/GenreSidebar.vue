@@ -100,7 +100,7 @@ export default {
         {{ genre.translatedName }} ({{ genre.count }})
       </li>
     </ul>
-    <button @click="viewAllGenres">Más géneros</button>
+    <button class="btn btn-primary" @click="viewAllGenres">Más géneros</button>
   </div>
 </template>
 

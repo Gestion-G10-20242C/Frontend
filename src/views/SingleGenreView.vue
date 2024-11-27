@@ -12,6 +12,7 @@ export default {
     },
   },
   setup(props) {
+    const loadingPage = ref(true)
     const books = ref([])
     const selectedBook = ref(null)
     const errorMessage = ref('')
@@ -73,12 +74,14 @@ export default {
         errorMessage.value =
           'Hubo un problema al obtener los libros. Intenta nuevamente más tarde.'
       }
+      loadingPage.value = false
     }
 
     // Cargar libros al montar el componente
     onMounted(getBooksOfGenre)
 
     return {
+      loadingPage,
       books,
       selectedBook,
       errorMessage,
@@ -93,8 +96,9 @@ export default {
 
 <template>
   <HeaderComponent />
+  <div v-if="loadingPage" class="loading-spinner"></div>
 
-  <div class="container mt-5">
+  <div v-else class="container mt-5">
     <!-- Título traducido -->
     <h1>{{ translatedGenre }}</h1>
 
@@ -135,5 +139,21 @@ export default {
 
 .main-content {
   width: 70%;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #fad155;
+  border-radius: 50%;
+  animation: spin 1s ease-in-out infinite;
+  margin: 50px auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>

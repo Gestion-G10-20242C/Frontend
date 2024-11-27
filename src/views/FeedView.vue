@@ -16,16 +16,16 @@ export default {
     const fetchFollowing = async () => {
       const currentUserName = userStore.userName
       try {
+        console.log('before')
         const response = await fetch(
           `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUserName}/following/`,
         )
-        if (!response.ok) {
-          throw new Error('Network response was not ok')
-        }
         const data = await response.json()
         follows.push(...data)
       } catch (error) {
-        console.error('Error fetching following:', error)
+        // Cuando el usuario no sigue a nadie, la respuesta es un array vacío
+        // Sin embargo se detecta como un error, bug?
+        console.log('No followed users found: ', error)
       }
     }
 

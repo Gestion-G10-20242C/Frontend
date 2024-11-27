@@ -24,7 +24,6 @@ export default {
         }
         const data = await response.json()
         bookLists.value = data || []
-        console.log('Book Lists:', bookLists.value)
       } catch (error) {
         console.error('Error fetching book lists:', error)
       }

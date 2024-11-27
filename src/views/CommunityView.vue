@@ -152,4 +152,10 @@ export default {
   animation: spin 1s ease-in-out infinite;
   margin: 50px auto;
 }
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
 </style>

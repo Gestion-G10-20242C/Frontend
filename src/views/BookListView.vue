@@ -35,7 +35,6 @@ export default {
         const data = await response.json()
 
         const list = data.find(list => list.name === this.name)
-
         this.books = list.books || []
         this.bookListName = list.name
       } catch (error) {
@@ -218,5 +217,11 @@ export default {
   border-radius: 50%;
   animation: spin 1s ease-in-out infinite;
   margin: 50px auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
