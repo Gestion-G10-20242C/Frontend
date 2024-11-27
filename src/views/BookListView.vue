@@ -118,7 +118,7 @@ export default {
             <h4>{{ book.title }}</h4>
           </RouterLink>
           <button @click="openModal(book)" class="btn btn-danger mt-2">
-            Borrar
+            Eliminar
           </button>
         </div>
       </div>
