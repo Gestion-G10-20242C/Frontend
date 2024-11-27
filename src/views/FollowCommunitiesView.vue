@@ -122,6 +122,7 @@ export default {
             }),
           },
         )
+        document.getElementById('closeModalBtn').click()
         console.log('response', response)
       } catch (error) {
         console.error('Error al crear la comunidad:', error)
@@ -282,6 +283,7 @@ export default {
         </div>
         <div class="modal-footer">
           <button
+            id="closeModalBtn"
             type="button"
             class="btn btn-secondary"
             data-bs-dismiss="modal"

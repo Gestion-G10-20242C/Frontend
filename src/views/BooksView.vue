@@ -43,14 +43,12 @@ export default {
           throw new Error('Error al obtener datos del servidor')
         }
 
-        this.results = response
-
-        if (this.results.message) {
-          this.errorMessage =
-            'Hubo un problema al obtener los libros. Intenta nuevamente más tarde.'
-        } else {
-          this.errorMessage = ''
+        if (!response) {
+          this.errorMessage = 'No se encontraron resultados'
+          return
         }
+        console.log(response)
+        this.results = response
       } catch (error) {
         console.error('Error al obtener libros:', error)
       }
@@ -100,14 +98,6 @@ export default {
     setSelectedBook(book) {
       this.selectedBook = book
     },
-
-    navigateToBook(book) {
-      console.log('ACA ESTA FALLANDO')
-      this.$router.push({
-        name: 'book',
-        params: { isbn: book.isbn },
-      })
-    },
   },
 }
 </script>
@@ -151,9 +141,8 @@ export default {
 
       <!-- Rueda de carga -->
       <div v-if="isLoading" class="text-center my-5">
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Cargando...</span>
-        </div>
+        <div class="spinner-border" role="status"></div>
+        <p class="text-center">Cargando...</p>
       </div>
 
       <!-- Mensaje de error -->
@@ -172,12 +161,12 @@ export default {
                 <img alt="Book cover" :src="book.image_url" height="150vh" />
               </div>
               <div class="col">
-                <h3
-                  class="text-body-emphasis cursor-pointer"
-                  @click="navigateToBook(book)"
-                >
-                  {{ book.title }}
-                </h3>
+                <RouterLink :to="`/book/${book.isbn}`">
+                  <h3 class="text-body-emphasis cursor-pointer">
+                    {{ book.title }}
+                  </h3>
+                </RouterLink>
+
                 <RouterLink :to="`/author/${book.author_name}`">
                   <h5 class="text-body-secondary">{{ book.author_name }}</h5>
                 </RouterLink>
@@ -185,7 +174,7 @@ export default {
               </div>
             </div>
           </div>
-          <div v-else>
+          <div v-else-if="hasSearched">
             <h3>Sin resultados</h3>
           </div>
         </div>
@@ -204,7 +193,7 @@ export default {
 .spinner-border {
   width: 3rem;
   height: 3rem;
-  color: #007bff;
+  color: #fad155;
 }
 
 .cursor-pointer {

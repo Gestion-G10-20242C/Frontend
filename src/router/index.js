@@ -15,6 +15,18 @@ const router = createRouter({
       component: () => import('../views/UserView.vue'),
     },
     {
+      path: '/user/:username/booklists',
+      name: 'BookListsView',
+      component: () => import('../views/BookListsView.vue'),
+      props: true,
+    },
+    {
+      path: '/user/:username/booklists/:name',
+      name: 'BookListView',
+      component: () => import('../views/BookListView.vue'),
+      props: true,
+    },
+    {
       path: '/feed', // Nueva ruta para el feed
       name: 'feed',
       component: () => import('../views/FeedView.vue'), // Importar el nuevo componente

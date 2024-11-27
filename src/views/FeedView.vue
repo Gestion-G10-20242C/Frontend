@@ -2,12 +2,13 @@
 import { reactive, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import HeaderComponent from '@/components/HeaderComponent.vue'
+import BookListsSidebar from '@/components/BookListsSidebar.vue' // Importa el nuevo componente
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
 
 export default {
   name: 'FeedView',
-  components: { HeaderComponent },
+  components: { HeaderComponent, BookListsSidebar }, // Agrega el componente aquí
   setup() {
     const follows = reactive([])
     const userStore = useUserStore()
@@ -21,15 +22,22 @@ export default {
         const response = await fetch(
           `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${currentUserName}/following/`,
         )
-        if (!response.ok) {
-          throw new Error('Network response was not ok')
-        }
         const data = await response.json()
         follows.push(...data)
         isLoading.value = false
       } catch (error) {
-        console.error('Error fetching following:', error)
-        errorMessage.value = `Error cargando feed. ErrorMessage ${error.message}`
+        // Cuando el usuario no sigue a nadie, la respuesta es un array vacío
+        // Sin embargo se detecta como un error, bug?
+        console.log('No followed users found: ', error)
+      }
+
+      // Add profile picture to each user
+      for (const user of follows) {
+        const response = await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${user.following}`,
+        )
+        const data = await response.json()
+        user.profilePicture = data.profilePicture
       }
     }
 
@@ -39,6 +47,7 @@ export default {
 
     return {
       follows,
+      userName: userStore.userName, // Retorna el nombre del usuario para pasarlo como prop
       router,
       isLoading,
       errorMessage,
@@ -51,48 +60,41 @@ export default {
   <HeaderComponent />
   <div class="container pt-4 content-wrapper">
     <div class="row">
-      <div
-        v-if="isLoading"
-        class="d-flex justify-content-center align-items-center my-5"
-        style="height: 80vh"
-      >
-        <div class="spinner-border" role="status">
-          <span class="visually-hidden">Cargando...</span>
-        </div>
-      </div>
-      <div v-else-if="errorMessage && !isLoading">
-        <div class="alert alert-danger">
-          {{ errorMessage }}
-        </div>
-      </div>
-      <div v-else>
-        <div class="col feed-column">
-          <h1>Feed</h1>
-          <h2>Sigues a:</h2>
-          <div class="list-group">
-            <div
-              class="list-group-item"
-              v-for="(user, index) in follows"
-              :key="index"
-            >
-              <img
-                src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
-                alt="Icono de seguimiento"
-                class="follow-icon"
-              />
-              <router-link class="user-link" :to="`/user/${user.following}`">
-                {{ user.following }}
-              </router-link>
-            </div>
+      <!-- Columna principal con el feed -->
+      <div class="col feed-column">
+        <h1>Feed</h1>
+        <h2>Sigues a:</h2>
+        <div class="list-group list-group-flush">
+          <div
+            class="list-group-item"
+            v-for="(user, index) in follows"
+            :key="index"
+          >
+            <img
+              :src="
+                user.profilePicture ??
+                'https://cdn-icons-png.flaticon.com/512/1077/1077114.png'
+              "
+              alt="Icono de seguimiento"
+              class="rounded-circle me-2"
+              style="height: 5vh; width: 5vh"
+            />
+            <router-link class="user-link" :to="`/user/${user.following}`">
+              {{ user.following }}
+            </router-link>
           </div>
         </div>
+      </div>
+
+      <!-- Columna del sidebar -->
+      <div class="col-3 booklist-sidebar">
+        <BookListsSidebar :username="userName" />
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
-/* Reutiliza estilos específicos del feed */
 .list-group-item {
   margin-bottom: 15px;
   display: flex;
@@ -112,5 +114,11 @@ export default {
 
 .user-link:hover {
   text-decoration: underline;
+}
+
+/* Estilo para el sidebar */
+.booklist-sidebar {
+  border-left: 1px solid #ddd;
+  padding-left: 15px;
 }
 </style>
