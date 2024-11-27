@@ -352,7 +352,7 @@ export default {
               class="mark-as-read-button"
               @click="markAsRead"
             >
-              {{ buttonLoading ? 'Procesando...' : 'Marcar Como Leído' }}
+              {{ buttonLoading ? 'Procesando...' : 'Marcar como leído' }}
             </button>
             <button v-else class="read-button" @click="removeFromRead">
               {{ buttonLoading ? 'Procesando...' : 'Quitar de Leídos' }}

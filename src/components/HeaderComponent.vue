@@ -197,7 +197,7 @@ export default {
                 class="dropdown-item"
                 @click="handleCloseSession"
               >
-                Cerrar Session
+                Cerrar Sesión
               </RouterLink>
             </li>
           </ul>
