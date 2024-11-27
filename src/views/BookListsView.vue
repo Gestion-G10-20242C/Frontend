@@ -91,6 +91,9 @@ export default {
     <HeaderComponent />
     <div class="booklists-view">
       <h1>Mis Listas de Libros</h1>
+
+      <!-- Botón para agregar lista -->
+      <button @click="showModal = true" class="add-list-button">Agregar Lista</button>
   
       <!-- Mostrar indicador de carga -->
       <div v-if="isLoading">Cargando listas de libros...</div>
@@ -112,9 +115,6 @@ export default {
   
       <!-- Mostrar mensaje si no hay listas -->
       <div v-if="!isLoading && bookLists.length === 0">No tienes listas de libros.</div>
-  
-      <!-- Botón para agregar lista -->
-      <button @click="showModal = true" class="add-list-button">Agregar Lista</button>
   
       <!-- Modal para nueva lista -->
       <div v-if="showModal" class="modal">

@@ -391,7 +391,7 @@ export default {
             @click="addBookToSelectedLists" 
             class="btn btn-success"
           >
-            Agregar libro a listas seleccionadas
+            Agregar 
           </button>
           <button 
             @click="closeAddToListModal" 
