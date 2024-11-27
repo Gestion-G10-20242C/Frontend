@@ -40,8 +40,6 @@ export default {
 
         // Seleccionar los 4 géneros con más libros
         this.topGenres = sortedGenres.slice(0, 4)
-
-        console.log('Top Genres:', this.topGenres)
       } catch (error) {
         console.error('Error fetching genres:', error)
       }

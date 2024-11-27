@@ -30,6 +30,15 @@ export default {
         // Sin embargo se detecta como un error, bug?
         console.log('No followed users found: ', error)
       }
+
+      // Add profile picture to each user
+      for (const user of follows) {
+        const response = await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${user.following}`,
+        )
+        const data = await response.json()
+        user.profilePicture = data.profilePicture
+      }
     }
 
     onMounted(() => {
@@ -55,16 +64,20 @@ export default {
       <div class="col feed-column">
         <h1>Feed</h1>
         <h2>Sigues a:</h2>
-        <div class="list-group">
+        <div class="list-group list-group-flush">
           <div
             class="list-group-item"
             v-for="(user, index) in follows"
             :key="index"
           >
             <img
-              src="https://cdn-icons-png.flaticon.com/512/1077/1077114.png"
+              :src="
+                user.profilePicture ??
+                'https://cdn-icons-png.flaticon.com/512/1077/1077114.png'
+              "
               alt="Icono de seguimiento"
-              class="follow-icon"
+              class="rounded-circle me-2"
+              style="height: 5vh; width: 5vh"
             />
             <router-link class="user-link" :to="`/user/${user.following}`">
               {{ user.following }}
