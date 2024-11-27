@@ -1,7 +1,7 @@
 <script>
 import HeaderComponent from '@/components/HeaderComponent.vue'
 import GenreSidebar from '@/components/GenreSidebar.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useSearchStore } from '@/stores/search'
 import { GET } from '@/utils/fetch_async'
 
@@ -22,6 +22,74 @@ export default {
     const hasSearched = ref(false)
     const isLoading = ref(false) // Estado de carga
 
+    // Search books acá afuera en el setup, para poder llamarla en el onMounted,
+    // Como están acá afuera, no se puede usar "this." y hay que usar ".value" sobre las refs.
+    const fetch_books = async (rel_path) => {
+      console.log('Buscando...', searchInput.value)
+
+      try {
+        const response = await GET('GET', rel_path, null, null);
+
+        if (!response || response.error) {
+          throw new Error('Error al obtener datos del servidor')
+        }
+
+        if (!response) {
+          errorMessage.value = 'No se encontraron resultados'
+          return
+        }
+        console.log(response.value)
+        results.value = response
+      } catch (error) {
+        console.error('Error al obtener libros:', error)
+      }
+    };
+
+    const searchBooks = async () => {
+      if (searchInput.value.length < 3) {
+        return
+      }
+
+      hasSearched.value = true
+      isLoading.value = true // Activa el estado de carga
+      console.log('Searching for:', searchInput, 'by', selectedOption)
+
+      if (selectedOption.value === 'genres') {
+        searchInput.value = searchInput.value.toLowerCase()
+      }
+
+      const rel_path = `/search?query=${searchInput.value}&field=${selectedOption.value}`
+      console.log('Fetching books from:', rel_path)
+
+      await fetch_books(rel_path)
+
+      if (!errorMessage.value) {
+        // Filtra los libros según la búsqueda solo si no hubo errores
+        results.value = results.value.filter(book => {
+          if (selectedOption.value === 'title') {
+            return book.title
+              .toLowerCase()
+              .includes(searchInput.value.toLowerCase())
+          } else if (selectedOption.value === 'author_name') {
+            return book.author_name
+              .toLowerCase()
+              .includes(searchInput.value.toLowerCase())
+          } else if (selectedOption.value === 'genres') {
+            return book.genres
+              .toLowerCase()
+              .includes(searchInput.value.toLowerCase())
+          }
+          return false
+        })
+      }
+
+      isLoading.value = false // Desactiva el estado de carga
+    };
+
+    onMounted(async () => {
+      await searchBooks()
+    })
+
     return {
       searchInput,
       selectedOption,
@@ -33,68 +101,6 @@ export default {
     }
   },
   methods: {
-    async fetch_books(rel_path) {
-      console.log('Buscando...', this.searchInput)
-
-      try {
-        const response = await GET('GET', rel_path, null, null)
-
-        if (!response || response.error) {
-          throw new Error('Error al obtener datos del servidor')
-        }
-
-        if (!response) {
-          this.errorMessage = 'No se encontraron resultados'
-          return
-        }
-        console.log(response)
-        this.results = response
-      } catch (error) {
-        console.error('Error al obtener libros:', error)
-      }
-    },
-
-    async searchBooks() {
-      if (this.searchInput.length < 3) {
-        return
-      }
-
-      this.hasSearched = true
-      this.isLoading = true // Activa el estado de carga
-      console.log('Searching for:', this.searchInput, 'by', this.selectedOption)
-
-      if (this.selectedOption === 'genres') {
-        this.searchInput = this.searchInput.toLowerCase()
-      }
-
-      const rel_path = `/search?query=${this.searchInput}&field=${this.selectedOption}`
-      console.log('Fetching books from:', rel_path)
-
-      await this.fetch_books(rel_path)
-
-      if (!this.errorMessage) {
-        // Filtra los libros según la búsqueda solo si no hubo errores
-        this.results = this.results.filter(book => {
-          if (this.selectedOption === 'title') {
-            return book.title
-              .toLowerCase()
-              .includes(this.searchInput.toLowerCase())
-          } else if (this.selectedOption === 'author_name') {
-            return book.author_name
-              .toLowerCase()
-              .includes(this.searchInput.toLowerCase())
-          } else if (this.selectedOption === 'genres') {
-            return book.genres
-              .toLowerCase()
-              .includes(this.searchInput.toLowerCase())
-          }
-          return false
-        })
-      }
-
-      this.isLoading = false // Desactiva el estado de carga
-    },
-
     setSelectedBook(book) {
       this.selectedBook = book
     },
