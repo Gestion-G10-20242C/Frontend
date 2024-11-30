@@ -25,18 +25,20 @@ export const useUserStore = defineStore('user', {
         if (!response.ok) {
           throw new Error('Error fetching user data')
         }
+
         const data = await response.json()
         this.userName = username
         this.name = data.name || username
-        this.favouriteBook = data.favourite_book.title || ''
-        this.favouriteBookCover = data.favourite_book.cover || ''
-        this.favouriteBookReview = data.favourite_book.description || ''
+        this.favouriteBook = data.favouriteBook|| ''
+        this.favouriteBookCover = data.favouriteBookCover || ''
+        this.favouriteBookReview = data.favouriteBookDescription || ''
         this.description = data.description || ''
         this.profilePicture =
           data.profilePicture ||
           'https://cdn-icons-png.flaticon.com/512/1077/1077114.png'
         this.description = data.description || ''
         this.followingUsers = data.followingUsers || []
+        console.log('Login')
         this.isLoggedIn = true
       } catch (error) {
         console.error('Error:', error)
