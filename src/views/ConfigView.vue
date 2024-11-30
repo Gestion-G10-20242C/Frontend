@@ -103,6 +103,36 @@ export default {
       this.selectedGenres = [...this.userPreferredGenres]
     },
 
+    async updateUser() {
+      const token = localStorage.getItem('access_token')
+      const username = this.userStore.userName
+      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}`
+
+      const userData = this.userStore.getUserData()
+
+      console.log('User data:', userData)
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(userData),
+        })
+
+        if (!response.ok) {
+          throw new Error('No se pudo actualizar el usuario')
+        }
+
+        console.log('User updated:', userData)
+
+      } catch (error) {
+        console.error('Error updating user:', error)
+      }
+    },
+
     async saveGenres() {
       const token = localStorage.getItem('access_token')
       const username = this.userStore.userName
@@ -118,6 +148,10 @@ export default {
       try {
         await this.saveFavouriteGenres(username, token, userData)
         this.userStore.favouriteGenres = JSON.stringify(this.selectedGenres) // Actualiza el store
+
+        // Actualizar perfil
+        this.updateUser()
+
       } catch (error) {
         console.error('Error saving genres:', error)
       } finally {
