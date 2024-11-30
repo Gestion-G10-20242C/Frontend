@@ -140,7 +140,7 @@ export default {
             :key="book.title"
             class="book-item"
           >
-            <RouterLink :to="`/book/${book.isbn}`">
+            <RouterLink :to="`/book/${book.id}`">
               <img :src="book.image_url" :alt="book.title" class="book-cover" />
             </RouterLink>
             <p>{{ book.title }}</p>

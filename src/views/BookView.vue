@@ -8,7 +8,7 @@ export default {
   components: {
     HeaderComponent,
   },
-  props: ['isbn'],
+  props: ['id'],
   data() {
     return {
       book: null,
@@ -24,7 +24,7 @@ export default {
     }
   },
   async mounted() {
-    console.log('ISBN:', this.isbn)
+    console.log('ID:', this.id)
     await this.fetchBookDetails()
     await this.isBookRead()
   },
@@ -139,8 +139,8 @@ export default {
       this.showModal = false
     },
     async fetchBookDetails() {
-      console.log('Isbn:', this.isbn)
-      const relativePath = `/search?query=${encodeURIComponent(this.isbn)}&field=isbn`
+      console.log('Id:', this.id)
+      const relativePath = `/search?query=${encodeURIComponent(this.id)}&field=id`
       const data = await GET('GET', relativePath, null, null)
 
       if (data) {
@@ -302,9 +302,9 @@ export default {
 
     <!-- Mostrar error si no hay resultados de libros -->
     <div v-else-if="error" class="error-message">
-      <h2>No se encontraron libros para el ISBN proporcionado.</h2>
+      <h2>No se encontró el Libro.</h2>
       <p>
-        Por favor, intenta con otro ISBN o revisa los criterios de búsqueda.
+        Por favor, revisa los criterios de búsqueda.
       </p>
       <img
         src="https://media.istockphoto.com/id/1347475061/vector/book-with-sad-face-in-speech-bubble-line-icon-bad-literature-review-negative-feedback-symbol.jpg?s=612x612&w=0&k=20&c=PQa7DkacREaANvys7s7iUpEbysHTUGzD2D3Jj5eIVaw="

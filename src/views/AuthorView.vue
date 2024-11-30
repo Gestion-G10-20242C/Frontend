@@ -193,7 +193,7 @@ export default {
                 />
               </div>
               <div class="card-body">
-                <RouterLink :to="`/book/${book.isbn}`">
+                <RouterLink :to="`/book/${book.id}`">
                   <h5 class="card-title">{{ book.title }}</h5>
                 </RouterLink>
                 <p class="card-text">Autor: {{ book.author_name }}</p>
