@@ -20,14 +20,12 @@ export default {
       const url =
         'https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/auth/login'
 
-      // Create the body for the request
       const body = {
         username: this.username,
         password: this.password,
       }
 
       try {
-        // Make the POST request
         const response = await fetch(url, {
           method: 'POST',
           headers: {
@@ -36,26 +34,21 @@ export default {
           body: JSON.stringify(body),
         })
 
-        // Handle the response
         const data = await response.json()
-        const parsedBody = JSON.parse(data.body) // Parse the body field
+        const parsedBody = JSON.parse(data.body)
 
         console.log('Response:', parsedBody)
 
         if ('error' in parsedBody) {
           throw new Error('Error: ' + parsedBody.error)
         }
-        // Persist the access token in localStorage
+
         localStorage.setItem('access_token', parsedBody.access_token)
         console.log('Access token saved:', parsedBody.access_token)
 
-        // Remove chat data from the store
         chatStore.resetStore()
-
-        // Persist the user data in userStore
         userStore.logIn(this.username)
 
-        // Redirect the user to feed
         this.$router.push('/feed')
       } catch (error) {
         this.$router.push('/login')
@@ -67,13 +60,13 @@ export default {
 </script>
 
 <template>
-  <div class="d-flex justify-content-center p-5">
-    <div class="form-signin w-100 m-auto">
+  <div class="login-view">
+    <div class="form-container">
       <div class="d-flex justify-content-center">
         <img
           class="mb-2"
           src="https://static.vecteezy.com/system/resources/previews/011/660/012/non_2x/book-hand-drawn-sketch-png.png"
-          alt=""
+          alt="Logo"
           width="72"
           height="57"
         />
@@ -82,41 +75,72 @@ export default {
         <h1 class="h3 mb-3 fw-normal">Inicia Sesión</h1>
       </div>
 
-      <div
-        class="container d-flex justify-content-center"
-        style="margin-top: 5%"
-      >
-        <form class="w-50" v-on:submit.prevent="logUser">
-          <div class="form-floating">
-            <input
-              type="username"
-              class="form-control"
-              id="floatingInput"
-              placeholder=""
-              v-model="username"
-            />
-            <label for="floatingInput">Usuario</label>
-          </div>
-          <div class="form-floating">
-            <input
-              type="password"
-              class="form-control"
-              id="floatingPassword"
-              placeholder=""
-              v-model="password"
-            />
-            <label for="floatingPassword">Contraseña</label>
-          </div>
+      <form class="form w-100" v-on:submit.prevent="logUser">
+        <div class="form-floating mb-3">
+          <input
+            type="text"
+            class="form-control"
+            id="floatingInput"
+            placeholder="Usuario"
+            v-model="username"
+          />
+          <label for="floatingInput">Usuario</label>
+        </div>
+        <div class="form-floating mb-3">
+          <input
+            type="password"
+            class="form-control"
+            id="floatingPassword"
+            placeholder="Contraseña"
+            v-model="password"
+          />
+          <label for="floatingPassword">Contraseña</label>
+        </div>
 
-          <button
-            class="btn btn-primary w-100 py-2"
-            type="submit"
-            style="margin-top: 5%"
-          >
-            Continuar leyendo
-          </button>
-        </form>
-      </div>
+        <button
+          class="btn btn-primary w-100 py-2"
+          type="submit"
+        >
+          Continuar leyendo
+        </button>
+
+        <div class="text-center mt-3">
+            <p>¿No tienes una cuenta? <RouterLink class="router-link" to="/register">Regístrate</RouterLink></p>
+          </div>
+      </form>
     </div>
   </div>
 </template>
+
+<style scoped>
+.login-view {
+  background: url('https://i.insider.com/579bb693dd0895ce188b4a47?width=1200&format=jpeg')
+    no-repeat center center;
+  background-size: cover;
+  height: 100vh; /* Altura completa de la pantalla */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-container {
+  background-color: rgba(255, 255, 255, 0.9); /* Fondo semitransparente */
+  padding: 2rem;
+  border-radius: 10px;
+  width: 90%; /* Ajusta el ancho */
+  max-width: 400px; /* Ancho máximo para pantallas grandes */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.25); /* Sombra para resaltar */
+}
+
+.form {
+  text-align: center;
+}
+
+h1 {
+  margin-bottom: 1.5rem;
+}
+
+.router-link {
+  color: #000;
+}
+</style>

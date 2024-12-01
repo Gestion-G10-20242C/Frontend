@@ -23,29 +23,70 @@ export default {
 </script>
 
 <template>
-  <div class="px-4 py-5 my-5 text-center">
-    <img
-      alt="Vue logo"
-      class="logo"
-      src="https://static.vecteezy.com/system/resources/previews/011/660/012/non_2x/book-hand-drawn-sketch-png.png"
-      width="90"
-      height="90"
-    />
-    <h1 class="display-5 fw-bold text-body-emphasis">Readme</h1>
-    <div class="col-lg-6 mx-auto">
-      <p class="lead mb-4">
-        Encuentra y lee los libros que amas, y lleva un registro de los libros
-        que deseas leer. Sé parte de la comunidad de lectores más grande del
-        mundo en Readme.
-      </p>
-      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <RouterLink to="/login" class="btn btn-primary btn-lg px-4 gap-3">
-          Inicia Sesión
-        </RouterLink>
-        <RouterLink to="/register" class="btn btn-primary btn-lg px-4 gap-3">
-          Regístrate
-        </RouterLink>
+  <div class="home-view">
+    <div class="content-container">
+      <img
+        alt="Vue logo"
+        class="logo"
+        src="https://static.vecteezy.com/system/resources/previews/011/660/012/non_2x/book-hand-drawn-sketch-png.png"
+        width="90"
+        height="90"
+      />
+      <h1 class="display-5 fw-bold text-body-emphasis">Readme</h1>
+      <div class="description">
+        <p class="lead mb-4">
+          Encuentra y lee los libros que amas, y lleva un registro de los libros
+          que deseas leer. Sé parte de la comunidad de lectores más grande del
+          mundo en Readme.
+        </p>
+        <div class="button-group">
+          <RouterLink to="/login" class="btn btn-primary btn-lg px-4 gap-3">
+            Inicia Sesión
+          </RouterLink>
+          <RouterLink to="/register" class="btn btn-primary btn-lg px-4 gap-3">
+            Regístrate
+          </RouterLink>
+        </div>
       </div>
     </div>
   </div>
 </template>
+
+<style scoped>
+.home-view {
+  background: url('https://turismo.buenosaires.gob.ar/sites/turismo/files/biblioteca_nacional_1200_a_0.jpg')
+    no-repeat center center;
+  background-size: cover;
+  height: 100vh; /* Ocupa toda la altura de la pantalla */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.content-container {
+  background-color: rgba(255, 255, 255, 0.9); /* Fondo semitransparente */
+  padding: 2rem;
+  border-radius: 8px;
+  width: 90%; /* Ancho del contenedor */
+  max-width: 500px;
+}
+
+.logo {
+  margin-bottom: 1rem;
+}
+
+.display-5 {
+  margin-bottom: 1rem;
+}
+
+.description {
+  margin-top: 1rem;
+}
+
+.button-group {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+</style>

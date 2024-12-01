@@ -52,19 +52,19 @@ export default {
       console.log('registerUser()')
 
       if (this.validPassword === false) {
-        alert('Contraseña inválida')
+        this.showErrorModal('Contraseña inválida')
         return
       } else if (
         this.validRepeatedPassword == null ||
         this.validRepeatedPassword === false
       ) {
-        alert('Las contraseñas no coinciden')
+        this.showErrorModal('Las contraseñas no coinciden')
         return
       } else if (this.validUsername === false) {
-        alert('Usuario inválido o en uso')
+        this.showErrorModal('Usuario inválido o en uso')
         return
       } else if (this.validEmail === false) {
-        alert('Correo electrónico inválido o en uso')
+        this.showErrorModal('Usuario inválido o en uso')
         return
       }
 
@@ -77,6 +77,8 @@ export default {
         email: this.email,
       }
 
+      console.log('Body:', body)
+
       try {
         const response = await fetch(url, {
           method: 'POST',
@@ -88,6 +90,8 @@ export default {
 
         const data = await response.json()
         const parsedBody = JSON.parse(data.body)
+
+        console.log('Response:', parsedBody)
 
         if (parsedBody.error != null) {
           if (parsedBody.error.includes('User already exists')) {
@@ -166,161 +170,142 @@ export default {
 </script>
 
 <template>
-  <div class="d-flex justify-content-center p-5">
-    <div class="form-signin w-100 m-auto">
-      <div class="d-flex justify-content-center">
+  <div class="bg-container">
+    <div class="content-container">
+      <!-- Logo -->
+      <div class="logo-container">
         <img
-          class="mb-2"
+          class="logo"
           src="https://static.vecteezy.com/system/resources/previews/011/660/012/non_2x/book-hand-drawn-sketch-png.png"
-          alt=""
+          alt="Readme Logo"
           width="72"
           height="57"
         />
-      </div>
-      <div class="d-flex justify-content-center">
         <h1 class="h3 mb-3 fw-normal">Te damos la bienvenida a Readme</h1>
       </div>
 
-      <!-- Registo datos iniciales -->
+      <!-- Registro datos iniciales -->
       <template v-if="!shouldValidate">
-        <div
-          class="container d-flex justify-content-center"
-          style="margin-top: 5%"
+        <form
+          class="form-container"
+          v-on:submit.prevent="registerUser"
         >
-          <form
-            class="w-50"
-            v-on:submit.prevent="registerUser"
-            style="min-width: 300px; max-width: 50%"
-          >
-            <!-- Username -->
-            <div class="form-floating">
-              <input
-                type="username"
-                class="form-control"
-                id="floatingInput"
-                placeholder=""
-                v-model="username"
-                :class="{
-                  'is-valid': validUsername === true,
-                  'is-invalid': validUsername === false,
-                }"
-              />
-              <div class="invalid-feedback">Usuario inválido o en uso.</div>
-              <label for="floatingInput">Usuario</label>
+          <!-- Username -->
+          <div class="form-floating">
+            <input
+              type="username"
+              class="form-control"
+              placeholder="Usuario"
+              v-model="username"
+              :class="{
+                'is-valid': validUsername === true,
+                'is-invalid': validUsername === false,
+              }"
+            />
+            <div class="invalid-feedback">Usuario inválido o en uso.</div>
+            <label>Usuario</label>
+          </div>
+          <!-- Password -->
+          <div class="form-floating">
+            <input
+              type="password"
+              class="form-control"
+              placeholder="Contraseña"
+              v-model="password"
+              :class="{
+                'is-valid': validPassword === true,
+                'is-invalid': validPassword === false,
+              }"
+              @input="validatePassword"
+            />
+            <div class="invalid-feedback">
+              La contraseña debe tener mínimo 8 caracteres, una letra mayúscula, una minúscula, un número y un carácter especial.
             </div>
-            <!-- Password -->
-            <div class="form-floating">
-              <input
-                type="password"
-                class="form-control"
-                id="floatingPassword"
-                placeholder=""
-                v-model="password"
-                :class="{
-                  'is-valid': validPassword === true,
-                  'is-invalid': validPassword === false,
-                }"
-                @input="validatePassword"
-              />
-              <div class="invalid-feedback">
-                La contraseña debe tener mínimo 8 caracteres, una letra
-                mayúscula, una minúscula, un número y un caracter especial.
-              </div>
-              <label for="floatingPassword">Contraseña</label>
-            </div>
-            <!-- Repeat password -->
-            <div class="form-floating">
-              <input
-                type="password"
-                class="form-control"
-                id="floatingRepeatedPassword"
-                placeholder=""
-                v-model="repeatedPassword"
-                :class="{
-                  'is-valid': validRepeatedPassword === true,
-                  'is-invalid': validRepeatedPassword === false,
-                }"
-                @input="validateRepeatedPassword"
-              />
-              <div class="invalid-feedback">Las contraseñas no coinciden.</div>
-              <label for="floatingRepeatedPassword">Repetir contraseña</label>
-            </div>
-            <!-- Email -->
-            <div class="form-floating">
-              <input
-                type="email"
-                class="form-control"
-                id="floatingEmail"
-                placeholder=""
-                v-model="email"
-                :class="{
-                  'is-valid': validEmail === true,
-                  'is-invalid': validEmail === false,
-                }"
-                @input="validateEmail"
-              />
-              <label for="floatingEmail">Correo electrónico</label>
-              <div class="invalid-feedback">Correo inválido o en uso.</div>
-            </div>
+            <label>Contraseña</label>
+          </div>
+          <!-- Repeat password -->
+          <div class="form-floating">
+            <input
+              type="password"
+              class="form-control"
+              placeholder="Repetir contraseña"
+              v-model="repeatedPassword"
+              :class="{
+                'is-valid': validRepeatedPassword === true,
+                'is-invalid': validRepeatedPassword === false,
+              }"
+              @input="validateRepeatedPassword"
+            />
+            <div class="invalid-feedback">Las contraseñas no coinciden.</div>
+            <label>Repetir contraseña</label>
+          </div>
+          <!-- Email -->
+          <div class="form-floating">
+            <input
+              type="email"
+              class="form-control"
+              placeholder="Correo electrónico"
+              v-model="email"
+              :class="{
+                'is-valid': validEmail === true,
+                'is-invalid': validEmail === false,
+              }"
+              @input="validateEmail"
+            />
+            <label>Correo electrónico</label>
+            <div class="invalid-feedback">Correo inválido o en uso.</div>
+          </div>
 
-            <button
-              class="btn btn-primary w-100 py-2"
-              type="submit"
-              style="margin-top: 5%"
-            >
-              Empieza a leer
-            </button>
-          </form>
-        </div>
+          <button
+            class="btn btn-primary w-100 py-2"
+            type="submit"
+          >
+            Empieza a leer
+          </button>
+
+          <div class="text-center mt-3">
+            <p>¿Ya tienes una cuenta? <RouterLink class="router-link" to="/login">Inicia sesión</RouterLink></p>
+          </div>
+        </form>
       </template>
 
       <!-- Validación de cuenta -->
       <template v-else>
-        <div
-          class="container d-flex justify-content-center"
-          style="margin-top: 3%"
+        <h3>Revisa tu casilla de correo para validar tu cuenta.</h3>
+        <form
+          class="form-container"
+          v-on:submit.prevent="validateRegisterUser"
         >
-          <h3>Revisa tu casilla de correo para validar tu cuenta.</h3>
-        </div>
-        <div
-          class="container d-flex justify-content-center"
-          style="margin-top: 2%"
-        >
-          <form class="w-50" v-on:submit.prevent="validateRegisterUser">
-            <div class="form-floating">
-              <input
-                type="validationToken"
-                class="form-control"
-                id="floatingInput"
-                placeholder=""
-                v-model="validationToken"
-                :class="{
-                  'is-invalid': validToken === false,
-                }"
-              />
-              <div class="invalid-feedback">
-                Token de validación incorrecto o caducado.
-              </div>
-              <label for="floatingInput">Token de validación</label>
+          <div class="form-floating">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="Token de validación"
+              v-model="validationToken"
+              :class="{
+                'is-invalid': validToken === false,
+              }"
+            />
+            <div class="invalid-feedback">
+              Token de validación incorrecto o caducado.
             </div>
-            <button class="btn btn-primary w-100 py-2" type="submit">
-              Validar cuenta
-            </button>
-          </form>
-        </div>
+            <label>Token de validación</label>
+          </div>
+          <button class="btn btn-primary w-100 py-2" type="submit">
+            Validar cuenta
+          </button>
+        </form>
       </template>
     </div>
   </div>
 
-  <!-- Modal -->
+  <!-- Modal de error -->
   <div
     class="modal fade"
     id="errorModal"
     tabindex="-1"
     aria-labelledby="errorModalLabel"
-    aria-hidden="true"
-    style="margin-top: 16%"
-  >
+    aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -335,8 +320,62 @@ export default {
         <div class="modal-body">
           {{ errorMessage }}
         </div>
-        <div class="modal-footer"></div>
+        <div class="modal-footer">
+          <button
+            type="button"
+            class="btn btn-secondary"
+            data-bs-dismiss="modal"
+          >
+            Cerrar
+          </button>
+        </div>
       </div>
     </div>
   </div>
+
 </template>
+
+<style scoped>
+/* Imagen de fondo */
+.bg-container {
+  background-image: url("https://wwwaxiellcom.cdn.triggerfish.cloud/uploads/2019/03/library-activities.jpg");
+  background-size: cover;
+  background-position: center;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Contenedor de contenido */
+.content-container {
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 90%;
+  max-width: 500px;
+}
+
+/* Logo y título */
+.logo-container {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.title {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Formulario */
+.form-container {
+  width: 100%;
+}
+
+.router-link {
+  color: #000;
+}
+</style>
