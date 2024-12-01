@@ -140,12 +140,12 @@ export default {
     },
     async fetchBookDetails() {
       console.log('Id:', this.id)
-      const relativePath = `/search?query=${encodeURIComponent(this.id)}&field=id`
+      const relativePath = `/book/${encodeURIComponent(this.id)}`
       const data = await GET('GET', relativePath, null, null)
 
       if (data) {
         console.log('Book:', data)
-        this.book = data[0]
+        this.book = data
       } else {
         this.error = true // Marca error si no se encuentran libros
       }
@@ -172,6 +172,7 @@ export default {
           const readBooks = data.find(list => list.name === 'Leidos')
 
           console.log('Libros leídos:', readBooks)
+          console.log('Libro actual:', this.book)
           console.log(
             'Esta?',
             readBooks.books.some(book => book.id === this.book.id),
