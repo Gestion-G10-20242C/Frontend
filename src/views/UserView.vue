@@ -443,8 +443,6 @@ export default {
       userData.favoriteGenres = []
       userData.readingChallenges = this.number
 
-      console.log(`Reading Challege ${userData.readingChallenges}`)
-
       const token = localStorage.getItem('access_token')
       const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}`
 
@@ -664,8 +662,10 @@ export default {
         <!-- Reading Challenges -->
         <div class="col text-center">
           <h3>Reading Challenges</h3>
-          <div class="d-flex justify-content-center align-items-center">
+          <div class="input-reading-challenge">
             <input v-model.number="number" />
+          </div>
+          <div class="update-reading-challenge-buttons">
             <button @click="addNumber">+</button>
             <button @click="subtractNumber">-</button>
             <button @click="updateUserInfo">Guardar</button>
@@ -1082,6 +1082,15 @@ export default {
   border-radius: 50%;
   animation: spin 1s ease-in-out infinite;
   margin: 50px auto;
+}
+
+.input-reading-challenge {
+  text-align: center;
+  align-content: center;
+}
+
+.update-reading-challenge-buttons {
+  margin-top: 10px;
 }
 
 @keyframes spin {
