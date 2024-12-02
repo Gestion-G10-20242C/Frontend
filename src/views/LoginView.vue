@@ -2,11 +2,13 @@
 import { useUserStore } from '@/stores/user'
 const userStore = useUserStore()
 import { useChatStore } from '@/stores/chat'
+import { ref } from 'vue'
 const chatStore = useChatStore()
 
 export default {
   data() {
     return {
+      validCredentials: ref(true),
       username: '',
       password: '',
     }
@@ -37,12 +39,11 @@ export default {
         const data = await response.json()
         const parsedBody = JSON.parse(data.body)
 
-        console.log('Response:', parsedBody)
-
         if ('error' in parsedBody) {
-          throw new Error('Error: ' + parsedBody.error)
+          throw new Error(parsedBody.error)
         }
 
+        this.validCredentials = true
         localStorage.setItem('access_token', parsedBody.access_token)
         console.log('Access token saved:', parsedBody.access_token)
 
@@ -52,7 +53,8 @@ export default {
         this.$router.push('/feed')
       } catch (error) {
         this.$router.push('/login')
-        console.error('Error:', error)
+        this.validCredentials = false
+        console.error(error)
       }
     },
   },
@@ -97,16 +99,22 @@ export default {
           <label for="floatingPassword">Contraseña</label>
         </div>
 
-        <button
-          class="btn btn-primary w-100 py-2"
-          type="submit"
-        >
+        <div v-if="!validCredentials" class="text-danger pb-4">
+          Usuario o contraseña invalidos
+        </div>
+
+        <button class="btn btn-primary w-100 py-2" type="submit">
           Continuar leyendo
         </button>
 
         <div class="text-center mt-3">
-            <p>¿No tienes una cuenta? <RouterLink class="router-link" to="/register">Regístrate</RouterLink></p>
-          </div>
+          <p>
+            ¿No tienes una cuenta?
+            <RouterLink class="router-link" to="/register"
+              >Regístrate</RouterLink
+            >
+          </p>
+        </div>
       </form>
     </div>
   </div>
