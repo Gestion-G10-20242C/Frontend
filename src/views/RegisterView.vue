@@ -186,10 +186,7 @@ export default {
 
       <!-- Registro datos iniciales -->
       <template v-if="!shouldValidate">
-        <form
-          class="form-container"
-          v-on:submit.prevent="registerUser"
-        >
+        <form class="form-container" v-on:submit.prevent="registerUser">
           <!-- Username -->
           <div class="form-floating">
             <input
@@ -219,7 +216,8 @@ export default {
               @input="validatePassword"
             />
             <div class="invalid-feedback">
-              La contraseña debe tener mínimo 8 caracteres, una letra mayúscula, una minúscula, un número y un carácter especial.
+              La contraseña debe tener mínimo 8 caracteres, una letra mayúscula,
+              una minúscula, un número y un carácter especial.
             </div>
             <label>Contraseña</label>
           </div>
@@ -256,15 +254,17 @@ export default {
             <div class="invalid-feedback">Correo inválido o en uso.</div>
           </div>
 
-          <button
-            class="btn btn-primary w-100 py-2"
-            type="submit"
-          >
+          <button class="btn btn-primary w-100 py-2" type="submit">
             Empieza a leer
           </button>
 
           <div class="text-center mt-3">
-            <p>¿Ya tienes una cuenta? <RouterLink class="router-link" to="/login">Inicia sesión</RouterLink></p>
+            <p>
+              ¿Ya tienes una cuenta?
+              <RouterLink class="router-link" to="/login"
+                >Inicia sesión</RouterLink
+              >
+            </p>
           </div>
         </form>
       </template>
@@ -272,10 +272,7 @@ export default {
       <!-- Validación de cuenta -->
       <template v-else>
         <h3>Revisa tu casilla de correo para validar tu cuenta.</h3>
-        <form
-          class="form-container"
-          v-on:submit.prevent="validateRegisterUser"
-        >
+        <form class="form-container" v-on:submit.prevent="validateRegisterUser">
           <div class="form-floating">
             <input
               type="text"
@@ -305,7 +302,8 @@ export default {
     id="errorModal"
     tabindex="-1"
     aria-labelledby="errorModalLabel"
-    aria-hidden="true">
+    aria-hidden="true"
+  >
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
@@ -332,13 +330,12 @@ export default {
       </div>
     </div>
   </div>
-
 </template>
 
 <style scoped>
 /* Imagen de fondo */
 .bg-container {
-  background-image: url("https://wwwaxiellcom.cdn.triggerfish.cloud/uploads/2019/03/library-activities.jpg");
+  background-image: url('https://wwwaxiellcom.cdn.triggerfish.cloud/uploads/2019/03/library-activities.jpg');
   background-size: cover;
   background-position: center;
   height: 100vh;

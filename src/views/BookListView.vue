@@ -236,7 +236,4 @@ export default {
   text-decoration: none;
   color: #333;
 }
-
 </style>
-
-

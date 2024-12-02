@@ -32,7 +32,7 @@ export const useUserStore = defineStore('user', {
 
         this.userName = username
         this.name = data.name || username
-        this.favouriteBook = data.favouriteBook|| ''
+        this.favouriteBook = data.favouriteBook || ''
         this.favouriteBookCover = data.favouriteBookCover || ''
         this.favouriteBookReview = data.favouriteBookDescription || ''
         this.description = data.description || ''

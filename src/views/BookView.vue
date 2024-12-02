@@ -36,7 +36,6 @@ export default {
   },
   methods: {
     async handleAddReview() {
-
       this.publishButtonLoading = true
       const relativePath = `book/${this.book.id}/review`
       const accessToken = localStorage.getItem('access_token')
@@ -197,7 +196,6 @@ export default {
 
         if (data) {
           this.book = data
-
         } else {
           this.error = true
         }
@@ -326,7 +324,7 @@ export default {
     },
     // Cerrar el modal
     CloseRateBookModal() {
-      this.rateModal = false;
+      this.rateModal = false
     },
 
     async rateBook() {
@@ -368,9 +366,9 @@ export default {
 
     // Actualizar el rating basado en el incremento
     updateRating(value) {
-      const newRating = this.rating + value;
+      const newRating = this.rating + value
       if (newRating >= 0 && newRating <= 5) {
-        this.rating = newRating;
+        this.rating = newRating
       }
     },
 
@@ -437,20 +435,22 @@ export default {
             style="width: 315px; height: 425px"
           />
         </div>
-          <div class="col-md-8">
+        <div class="col-md-8">
           <h2 class="text-body-emphasis">{{ book.title }}</h2>
           <RouterLink :to="`/author/${book.author_name}`">
             <h4 class="text-body-secondary">{{ book.author_name }}</h4>
           </RouterLink>
           <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
-          
+
           <div class="rate-container">
             <div class="stars">
               <span v-for="n in 5" :key="n" :class="getStarClasses(n - 1)"
                 >★
-              </span >
+              </span>
             </div>
-            <button class="btn btn-primary" @click="OpenRateBookModal">Puntuar</button>
+            <button class="btn btn-primary" @click="OpenRateBookModal">
+              Puntuar
+            </button>
           </div>
 
           <p>
@@ -470,19 +470,28 @@ export default {
               </RouterLink>
             </div>
           </div>
-          <p><strong>Reseñas:</strong> {{ (book?.text_reviews_count || 0)  + (book.reviews?.length || 0)}} reseña(s)</p>
+          <p>
+            <strong>Reseñas:</strong>
+            {{
+              (book?.text_reviews_count || 0) + (book.reviews?.length || 0)
+            }}
+            reseña(s)
+          </p>
 
           <div class="button-container">
             <button v-if="!isRead" class="btn btn-success" @click="markAsRead">
-              {{ addToReadbuttonLoading ? 'Procesando...' : 'Marcar como leído' }}
+              {{
+                addToReadbuttonLoading ? 'Procesando...' : 'Marcar como leído'
+              }}
             </button>
             <button v-else class="btn btn-danger" @click="removeFromRead">
-              {{ addToReadbuttonLoading ? 'Procesando...' : 'Quitar de Leídos' }}
+              {{
+                addToReadbuttonLoading ? 'Procesando...' : 'Quitar de Leídos'
+              }}
             </button>
             <button class="btn btn-primary" @click="openAddToListModal">
               Agregar a lista
             </button>
-
           </div>
           <div class="review-container">
             <div v-if="reviewPublished">
@@ -495,20 +504,37 @@ export default {
 
             <div class="title-review">
               <div class="review-input">
-              <textarea v-model="reviewText" class="square-input" placeholder="Escribe tu reseña aquí..."></textarea>
-              <div class="button-container">
-                <button class="review-section-button" 
-                  @click="handleAddReview" 
-                  :disabled="reviewText.trim() == ''"
-                  :class="{ 'review-section-button-disabled-button': reviewText.trim() == '' }">
-                  {{publishButtonLoading ? 'Procesando...' : 'Publicar'}}
-                </button>
-              </div>
+                <textarea
+                  v-model="reviewText"
+                  class="square-input"
+                  placeholder="Escribe tu reseña aquí..."
+                ></textarea>
+                <div class="button-container">
+                  <button
+                    class="review-section-button"
+                    @click="handleAddReview"
+                    :disabled="reviewText.trim() == ''"
+                    :class="{
+                      'review-section-button-disabled-button':
+                        reviewText.trim() == '',
+                    }"
+                  >
+                    {{ publishButtonLoading ? 'Procesando...' : 'Publicar' }}
+                  </button>
+                </div>
               </div>
             </div>
 
-            <div v-for="review in book.reviews" :key="review.username" class="review">
-              <img :src="review.profilePicture" alt="Profile Picture" class="profile-picture" />
+            <div
+              v-for="review in book.reviews"
+              :key="review.username"
+              class="review"
+            >
+              <img
+                :src="review.profilePicture"
+                alt="Profile Picture"
+                class="profile-picture"
+              />
               <div class="review-content">
                 <h4>{{ review.name }}</h4>
                 <p4>{{ review.username }}</p4>
@@ -578,28 +604,28 @@ export default {
       <h3>Calificar libro</h3>
       <div class="modal-rate-container">
         <!-- Flecha para disminuir el rating -->
-        <button 
-          class="arrow-button" 
-          :disabled="rating <= 0" 
+        <button
+          class="arrow-button"
+          :disabled="rating <= 0"
           @click="updateRating(-0.5)"
         >
           ◀
         </button>
 
         <!-- Mostrar el número de calificación -->
-        
+
         <div class="book-view">
           <div class="stars">
             <span v-for="n in 5" :key="n" :class="getStarClassesRating(n - 1)"
               >★
-            </span >
+            </span>
           </div>
         </div>
-      
+
         <!-- Flecha para aumentar el rating -->
-        <button 
-          class="arrow-button" 
-          :disabled="rating >= 5" 
+        <button
+          class="arrow-button"
+          :disabled="rating >= 5"
           @click="updateRating(0.5)"
         >
           ▶
@@ -607,8 +633,12 @@ export default {
       </div>
 
       <div class="modal-button-container">
-        <button class="btn btn-success mt-2" @click="rateBook">Confirmar Puntuación</button>
-        <button class="btn btn-danger mt-2" @click="CloseRateBookModal">Cerrar</button>
+        <button class="btn btn-success mt-2" @click="rateBook">
+          Confirmar Puntuación
+        </button>
+        <button class="btn btn-danger mt-2" @click="CloseRateBookModal">
+          Cerrar
+        </button>
       </div>
     </div>
   </div>
@@ -789,7 +819,6 @@ export default {
   display: vertical;
   margin-top: 40px;
   margin-left: -400px;
-
 }
 
 .title-review {
@@ -839,7 +868,6 @@ export default {
   visibility: visible;
 }
 
-
 .review-section {
   margin-top: 20px;
 }
@@ -860,7 +888,7 @@ export default {
   border-radius: 10px;
   padding: 10px 20px;
   cursor: pointer;
-  margin-left: 900px
+  margin-left: 900px;
 }
 
 .review-section-button-disabled-button {

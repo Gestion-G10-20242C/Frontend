@@ -127,7 +127,6 @@ export default {
         }
 
         console.log('User updated:', userData)
-
       } catch (error) {
         console.error('Error updating user:', error)
       }
@@ -147,7 +146,6 @@ export default {
 
         // Actualizar perfil
         this.updateUser(this.selectedGenres)
-
       } catch (error) {
         console.error('Error saving genres:', error)
       } finally {
