@@ -400,11 +400,15 @@ export default {
               Agregar a lista
             </button>
           </div>
-          <div>
+          <div class="review-container">
             <p>Deja una resena</p>
-            <textarea v-model="reviewText" class="square-input"></textarea>
-            <div class="button-container">
-              <button @click="handleAddReview">Publish</button>
+            <div class="title-review">
+              <div class="review-input">
+                <textarea v-model="reviewText" class="square-input"></textarea>
+                <div class="button-container">
+                  <button @click="handleAddReview">Publish</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -626,5 +630,34 @@ export default {
   height: 400px; /* Altura de la línea */
   background-color: #ddd; /* Color de la línea */
   margin: 0 auto; /* Alineación centrada */
+}
+
+.review-container {
+  display: flex;
+  padding-top: 30px;
+}
+
+.title-review {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+
+  align-items: center;
+}
+
+.review-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 30px;
+  text-align: center;
+}
+
+.square-input {
+  width: 500px;
+  height: 100px;
+  resize: none;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
 }
 </style>
