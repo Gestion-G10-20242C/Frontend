@@ -14,6 +14,7 @@ export default {
       book: null,
       loading: true,
       error: false,
+      reviewText: '',
       isRead: false,
       buttonLoading: false,
       showModal: false,
@@ -29,6 +30,42 @@ export default {
     await this.isBookRead()
   },
   methods: {
+    async handleAddReview() {
+      console.log(this.reviewText)
+
+      const userStore = useUserStore()
+      const username = userStore.userName
+
+      const relativePath = `users/${username}/book`
+      const accessToken = localStorage.getItem('access_token')
+
+      console.log(`Sending to ${relativePath}`)
+
+      const data = JSON.stringify({
+        description: this.reviewText,
+        image_url: this.book.image_url,
+        genres: this.book.genres,
+      })
+
+      console.log('Sending data:', data)
+
+      try {
+        await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/${relativePath}`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: data,
+          },
+        )
+      } catch (e) {
+        console.error('Error adding review:', e)
+      }
+      this.reviewText = ''
+    },
     async addBookToSelectedLists() {
       try {
         // Iterar sobre las listas seleccionadas y agregar el libro
@@ -141,13 +178,20 @@ export default {
     async fetchBookDetails() {
       console.log('Id:', this.id)
       const relativePath = `/book/${encodeURIComponent(this.id)}`
-      const data = await GET('GET', relativePath, null, null)
 
-      if (data) {
-        console.log('Book:', data)
-        this.book = data
-      } else {
-        this.error = true // Marca error si no se encuentran libros
+      try {
+        const data = await GET('GET', relativePath, null, null)
+
+        if (data) {
+          console.log('Book:', data)
+          this.book = data
+        } else {
+          this.error = true
+        }
+      } catch (error) {
+        console.error('Error fetching book:', error)
+        this.error = true
+        this.loading = false
       }
 
       this.loading = false
@@ -304,9 +348,7 @@ export default {
     <!-- Mostrar error si no hay resultados de libros -->
     <div v-else-if="error" class="error-message">
       <h2>No se encontró el Libro.</h2>
-      <p>
-        Por favor, revisa los criterios de búsqueda.
-      </p>
+      <p>Por favor, revisa los criterios de búsqueda.</p>
       <img
         src="https://media.istockphoto.com/id/1347475061/vector/book-with-sad-face-in-speech-bubble-line-icon-bad-literature-review-negative-feedback-symbol.jpg?s=612x612&w=0&k=20&c=PQa7DkacREaANvys7s7iUpEbysHTUGzD2D3Jj5eIVaw="
         alt="Error - No books found"
@@ -363,6 +405,13 @@ export default {
             <button class="btn btn-primary" @click="openAddToListModal">
               Agregar a lista
             </button>
+          </div>
+          <div>
+            <p>Deja una resena</p>
+            <textarea v-model="reviewText" class="square-input"></textarea>
+            <div class="button-container">
+              <button @click="handleAddReview">Publish</button>
+            </div>
           </div>
         </div>
       </div>
