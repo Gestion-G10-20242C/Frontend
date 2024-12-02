@@ -42,6 +42,17 @@ export default {
       publishDate: '',
     })
 
+    const number = ref(0)
+    const inputNumber = ref(0)
+    const addNumber = () => {
+      number.value += 1
+    }
+    const subtractNumber = () => {
+      if (number.value > 0) {
+        number.value -= 1
+      }
+    }
+
     const newFavouriteBook = ref({
       title: '',
       cover: '',
@@ -412,6 +423,10 @@ export default {
       setBookIndex,
       getBookIndex,
       fetchBookLists,
+      number,
+      inputNumber,
+      addNumber,
+      subtractNumber,
     }
   },
   methods: {
@@ -622,7 +637,7 @@ export default {
 
       <div class="row mt-4">
         <!-- Biblioteca -->
-        <div class="col">
+        <div class="col text-center">
           <h3>Biblioteca</h3>
           <ul class="list-group">
             <li
@@ -644,12 +659,17 @@ export default {
         </div>
 
         <!-- Reading Challenges -->
-        <div class="col">
+        <div class="col text-center">
           <h3>Reading Challenges</h3>
+          <div class="d-flex justify-content-center align-items-center">
+            <input v-model.number="number" />
+            <button @click="addNumber">+</button>
+            <button @click="subtractNumber">-</button>
+          </div>
         </div>
 
         <!-- Grupos -->
-        <div class="col">
+        <div class="col text-center">
           <h3>Grupos</h3>
           <ul class="list-group">
             <li
