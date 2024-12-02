@@ -42,14 +42,14 @@ export default {
       publishDate: '',
     })
 
-    const number = ref(0)
+    const reading_challenge = ref(userStore.readingChallenges)
     const inputNumber = ref(0)
     const addNumber = () => {
-      number.value += 1
+      reading_challenge.value += 1
     }
     const subtractNumber = () => {
-      if (number.value > 0) {
-        number.value -= 1
+      if (reading_challenge.value > 0) {
+        reading_challenge.value -= 1
       }
     }
 
@@ -423,7 +423,7 @@ export default {
       setBookIndex,
       getBookIndex,
       fetchBookLists,
-      number,
+      number: reading_challenge,
       inputNumber,
       addNumber,
       subtractNumber,
@@ -441,6 +441,9 @@ export default {
       userData.description = this.newUserData.description
       userData.profilePicture = this.newUserData.profilePictureLink
       userData.favoriteGenres = []
+      userData.readingChallenges = this.number
+
+      console.log(`Reading Challege ${userData.readingChallenges}`)
 
       const token = localStorage.getItem('access_token')
       const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${this.username}`
@@ -665,6 +668,7 @@ export default {
             <input v-model.number="number" />
             <button @click="addNumber">+</button>
             <button @click="subtractNumber">-</button>
+            <button @click="updateUserInfo">Guardar</button>
           </div>
         </div>
 
