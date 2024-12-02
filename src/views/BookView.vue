@@ -22,6 +22,8 @@ export default {
       filteredLists: [],
       selectedLists: [],
       newListName: '',
+      reviewPublished: false,
+      showSnackbar: false,
     }
   },
   async mounted() {
@@ -39,8 +41,6 @@ export default {
 
       const data = JSON.stringify({
         description: this.reviewText,
-        image_url: this.book.image_url,
-        genres: this.book.genres,
       })
 
       try {
@@ -57,6 +57,13 @@ export default {
         )
       } catch (e) {
         console.error('Error adding review:', e)
+      }
+      if (data) {
+        this.reviewPublished = true
+        this.showSnackbar = true
+        setTimeout(() => {
+          this.showSnackbar = false
+        }, 3000)
       }
       this.reviewText = ''
     },
@@ -401,6 +408,11 @@ export default {
             </button>
           </div>
           <div class="review-container">
+            <div v-if="reviewPublished">
+              <div :class="['snackbar', { show: showSnackbar }]">
+                Review published successfully!
+              </div>
+            </div>
             <p>Deja una resena</p>
             <div class="title-review">
               <div class="review-input">
@@ -659,5 +671,25 @@ export default {
   resize: none;
   overflow-wrap: break-word;
   box-sizing: border-box;
+}
+
+.snackbar {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+  font-size: 17px;
+}
+
+.snackbar.show {
+  visibility: visible;
 }
 </style>
