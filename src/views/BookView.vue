@@ -16,7 +16,8 @@ export default {
       error: false,
       reviewText: '',
       isRead: false,
-      buttonLoading: false,
+      addToReadbuttonLoading: false,
+      publishButtonLoading: false,
       showModal: false,
       userLists: [],
       filteredLists: [],
@@ -33,18 +34,20 @@ export default {
   },
   methods: {
     async handleAddReview() {
-      const userStore = useUserStore()
-      const username = userStore.userName
 
-      const relativePath = `users/${username}/book`
+      this.publishButtonLoading = true
+      const relativePath = `book/${this.book.id}/review`
       const accessToken = localStorage.getItem('access_token')
 
+      const userStore = useUserStore()
+
       const data = JSON.stringify({
-        description: this.reviewText,
+        username: userStore.userName,
+        user_review: this.reviewText,
       })
 
       try {
-        await fetch(
+        const response = await fetch(
           `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/${relativePath}`,
           {
             method: 'POST',
@@ -55,9 +58,16 @@ export default {
             body: data,
           },
         )
+
+        console.log('Review added successfully', response)
+
+        this.fetchBookDetails()
       } catch (e) {
         console.error('Error adding review:', e)
+      } finally {
+        this.publishButtonLoading = false
       }
+
       if (data) {
         this.reviewPublished = true
         this.showSnackbar = true
@@ -184,8 +194,8 @@ export default {
         const data = await GET('GET', relativePath, null, null)
 
         if (data) {
-          console.log('Book:', data)
           this.book = data
+
         } else {
           this.error = true
         }
@@ -216,13 +226,6 @@ export default {
           const data = await response.json()
           const readBooks = data.find(list => list.name === 'Leidos')
 
-          console.log('Libros leídos:', readBooks)
-          console.log('Libro actual:', this.book)
-          console.log(
-            'Esta?',
-            readBooks.books.some(book => book.id === this.book.id),
-          )
-
           if (readBooks) {
             this.isRead = readBooks.books.some(book => book.id === this.book.id)
           }
@@ -235,7 +238,7 @@ export default {
       }
     },
     async markAsRead() {
-      this.buttonLoading = true
+      this.addToReadbuttonLoading = true
       try {
         const userStore = useUserStore()
         const username = userStore.userName
@@ -262,11 +265,11 @@ export default {
         this.errorMessage = 'Hubo un error al marcar el libro como leído.'
         this.successMessage = ''
       } finally {
-        this.buttonLoading = false
+        this.addToReadbuttonLoading = false
       }
     },
     async removeFromRead() {
-      this.buttonLoading = true
+      this.addToReadbuttonLoading = true
       try {
         const userStore = useUserStore()
         const username = userStore.userName
@@ -291,7 +294,7 @@ export default {
         this.errorMessage = 'Hubo un error al eliminar el libro de leídos.'
         this.successMessage = ''
       } finally {
-        this.buttonLoading = false
+        this.addToReadbuttonLoading = false
       }
     },
     getStarClasses(index) {
@@ -394,32 +397,49 @@ export default {
               </RouterLink>
             </div>
           </div>
-          <p><strong>Reseñas:</strong> {{ book.text_reviews_count }} reseñas</p>
+          <p><strong>Reseñas:</strong> {{ (book?.text_reviews_count || 0)  + (book.reviews?.length || 0)}} reseña(s)</p>
 
           <div class="button-container">
             <button v-if="!isRead" class="btn btn-success" @click="markAsRead">
-              {{ buttonLoading ? 'Procesando...' : 'Marcar como leído' }}
+              {{ addToReadbuttonLoading ? 'Procesando...' : 'Marcar como leído' }}
             </button>
             <button v-else class="btn btn-danger" @click="removeFromRead">
-              {{ buttonLoading ? 'Procesando...' : 'Quitar de Leídos' }}
+              {{ addToReadbuttonLoading ? 'Procesando...' : 'Quitar de Leídos' }}
             </button>
             <button class="btn btn-primary" @click="openAddToListModal">
               Agregar a lista
             </button>
+
           </div>
           <div class="review-container">
             <div v-if="reviewPublished">
               <div :class="['snackbar', { show: showSnackbar }]">
-                Reseña publicada exitosamente
+                Reseña publicada exitosamente!
               </div>
             </div>
-            <p>Deja una resena</p>
+
+            <h3>Reseñas</h3>
+
             <div class="title-review">
               <div class="review-input">
                 <textarea v-model="reviewText" class="square-input"></textarea>
                 <div class="button-container">
-                  <button @click="handleAddReview">Publicar</button>
+                    <button class="review-section-button" 
+                      @click="handleAddReview" 
+                      :disabled="reviewText.trim() == ''"
+                      :class="{ 'review-section-button-disabled-button': reviewText.trim() == '' }">
+                      {{publishButtonLoading ? 'Procesando...' : 'Publicar'}}
+                    </button>
                 </div>
+              </div>
+            </div>
+
+            <div v-for="review in book.reviews" :key="review.username" class="review">
+              <img :src="review.profilePicture" alt="Profile Picture" class="profile-picture" />
+              <div class="review-content">
+                <h4>{{ review.name }}</h4>
+                <p4>{{ review.username }}</p4>
+                <p>{{ review.review }}</p>
               </div>
             </div>
           </div>
@@ -645,8 +665,10 @@ export default {
 }
 
 .review-container {
-  display: flex;
-  padding-top: 30px;
+  display: vertical;
+  margin-top: 40px;
+  margin-left: -400px;
+
 }
 
 .title-review {
@@ -662,15 +684,18 @@ export default {
   flex-direction: column;
   align-items: center;
   padding-top: 30px;
+
+  margin-left: -250px;
   text-align: center;
 }
 
 .square-input {
-  width: 500px;
+  width: 1000px;
   height: 100px;
   resize: none;
   overflow-wrap: break-word;
   box-sizing: border-box;
+  border-radius: 10px;
 }
 
 .snackbar {
@@ -691,5 +716,60 @@ export default {
 
 .snackbar.show {
   visibility: visible;
+}
+
+
+.review-section {
+  margin-top: 20px;
+}
+
+.review-section textarea {
+  width: 100%;
+  height: 100px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.review-section-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-left: 900px
+}
+
+.review-section-button-disabled-button {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.review {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 20px;
+}
+
+.profile-picture {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.review-content {
+  flex: 1;
+}
+
+.review-content h4 {
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.review-content p {
+  margin: 5px 0 0;
 }
 </style>
