@@ -418,7 +418,7 @@ export default {
               <div class="review-input">
                 <textarea v-model="reviewText" class="square-input"></textarea>
                 <div class="button-container">
-                  <button @click="handleAddReview">Publish</button>
+                  <button @click="handleAddReview">Publicar</button>
                 </div>
               </div>
             </div>
