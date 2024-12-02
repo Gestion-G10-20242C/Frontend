@@ -410,7 +410,7 @@ export default {
           <div class="review-container">
             <div v-if="reviewPublished">
               <div :class="['snackbar', { show: showSnackbar }]">
-                Review published successfully!
+                Reseña publicada exitosamente
               </div>
             </div>
             <p>Deja una resena</p>
