@@ -18,7 +18,9 @@ export default {
       isRead: false,
       addToReadbuttonLoading: false,
       publishButtonLoading: false,
-      showModal: false,
+      addListModal: false,
+      rateModal: false,
+      rating: 0,
       userLists: [],
       filteredLists: [],
       selectedLists: [],
@@ -83,7 +85,7 @@ export default {
         for (const listName of this.selectedLists) {
           await this.addBookToList(listName)
         }
-        this.showModal = false // Cerrar el modal al finalizar
+        this.addListModal = false // Cerrar el modal al finalizar
       } catch (error) {
         console.error(
           'Error al agregar libro a las listas seleccionadas:',
@@ -170,7 +172,7 @@ export default {
 
         if (response.ok) {
           console.log(`Libro agregado a la lista ${listName}`)
-          this.showModal = false // Cierra el modal
+          this.addListModal = false // Cierra el modal
           await this.fetchUserLists() // Actualiza las listas
         } else {
           throw new Error('Error al agregar el libro a la lista')
@@ -180,11 +182,11 @@ export default {
       }
     },
     openAddToListModal() {
-      this.showModal = true
+      this.addListModal = true
       this.fetchUserLists()
     },
     closeAddToListModal() {
-      this.showModal = false
+      this.addListModal = false
     },
     async fetchBookDetails() {
       console.log('Id:', this.id)
@@ -307,6 +309,71 @@ export default {
         return 'star empty' // Estrella vacía
       }
     },
+
+    getStarClassesRating(index) {
+      const rating = this.rating
+      if (index < Math.floor(rating)) {
+        return 'star filled' // Estrella llena
+      } else if (index < rating) {
+        return 'star half-filled' // Media estrella
+      } else {
+        return 'star empty' // Estrella vacía
+      }
+    },
+
+    OpenRateBookModal() {
+      this.rateModal = true
+    },
+    // Cerrar el modal
+    CloseRateBookModal() {
+      this.rateModal = false;
+    },
+
+    async rateBook() {
+      const relativePath = `book/${this.book.id}/rating`
+      const accessToken = localStorage.getItem('access_token')
+      const username = useUserStore().userName
+
+      const data = JSON.stringify({
+        username: username,
+        user_rating: this.rating,
+      })
+
+      try {
+        const response = await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/${relativePath}`,
+          {
+            method: 'PATCH',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: data,
+          },
+        )
+
+        if (response.ok) {
+          const data = await response.json()
+          console.log('Book rated successfully', data)
+        }
+
+        this.rateModal = false
+        this.rating = 0
+
+        this.fetchBookDetails()
+      } catch (e) {
+        console.error('Error rating book:', e)
+      }
+    },
+
+    // Actualizar el rating basado en el incremento
+    updateRating(value) {
+      const newRating = this.rating + value;
+      if (newRating >= 0 && newRating <= 5) {
+        this.rating = newRating;
+      }
+    },
+
     translateGenre(genre) {
       const genreTranslations = {
         fiction: '📚 Ficción',
@@ -367,23 +434,29 @@ export default {
             :src="book.image_url"
             alt="Book cover"
             class="img-fluid"
-            style="width: 300px; height: 400px"
+            style="width: 315px; height: 425px"
           />
         </div>
-        <div class="col-md-8">
+          <div class="col-md-8">
           <h2 class="text-body-emphasis">{{ book.title }}</h2>
           <RouterLink :to="`/author/${book.author_name}`">
             <h4 class="text-body-secondary">{{ book.author_name }}</h4>
           </RouterLink>
           <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
-          <div class="stars">
-            <span v-for="n in 5" :key="n" :class="getStarClasses(n - 1)"
-              >★</span
-            >
+          
+          <div class="rate-container">
+            <div class="stars">
+              <span v-for="n in 5" :key="n" :class="getStarClasses(n - 1)"
+                >★
+              </span >
+            </div>
+            <button class="btn btn-primary" @click="OpenRateBookModal">Puntuar</button>
           </div>
+
           <p>
             <strong>Puntaje Promedio:</strong> {{ book.average_rating }} / 5
           </p>
+
           <div class="genres-row">
             <p><strong>Géneros:</strong></p>
             <div class="genre-container">
@@ -422,15 +495,15 @@ export default {
 
             <div class="title-review">
               <div class="review-input">
-                <textarea v-model="reviewText" class="square-input"></textarea>
-                <div class="button-container">
-                    <button class="review-section-button" 
-                      @click="handleAddReview" 
-                      :disabled="reviewText.trim() == ''"
-                      :class="{ 'review-section-button-disabled-button': reviewText.trim() == '' }">
-                      {{publishButtonLoading ? 'Procesando...' : 'Publicar'}}
-                    </button>
-                </div>
+              <textarea v-model="reviewText" class="square-input" placeholder="Escribe tu reseña aquí..."></textarea>
+              <div class="button-container">
+                <button class="review-section-button" 
+                  @click="handleAddReview" 
+                  :disabled="reviewText.trim() == ''"
+                  :class="{ 'review-section-button-disabled-button': reviewText.trim() == '' }">
+                  {{publishButtonLoading ? 'Procesando...' : 'Publicar'}}
+                </button>
+              </div>
               </div>
             </div>
 
@@ -449,7 +522,7 @@ export default {
   </div>
 
   <!-- Modal para agregar a lista -->
-  <div v-if="showModal" class="modal">
+  <div v-if="addListModal" class="modal">
     <div class="modal-content">
       <div class="header-container">
         <div class="checklist-container">
@@ -495,6 +568,47 @@ export default {
             Crear lista
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para puntuar un libro de 0 a 5 estrellas -->
+  <div v-if="rateModal" class="rate-modal">
+    <div class="rate-modal-content">
+      <h3>Calificar libro</h3>
+      <div class="modal-rate-container">
+        <!-- Flecha para disminuir el rating -->
+        <button 
+          class="arrow-button" 
+          :disabled="rating <= 0" 
+          @click="updateRating(-0.5)"
+        >
+          ◀
+        </button>
+
+        <!-- Mostrar el número de calificación -->
+        
+        <div class="book-view">
+          <div class="stars">
+            <span v-for="n in 5" :key="n" :class="getStarClassesRating(n - 1)"
+              >★
+            </span >
+          </div>
+        </div>
+      
+        <!-- Flecha para aumentar el rating -->
+        <button 
+          class="arrow-button" 
+          :disabled="rating >= 5" 
+          @click="updateRating(0.5)"
+        >
+          ▶
+        </button>
+      </div>
+
+      <div class="modal-button-container">
+        <button class="btn btn-success mt-2" @click="rateBook">Confirmar Puntuación</button>
+        <button class="btn btn-danger mt-2" @click="CloseRateBookModal">Cerrar</button>
       </div>
     </div>
   </div>
@@ -563,6 +677,7 @@ export default {
   display: flex; /* Coloca los elementos en una fila */
   align-items: center; /* Alinea verticalmente el texto con los badges */
   gap: 10px; /* Espacio entre el texto y el contenedor de géneros */
+  padding: 10px 10px; /* Añade un poco de espacio alrededor */
 }
 .genre-container {
   display: flex; /* Coloca los badges en fila */
@@ -594,6 +709,12 @@ export default {
   display: flex;
   gap: 10px;
   margin-top: 20px;
+}
+
+.modal-button-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
 .modal {
@@ -771,5 +892,65 @@ export default {
 
 .review-content p {
   margin: 5px 0 0;
+}
+
+.rate-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rate-modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.rate-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.modal-rate-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+  gap: 20px;
+}
+
+.arrow-button {
+  background: #f0f0f0;
+  border: none;
+  padding: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.arrow-button:hover {
+  background: #e0e0e0;
+}
+
+.arrow-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.rating-display {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0 15px;
 }
 </style>
