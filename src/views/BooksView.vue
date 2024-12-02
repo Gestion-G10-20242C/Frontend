@@ -92,6 +92,7 @@ export default {
 
     return {
       searchInput,
+      searchBooks,
       selectedOption,
       results,
       selectedBook,
@@ -167,7 +168,7 @@ export default {
                 <img alt="Book cover" :src="book.image_url" height="150vh" />
               </div>
               <div class="col">
-                <RouterLink :to="`/book/${book.isbn}`">
+                <RouterLink :to="`/book/${book.id}`">
                   <h3 class="text-body-emphasis cursor-pointer">
                     {{ book.title }}
                   </h3>

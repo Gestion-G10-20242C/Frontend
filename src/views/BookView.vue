@@ -8,34 +8,83 @@ export default {
   components: {
     HeaderComponent,
   },
-  props: ['isbn'],
+  props: ['id'],
   data() {
     return {
       book: null,
       loading: true,
       error: false,
+      reviewText: '',
       isRead: false,
-      buttonLoading: false,
-      showModal: false,
+      addToReadbuttonLoading: false,
+      publishButtonLoading: false,
+      addListModal: false,
+      rateModal: false,
+      rating: 0,
       userLists: [],
       filteredLists: [],
       selectedLists: [],
       newListName: '',
+      reviewPublished: false,
+      showSnackbar: false,
     }
   },
   async mounted() {
-    console.log('ISBN:', this.isbn)
+    console.log('ID:', this.id)
     await this.fetchBookDetails()
     await this.isBookRead()
   },
   methods: {
+    async handleAddReview() {
+      this.publishButtonLoading = true
+      const relativePath = `book/${this.book.id}/review`
+      const accessToken = localStorage.getItem('access_token')
+
+      const userStore = useUserStore()
+
+      const data = JSON.stringify({
+        username: userStore.userName,
+        user_review: this.reviewText,
+      })
+
+      try {
+        const response = await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/${relativePath}`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: data,
+          },
+        )
+
+        console.log('Review added successfully', response)
+
+        this.fetchBookDetails()
+      } catch (e) {
+        console.error('Error adding review:', e)
+      } finally {
+        this.publishButtonLoading = false
+      }
+
+      if (data) {
+        this.reviewPublished = true
+        this.showSnackbar = true
+        setTimeout(() => {
+          this.showSnackbar = false
+        }, 3000)
+      }
+      this.reviewText = ''
+    },
     async addBookToSelectedLists() {
       try {
         // Iterar sobre las listas seleccionadas y agregar el libro
         for (const listName of this.selectedLists) {
           await this.addBookToList(listName)
         }
-        this.showModal = false // Cerrar el modal al finalizar
+        this.addListModal = false // Cerrar el modal al finalizar
       } catch (error) {
         console.error(
           'Error al agregar libro a las listas seleccionadas:',
@@ -122,7 +171,7 @@ export default {
 
         if (response.ok) {
           console.log(`Libro agregado a la lista ${listName}`)
-          this.showModal = false // Cierra el modal
+          this.addListModal = false // Cierra el modal
           await this.fetchUserLists() // Actualiza las listas
         } else {
           throw new Error('Error al agregar el libro a la lista')
@@ -132,22 +181,28 @@ export default {
       }
     },
     openAddToListModal() {
-      this.showModal = true
+      this.addListModal = true
       this.fetchUserLists()
     },
     closeAddToListModal() {
-      this.showModal = false
+      this.addListModal = false
     },
     async fetchBookDetails() {
-      console.log('Isbn:', this.isbn)
-      const relativePath = `/search?query=${encodeURIComponent(this.isbn)}&field=isbn`
-      const data = await GET('GET', relativePath, null, null)
+      console.log('Id:', this.id)
+      const relativePath = `/book/${encodeURIComponent(this.id)}`
 
-      if (data) {
-        console.log('Book:', data)
-        this.book = data[0]
-      } else {
-        this.error = true // Marca error si no se encuentran libros
+      try {
+        const data = await GET('GET', relativePath, null, null)
+
+        if (data) {
+          this.book = data
+        } else {
+          this.error = true
+        }
+      } catch (error) {
+        console.error('Error fetching book:', error)
+        this.error = true
+        this.loading = false
       }
 
       this.loading = false
@@ -171,12 +226,6 @@ export default {
           const data = await response.json()
           const readBooks = data.find(list => list.name === 'Leidos')
 
-          console.log('Libros leídos:', readBooks)
-          console.log(
-            'Esta?',
-            readBooks.books.some(book => book.id === this.book.id),
-          )
-
           if (readBooks) {
             this.isRead = readBooks.books.some(book => book.id === this.book.id)
           }
@@ -189,7 +238,7 @@ export default {
       }
     },
     async markAsRead() {
-      this.buttonLoading = true
+      this.addToReadbuttonLoading = true
       try {
         const userStore = useUserStore()
         const username = userStore.userName
@@ -216,11 +265,11 @@ export default {
         this.errorMessage = 'Hubo un error al marcar el libro como leído.'
         this.successMessage = ''
       } finally {
-        this.buttonLoading = false
+        this.addToReadbuttonLoading = false
       }
     },
     async removeFromRead() {
-      this.buttonLoading = true
+      this.addToReadbuttonLoading = true
       try {
         const userStore = useUserStore()
         const username = userStore.userName
@@ -245,7 +294,7 @@ export default {
         this.errorMessage = 'Hubo un error al eliminar el libro de leídos.'
         this.successMessage = ''
       } finally {
-        this.buttonLoading = false
+        this.addToReadbuttonLoading = false
       }
     },
     getStarClasses(index) {
@@ -258,6 +307,71 @@ export default {
         return 'star empty' // Estrella vacía
       }
     },
+
+    getStarClassesRating(index) {
+      const rating = this.rating
+      if (index < Math.floor(rating)) {
+        return 'star filled' // Estrella llena
+      } else if (index < rating) {
+        return 'star half-filled' // Media estrella
+      } else {
+        return 'star empty' // Estrella vacía
+      }
+    },
+
+    OpenRateBookModal() {
+      this.rateModal = true
+    },
+    // Cerrar el modal
+    CloseRateBookModal() {
+      this.rateModal = false
+    },
+
+    async rateBook() {
+      const relativePath = `book/${this.book.id}/rating`
+      const accessToken = localStorage.getItem('access_token')
+      const username = useUserStore().userName
+
+      const data = JSON.stringify({
+        username: username,
+        user_rating: this.rating,
+      })
+
+      try {
+        const response = await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/${relativePath}`,
+          {
+            method: 'PATCH',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
+            },
+            body: data,
+          },
+        )
+
+        if (response.ok) {
+          const data = await response.json()
+          console.log('Book rated successfully', data)
+        }
+
+        this.rateModal = false
+        this.rating = 0
+
+        this.fetchBookDetails()
+      } catch (e) {
+        console.error('Error rating book:', e)
+      }
+    },
+
+    // Actualizar el rating basado en el incremento
+    updateRating(value) {
+      const newRating = this.rating + value
+      if (newRating >= 0 && newRating <= 5) {
+        this.rating = newRating
+      }
+    },
+
     translateGenre(genre) {
       const genreTranslations = {
         fiction: '📚 Ficción',
@@ -302,10 +416,8 @@ export default {
 
     <!-- Mostrar error si no hay resultados de libros -->
     <div v-else-if="error" class="error-message">
-      <h2>No se encontraron libros para el ISBN proporcionado.</h2>
-      <p>
-        Por favor, intenta con otro ISBN o revisa los criterios de búsqueda.
-      </p>
+      <h2>No se encontró el Libro.</h2>
+      <p>Por favor, revisa los criterios de búsqueda.</p>
       <img
         src="https://media.istockphoto.com/id/1347475061/vector/book-with-sad-face-in-speech-bubble-line-icon-bad-literature-review-negative-feedback-symbol.jpg?s=612x612&w=0&k=20&c=PQa7DkacREaANvys7s7iUpEbysHTUGzD2D3Jj5eIVaw="
         alt="Error - No books found"
@@ -320,7 +432,7 @@ export default {
             :src="book.image_url"
             alt="Book cover"
             class="img-fluid"
-            style="width: 300px; height: 400px"
+            style="width: 315px; height: 425px"
           />
         </div>
         <div class="col-md-8">
@@ -329,14 +441,22 @@ export default {
             <h4 class="text-body-secondary">{{ book.author_name }}</h4>
           </RouterLink>
           <h5 class="text-body-tertiary">{{ book.publication_date }}</h5>
-          <div class="stars">
-            <span v-for="n in 5" :key="n" :class="getStarClasses(n - 1)"
-              >★</span
-            >
+
+          <div class="rate-container">
+            <div class="stars">
+              <span v-for="n in 5" :key="n" :class="getStarClasses(n - 1)"
+                >★
+              </span>
+            </div>
+            <button class="btn btn-primary" @click="OpenRateBookModal">
+              Puntuar
+            </button>
           </div>
+
           <p>
             <strong>Puntaje Promedio:</strong> {{ book.average_rating }} / 5
           </p>
+
           <div class="genres-row">
             <p><strong>Géneros:</strong></p>
             <div class="genre-container">
@@ -350,18 +470,77 @@ export default {
               </RouterLink>
             </div>
           </div>
-          <p><strong>Reseñas:</strong> {{ book.text_reviews_count }} reseñas</p>
+          <p>
+            <strong>Reseñas:</strong>
+            {{
+              (book?.text_reviews_count || 0) + (book.reviews?.length || 0)
+            }}
+            reseña(s)
+          </p>
 
           <div class="button-container">
             <button v-if="!isRead" class="btn btn-success" @click="markAsRead">
-              {{ buttonLoading ? 'Procesando...' : 'Marcar como leído' }}
+              {{
+                addToReadbuttonLoading ? 'Procesando...' : 'Marcar como leído'
+              }}
             </button>
             <button v-else class="btn btn-danger" @click="removeFromRead">
-              {{ buttonLoading ? 'Procesando...' : 'Quitar de Leídos' }}
+              {{
+                addToReadbuttonLoading ? 'Procesando...' : 'Quitar de Leídos'
+              }}
             </button>
             <button class="btn btn-primary" @click="openAddToListModal">
               Agregar a lista
             </button>
+          </div>
+          <div class="review-container">
+            <div v-if="reviewPublished">
+              <div :class="['snackbar', { show: showSnackbar }]">
+                Reseña publicada exitosamente!
+              </div>
+            </div>
+
+            <h3>Reseñas</h3>
+
+            <div class="title-review">
+              <div class="review-input">
+                <textarea
+                  v-model="reviewText"
+                  class="square-input"
+                  placeholder="Escribe tu reseña aquí..."
+                ></textarea>
+                <div class="button-container">
+                  <button
+                    class="review-section-button"
+                    @click="handleAddReview"
+                    :disabled="reviewText.trim() == ''"
+                    :class="{
+                      'review-section-button-disabled-button':
+                        reviewText.trim() == '',
+                    }"
+                  >
+                    {{ publishButtonLoading ? 'Procesando...' : 'Publicar' }}
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div
+              v-for="review in book.reviews"
+              :key="review.username"
+              class="review"
+            >
+              <img
+                :src="review.profilePicture"
+                alt="Profile Picture"
+                class="profile-picture"
+              />
+              <div class="review-content">
+                <h4>{{ review.name }}</h4>
+                <p4>{{ review.username }}</p4>
+                <p>{{ review.review }}</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -369,7 +548,7 @@ export default {
   </div>
 
   <!-- Modal para agregar a lista -->
-  <div v-if="showModal" class="modal">
+  <div v-if="addListModal" class="modal">
     <div class="modal-content">
       <div class="header-container">
         <div class="checklist-container">
@@ -415,6 +594,51 @@ export default {
             Crear lista
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para puntuar un libro de 0 a 5 estrellas -->
+  <div v-if="rateModal" class="rate-modal">
+    <div class="rate-modal-content">
+      <h3>Calificar libro</h3>
+      <div class="modal-rate-container">
+        <!-- Flecha para disminuir el rating -->
+        <button
+          class="arrow-button"
+          :disabled="rating <= 0"
+          @click="updateRating(-0.5)"
+        >
+          ◀
+        </button>
+
+        <!-- Mostrar el número de calificación -->
+
+        <div class="book-view">
+          <div class="stars">
+            <span v-for="n in 5" :key="n" :class="getStarClassesRating(n - 1)"
+              >★
+            </span>
+          </div>
+        </div>
+
+        <!-- Flecha para aumentar el rating -->
+        <button
+          class="arrow-button"
+          :disabled="rating >= 5"
+          @click="updateRating(0.5)"
+        >
+          ▶
+        </button>
+      </div>
+
+      <div class="modal-button-container">
+        <button class="btn btn-success mt-2" @click="rateBook">
+          Confirmar Puntuación
+        </button>
+        <button class="btn btn-danger mt-2" @click="CloseRateBookModal">
+          Cerrar
+        </button>
       </div>
     </div>
   </div>
@@ -483,6 +707,7 @@ export default {
   display: flex; /* Coloca los elementos en una fila */
   align-items: center; /* Alinea verticalmente el texto con los badges */
   gap: 10px; /* Espacio entre el texto y el contenedor de géneros */
+  padding: 10px 10px; /* Añade un poco de espacio alrededor */
 }
 .genre-container {
   display: flex; /* Coloca los badges en fila */
@@ -514,6 +739,12 @@ export default {
   display: flex;
   gap: 10px;
   margin-top: 20px;
+}
+
+.modal-button-container {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
 .modal {
@@ -582,5 +813,172 @@ export default {
   height: 400px; /* Altura de la línea */
   background-color: #ddd; /* Color de la línea */
   margin: 0 auto; /* Alineación centrada */
+}
+
+.review-container {
+  display: vertical;
+  margin-top: 40px;
+  margin-left: -400px;
+}
+
+.title-review {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+
+  align-items: center;
+}
+
+.review-input {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 30px;
+
+  margin-left: -250px;
+  text-align: center;
+}
+
+.square-input {
+  width: 1000px;
+  height: 100px;
+  resize: none;
+  overflow-wrap: break-word;
+  box-sizing: border-box;
+  border-radius: 10px;
+}
+
+.snackbar {
+  visibility: hidden;
+  min-width: 250px;
+  margin-left: -125px;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  border-radius: 2px;
+  padding: 16px;
+  position: fixed;
+  z-index: 1;
+  left: 50%;
+  bottom: 30px;
+  font-size: 17px;
+}
+
+.snackbar.show {
+  visibility: visible;
+}
+
+.review-section {
+  margin-top: 20px;
+}
+
+.review-section textarea {
+  width: 100%;
+  height: 100px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.review-section-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  margin-left: 900px;
+}
+
+.review-section-button-disabled-button {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.review {
+  display: flex;
+  align-items: flex-start;
+  margin-top: 20px;
+}
+
+.profile-picture {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 10px;
+}
+
+.review-content {
+  flex: 1;
+}
+
+.review-content h4 {
+  margin: 0;
+  font-size: 1.2em;
+}
+
+.review-content p {
+  margin: 5px 0 0;
+}
+
+.rate-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.rate-modal-content {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  width: 400px;
+  text-align: center;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.rate-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.modal-rate-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 20px 0;
+  gap: 20px;
+}
+
+.arrow-button {
+  background: #f0f0f0;
+  border: none;
+  padding: 10px;
+  font-size: 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.arrow-button:hover {
+  background: #e0e0e0;
+}
+
+.arrow-button:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+.rating-display {
+  font-size: 24px;
+  font-weight: bold;
+  margin: 0 15px;
 }
 </style>

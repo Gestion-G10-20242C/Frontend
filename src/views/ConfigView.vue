@@ -103,10 +103,36 @@ export default {
       this.selectedGenres = [...this.userPreferredGenres]
     },
 
-    async saveGenres() {
+    async updateUser(genres) {
       const token = localStorage.getItem('access_token')
       const username = this.userStore.userName
+      const apiUrl = `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}`
 
+      const userData = this.userStore.getUserData()
+
+      console.log('User data:', userData)
+
+      try {
+        const response = await fetch(apiUrl, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ favouriteGenres: genres }),
+        })
+
+        if (!response.ok) {
+          throw new Error('No se pudo actualizar el usuario')
+        }
+
+        console.log('User updated:', userData)
+      } catch (error) {
+        console.error('Error updating user:', error)
+      }
+    },
+
+    async saveGenres() {
       const userData = this.userStore.getUserData()
 
       console.log('User data:', this.selectedGenres)
@@ -116,8 +142,10 @@ export default {
       console.log('User data:', userData)
 
       try {
-        await this.saveFavouriteGenres(username, token, userData)
         this.userStore.favouriteGenres = JSON.stringify(this.selectedGenres) // Actualiza el store
+
+        // Actualizar perfil
+        this.updateUser(this.selectedGenres)
       } catch (error) {
         console.error('Error saving genres:', error)
       } finally {
@@ -128,31 +156,6 @@ export default {
 
     closeEditGenresModal() {
       this.isModalOpen = false
-    },
-
-    async saveFavouriteGenres(username, token, userData) {
-      try {
-        const response = await fetch(
-          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}`,
-          {
-            method: 'POST',
-            headers: {
-              Authorization: `Bearer ${token}`,
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(userData),
-          },
-        )
-
-        if (!response.ok) {
-          throw new Error('No se pudo guardar los géneros favoritos')
-        }
-
-        const data = await response.json()
-        return data // Retorna la respuesta de la API (si es necesario)
-      } catch (error) {
-        console.error('Error saving favourite genres:', error)
-      }
     },
   },
 }

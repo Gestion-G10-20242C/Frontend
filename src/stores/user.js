@@ -27,9 +27,12 @@ export const useUserStore = defineStore('user', {
         }
 
         const data = await response.json()
+
+        console.log('[LOGIN] response data', data)
+
         this.userName = username
         this.name = data.name || username
-        this.favouriteBook = data.favouriteBook|| ''
+        this.favouriteBook = data.favouriteBook || ''
         this.favouriteBookCover = data.favouriteBookCover || ''
         this.favouriteBookReview = data.favouriteBookDescription || ''
         this.description = data.description || ''
@@ -38,6 +41,11 @@ export const useUserStore = defineStore('user', {
           'https://cdn-icons-png.flaticon.com/512/1077/1077114.png'
         this.description = data.description || ''
         this.followingUsers = data.followingUsers || []
+        this.bookShelf = data.bookShelf || []
+        this.myBooks = data.myBooks || []
+        this.groups = data.groups || []
+        this.readingChallenges = data.readingChallenges || []
+        this.favouriteGenres = data.favouriteGenres || []
         console.log('Login')
         this.isLoggedIn = true
       } catch (error) {

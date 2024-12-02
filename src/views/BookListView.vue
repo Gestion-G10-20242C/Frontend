@@ -74,15 +74,6 @@ export default {
         this.error = error.message
       }
     },
-    async redirectToBook(bookId) {
-      console.log('go to book', bookId)
-      const response = await fetch(
-        `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/book/${bookId}`,
-      )
-      const data = await response.json()
-      console.log(data.isbn)
-      this.$router.push(`/book/${data.isbn}`)
-    },
     openModal(book) {
       this.bookToDelete = book // Almacena el libro a eliminar
       this.showModal = true // Muestra el modal
@@ -116,7 +107,6 @@ export default {
           v-for="book in books"
           :key="book.title"
           class="col-md-4 mb-4 text-center"
-          @click="redirectToBook(book.id)"
         >
           <img
             alt="Book cover"
@@ -124,7 +114,9 @@ export default {
             class="img-fluid"
             style="height: 150px; width: auto"
           />
-          <h4>{{ book.title }}</h4>
+          <RouterLink :to="`/book/${book.id}`" class="router-link">
+            <h4>{{ book.title }}</h4>
+          </RouterLink>
           <button @click="openModal(book)" class="btn btn-danger mt-2">
             Eliminar
           </button>
@@ -238,5 +230,10 @@ export default {
   to {
     transform: rotate(360deg);
   }
+}
+
+.router-link {
+  text-decoration: none;
+  color: #333;
 }
 </style>
