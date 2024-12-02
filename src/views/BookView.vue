@@ -31,23 +31,17 @@ export default {
   },
   methods: {
     async handleAddReview() {
-      console.log(this.reviewText)
-
       const userStore = useUserStore()
       const username = userStore.userName
 
       const relativePath = `users/${username}/book`
       const accessToken = localStorage.getItem('access_token')
 
-      console.log(`Sending to ${relativePath}`)
-
       const data = JSON.stringify({
         description: this.reviewText,
         image_url: this.book.image_url,
         genres: this.book.genres,
       })
-
-      console.log('Sending data:', data)
 
       try {
         await fetch(
