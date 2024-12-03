@@ -112,6 +112,11 @@ export default {
               >Libros</RouterLink
             >
           </li>
+          <li>
+            <RouterLink to="/chats" class="nav-link px-2 text-white"
+              >Chats</RouterLink
+            >
+          </li>
           <li class="nav-item dropdown">
             <!-- Nueva pestaña de Explorar -->
             <a
@@ -132,6 +137,7 @@ export default {
             </ul>
           </li>
         </ul>
+
 
         <form
           class="col-12 col-lg-auto mb-3 mb-lg-0 me-lg-3"
