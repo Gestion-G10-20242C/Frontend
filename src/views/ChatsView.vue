@@ -1,6 +1,10 @@
 <template>
   <HeaderComponent />
-  <div class="layout">
+  <div v-if="loadingChats" class="loading-container">
+    <div class="loading-spinner"></div>
+    <p class="text-center">Cargando...</p>
+  </div>
+  <div v-else class="layout">
     <!-- Sidebar de chats -->
     <aside class="chat-sidebar">
       <h1>Chats</h1>
@@ -11,7 +15,7 @@
           class="chat-item"
           @click="selectChat(chat)"
         >
-          {{ chat.history[0].content.split(' de')[15].replace('.', '') }}
+          {{ chat.history[0].content.split(' de')[15] }}
         </div>
       </div>
       <p v-else class="no-chats">No hay chats disponibles.</p>
@@ -93,6 +97,7 @@ export default {
     const newMessage = ref('')
     const isWaitingResponse = ref(false)
     const accessToken = localStorage.getItem('access_token')
+    const loadingChats = ref(true)
 
     const fetchChats = async () => {
       try {
@@ -108,7 +113,8 @@ export default {
 
         if (response.ok) {
           const data = await response.json()
-          console.log('Chats:', data)
+          loadingChats.value = false
+
           chats.value = data
         } else {
           console.error('Error al obtener los chats:', response.statusText)
@@ -129,6 +135,7 @@ export default {
 
       try {
         const chatId = selectedChat.value.id
+
         const username = useUserStore().userName
 
         const chatBody = JSON.stringify({
@@ -170,6 +177,7 @@ export default {
     })
 
     return {
+      loadingChats,
       chats,
       selectedChat,
       newMessage,
