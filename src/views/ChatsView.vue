@@ -282,4 +282,28 @@ input {
   text-align: center;
   margin-top: 2rem;
 }
+
+.user-message {
+  text-align: right;
+  background-color: #3498db; /* Azul para el mensaje del usuario */
+  color: #ffffff; /* Texto blanco */
+  padding: 10px;
+  border-radius: 15px;
+  max-width: 70%;
+  margin-left: auto;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.author-message {
+  text-align: left;
+  background-color: #2c3e50; /* Gris oscuro para el mensaje del autor */
+  color: #ffffff; /* Texto blanco */
+  padding: 10px;
+  border-radius: 15px;
+  max-width: 70%;
+  margin-right: auto;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
 </style>
