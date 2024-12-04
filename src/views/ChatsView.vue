@@ -11,7 +11,7 @@
           class="chat-item"
           @click="selectChat(chat)"
         >
-          Nombre Autor
+          {{ chat.history[0].content.split(' de')[15].replace('.', '') }}
         </div>
       </div>
       <p v-else class="no-chats">No hay chats disponibles.</p>
@@ -31,12 +31,12 @@
                 message.role === 'user' ? 'user-message' : 'author-message',
               ]"
             >
-              <div v-if="message.role != 'system'"> 
+              <div v-if="message.role != 'system'">
                 <div v-if="message.role === 'user'">
-                   {{ message.content }}
+                  {{ message.content }}
                 </div>
                 <div v-else>
-                   {{ message.content }}
+                  {{ message.content }}
                 </div>
               </div>
             </div>
@@ -68,96 +68,98 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
-import { useUserStore } from "@/stores/user";
-import HeaderComponent from "@/components/HeaderComponent.vue";
+import { ref, onMounted } from 'vue'
+import { useUserStore } from '@/stores/user'
+import HeaderComponent from '@/components/HeaderComponent.vue'
 
 export default {
-  name: "ChatsView",
+  name: 'ChatsView',
   components: {
     HeaderComponent,
   },
   setup() {
-    const userStore = useUserStore();
-    const username = userStore.userName;
-    const chats = ref([]);
-    const selectedChat = ref(null);
-    const newMessage = ref("");
-    const isWaitingResponse = ref(false);
-    const accessToken = localStorage.getItem("access_token");
+    const userStore = useUserStore()
+    const username = userStore.userName
+    const chats = ref([])
+    const selectedChat = ref(null)
+    const newMessage = ref('')
+    const isWaitingResponse = ref(false)
+    const accessToken = localStorage.getItem('access_token')
 
     const fetchChats = async () => {
       try {
         const response = await fetch(
           `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/chat`,
           {
-            method: "GET",
+            method: 'GET',
             headers: {
               Authorization: `Bearer ${accessToken}`,
             },
-          }
-        );
+          },
+        )
 
         if (response.ok) {
-          const data = await response.json();
-          console.log("Chats:", data);
-          chats.value = data;
+          const data = await response.json()
+          console.log('Chats:', data)
+          chats.value = data
         } else {
-          console.error("Error al obtener los chats:", response.statusText);
+          console.error('Error al obtener los chats:', response.statusText)
         }
       } catch (error) {
-        console.error("Error al obtener los chats:", error);
+        console.error('Error al obtener los chats:', error)
       }
-    };
+    }
 
-    const selectChat = (chat) => {
-      selectedChat.value = chat;
-    };
+    const selectChat = chat => {
+      selectedChat.value = chat
+    }
 
     const sendMessage = async () => {
-      if (!newMessage.value.trim()) return;
+      if (!newMessage.value.trim()) return
 
-      isWaitingResponse.value = true;
+      isWaitingResponse.value = true
 
       try {
-        const chatId = selectedChat.value.id;
-        const username = useUserStore().userName;
+        const chatId = selectedChat.value.id
+        const username = useUserStore().userName
 
         const chatBody = JSON.stringify({
           message: newMessage.value.trim(),
           role: 'author',
-          name: selectedChat.value.history[0].content.split(" de")[15].replace(".", ""),
+          name: selectedChat.value.history[0].content
+            .split(' de')[15]
+            .replace('.', ''),
         })
 
         const response = await fetch(
           `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/chat/${chatId}`,
           {
-            method: "POST",
+            method: 'POST',
             headers: {
-              "Content-Type": "application/json",
+              'Content-Type': 'application/json',
               Authorization: `Bearer ${accessToken}`,
             },
             body: chatBody,
-          }
-        );
+          },
+        )
 
         if (response.ok) {
-          const newChatMessage = await response.json();
-          selectedChat.value.history.push(newChatMessage);
-          newMessage.value = "";
+          const newChatMessage = await response.json()
+          selectedChat.value.history.push(newChatMessage)
+          newMessage.value = ''
         } else {
-          console.error("Error al enviar el mensaje:", response);
+          console.error('Error al enviar el mensaje:', response)
         }
       } catch (error) {
-        console.error("Error al enviar el mensaje:", error);
+        console.error('Error al enviar el mensaje:', error)
       } finally {
-        isWaitingResponse.value = false;
+        isWaitingResponse.value = false
       }
-    };
+    }
 
     onMounted(() => {
-      fetchChats();
-    });
+      fetchChats()
+    })
 
     return {
       chats,
@@ -168,9 +170,9 @@ export default {
       selectChat,
       sendMessage,
       username,
-    };
+    }
   },
-};
+}
 </script>
 
 <style scoped>
