@@ -20,7 +20,12 @@
     <!-- Área de mensajes -->
     <main class="chat-main">
       <div v-if="selectedChat" class="chat-box">
-        <h3>Chateando con Nombre Autor</h3>
+        <h3>
+          Chateando con
+          {{
+            selectedChat.history[0].content.split(' de')[15].replace('.', '')
+          }}
+        </h3>
         <div class="messages-container">
           <div class="messages">
             <div
