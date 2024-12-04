@@ -480,6 +480,7 @@ export default {
   <template v-if="loadingPage">
     <HeaderComponent />
     <div class="loading-spinner"></div>
+    <p class="text-center">Cargando...</p>
   </template>
 
   <!-- User found -->
@@ -1072,6 +1073,13 @@ export default {
   font-weight: bold;
   position: absolute;
   right: -35px;
+}
+
+.loading-container {
+  display: vertical;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
 }
 
 .loading-spinner {
