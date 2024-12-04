@@ -79,6 +79,12 @@ const router = createRouter({
       props: true,
     },
     {
+      path: '/chats',
+      name: 'ChatsView',
+      component: () => import('../views/ChatsView.vue'),
+      props: true,
+    },
+    {
       path: '/genres',
       name: 'all-genres',
       component: () => import('../views/AllGenresView.vue'),

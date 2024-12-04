@@ -27,6 +27,8 @@ export default {
     const isWaitingResponse = ref(false) // Controla si se puede escribir
     const accessToken = localStorage.getItem('access_token')
 
+    const chatId = ref(null)
+
     // Recuperar mensajes del autor del store
     const messages = ref(chatStore.getMessages(authorName.value))
 
@@ -47,27 +49,34 @@ export default {
         })
 
         isWaitingResponse.value = true
+        const username = userStore.userName
+
+        const endpoint = chatId.value
+          ? `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/chat/${chatId.value}`
+          : `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/chat`
+
+        console.log('Enviando mensaje:', endpoint)
+
         try {
-          const username = userStore.userName
-          const response = await fetch(
-            `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${username}/chat`,
-            {
-              method: 'POST',
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-              },
-              body: chatBody,
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+              'Content-Type': 'application/json',
             },
-          )
+            body: chatBody,
+          })
 
           if (response.ok) {
-            const data = await response.text()
+            const data = await response.json()
+            console.log('Respuesta del autor:', data)
+
+            chatId.value = data.chat_id
 
             // Guardar respuesta del autor en el store
             chatStore.addMessage(authorName.value, {
               sender: authorName.value,
-              content: data,
+              content: data.response,
             })
           } else {
             chatStore.addMessage(authorName.value, {

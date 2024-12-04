@@ -108,14 +108,9 @@ export default {
 <template>
   <HeaderComponent />
 
-  <div
-    v-if="isLoading"
-    class="d-flex justify-content-center align-items-center my-5"
-    style="height: 80vh"
-  >
-    <div class="spinner-border" role="status">
-      <span class="visually-hidden">Cargando...</span>
-    </div>
+  <div v-if="isLoading" class="loading-container" style="height: 80vh">
+    <div class="loading-spinner" role="status"></div>
+    <p class="text-center">Cargando...</p>
   </div>
 
   <div v-else class="container pt-4">
@@ -163,3 +158,28 @@ export default {
     </div>
   </div>
 </template>
+
+<style scoped>
+.loading-container {
+  display: vertical;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #fad155;
+  border-radius: 50%;
+  animation: spin 1s ease-in-out infinite;
+  margin: 50px auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+</style>

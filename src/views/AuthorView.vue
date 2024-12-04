@@ -54,7 +54,8 @@ export default {
       authorData.name = authorName
       authorData.profilePicture =
         'https://c8.alamy.com/comp/2CCRG8P/writing-sign-document-paper-writer-letter-author-vector-simple-stickman-no-face-clipart-cartoon-hand-drawn-doodle-sketch-graphic-illustration-2CCRG8P.jpg'
-      authorData.description = `Mi nombre es ${authorName}.`
+      
+      await fetchDescription()
 
       console.log('Fetching author data for:', authorName)
 
@@ -68,10 +69,79 @@ export default {
         authorData.myBooks = results.value
       }
 
+
+      await fetchFavouriteBook()
+    }
+
+    const fetchDescription = async() => {
+      const body = JSON.stringify({
+        message: `Describete en una frase como si lo fueras a publicar en un perfil de una plataforma de libros.`,
+        role: 'author',
+        name: authorData.name,
+      })
+      
+      try {
+        const response = await fetch(
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${authorData.name}/chat/0000000000000`,
+          {
+            method: 'POST',
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+              'Content-Type': 'application/json',
+            },
+            body: body,
+          }
+        )
+
+        if (response.ok) {
+          const data = await response.json()
+          console.log('Favourite book description:', data)
+          authorData.description = data.response
+        } else {
+          authorData.favouriteBook.description = ''
+        }
+      } catch (error) {
+        console.error('Error al obtener descripción:', error)
+        authorData.favouriteBook.description = ''
+      }
+    }
+
+    const fetchFavouriteBook= async() => {
       if (authorData.myBooks.length > 0) {
         authorData.favouriteBook.title = authorData.myBooks[0].title
         authorData.favouriteBook.cover = authorData.myBooks[0].image_url
-        authorData.favouriteBook.description = 'Mi obra maestra'
+
+        const body = JSON.stringify({
+          message: `Dime brevemente por qué ${authorData.myBooks[0].title} es tu libro favorito como si lo fueras a publicar en un perfil de una plataforma.`,
+          role: 'author',
+          name: authorData.name,
+        })
+        
+        try {
+          const response = await fetch(
+            `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${authorData.name}/chat/0000000000000`,
+            {
+              method: 'POST',
+              headers: {
+                Authorization: `Bearer ${localStorage.getItem('access_token')}`,
+                'Content-Type': 'application/json',
+              },
+              body: body,
+            }
+          )
+
+          if (response.ok) {
+            const data = await response.json()
+            console.log('Favourite book description:', data)
+            authorData.favouriteBook.description = data.response
+          } else {
+            authorData.favouriteBook.description = ''
+          }
+        } catch (error) {
+          console.error('Error al obtener descripción del libro favorito:', error)
+          authorData.favouriteBook.description = ''
+        }
+
       } else {
         authorData.favouriteBook.title = 'No hay Libro Favorito'
         authorData.favouriteBook.cover =
@@ -84,6 +154,7 @@ export default {
 
     onMounted(() => {
       fetchAuthorData()
+      //fetchFavouriteBook()
       console.log('Author data:', authorData)
     })
 
