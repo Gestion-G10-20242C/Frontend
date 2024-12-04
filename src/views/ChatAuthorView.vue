@@ -62,12 +62,12 @@ export default {
           )
 
           if (response.ok) {
-            const data = await response.text()
+            const data = await response.json()
 
             // Guardar respuesta del autor en el store
             chatStore.addMessage(authorName.value, {
               sender: authorName.value,
-              content: data,
+              content: data.response,
             })
           } else {
             chatStore.addMessage(authorName.value, {
