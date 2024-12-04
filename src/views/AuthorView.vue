@@ -82,7 +82,7 @@ export default {
       
       try {
         const response = await fetch(
-          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${authorData.name}/chat`,
+          `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${authorData.name}/chat/0000000000000`,
           {
             method: 'POST',
             headers: {
@@ -119,7 +119,7 @@ export default {
         
         try {
           const response = await fetch(
-            `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${authorData.name}/chat`,
+            `https://nev9ddp141.execute-api.us-east-1.amazonaws.com/prod/users/${authorData.name}/chat/0000000000000`,
             {
               method: 'POST',
               headers: {
