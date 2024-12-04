@@ -2,7 +2,7 @@
   <HeaderComponent />
   <div v-if="loadingChats" class="loading-container">
     <div class="loading-spinner"></div>
-    <p class="text-center">Cargando...</p>
+    <span class="visually-hidden">Cargando...</span>
   </div>
   <div v-else class="layout">
     <!-- Sidebar de chats -->
@@ -114,7 +114,6 @@ export default {
         if (response.ok) {
           const data = await response.json()
           loadingChats.value = false
-
           chats.value = data
         } else {
           console.error('Error al obtener los chats:', response.statusText)
@@ -321,5 +320,28 @@ input {
   margin-right: auto;
   margin-bottom: 12px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.loading-container {
+  display: vertical;
+  justify-content: center;
+  align-items: center;
+  height: 80vh;
+}
+
+.loading-spinner {
+  width: 50px;
+  height: 50px;
+  border: 5px solid rgba(0, 0, 0, 0.1);
+  border-top-color: #fad155;
+  border-radius: 50%;
+  animation: spin 1s ease-in-out infinite;
+  margin: 50px auto;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 </style>
