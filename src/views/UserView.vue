@@ -664,12 +664,14 @@ export default {
         <div class="col text-center">
           <h3>Reading Challenges</h3>
           <div class="input-reading-challenge">
-            <input v-model.number="number" />
+            <input v-model.number="number" style="text-align: center" />
           </div>
           <div class="update-reading-challenge-buttons">
-            <button @click="addNumber">+</button>
-            <button @click="subtractNumber">-</button>
-            <button @click="updateUserInfo">Guardar</button>
+            <button @click="addNumber" class="btn btn-primary">+</button>
+            <button @click="subtractNumber" class="btn btn-primary">-</button>
+            <button @click="updateUserInfo" class="btn btn-primary">
+              Guardar
+            </button>
           </div>
         </div>
 
