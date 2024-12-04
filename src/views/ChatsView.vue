@@ -24,7 +24,7 @@
         <div class="messages-container">
           <div class="messages">
             <div
-              v-for="(message, index) in selectedChat.history"
+              v-for="(message, index) in selectedChat.history.slice(1)"
               :key="index"
               :class="[
                 'message',
@@ -35,7 +35,10 @@
                 <div v-if="message.role === 'user'">
                   {{ message.content }}
                 </div>
-                <div v-else>
+                <div
+                  v-else-if="message.role === 'assistant'"
+                  class="author-message"
+                >
                   {{ message.content }}
                 </div>
               </div>
