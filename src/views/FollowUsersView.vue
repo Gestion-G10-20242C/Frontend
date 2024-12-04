@@ -109,9 +109,8 @@ export default {
   <HeaderComponent />
 
   <div v-if="isLoading" class="loading-container" style="height: 80vh">
-    <div class="loading-spinner" role="status">
-      <span class="visually-hidden">Cargando...</span>
-    </div>
+    <div class="loading-spinner" role="status"></div>
+    <p class="text-center">Cargando...</p>
   </div>
 
   <div v-else class="container pt-4">

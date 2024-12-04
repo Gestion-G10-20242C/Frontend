@@ -151,7 +151,7 @@ export default {
   <HeaderComponent />
   <div v-if="isLoading" class="loading-container">
     <div class="loading-spinner"></div>
-    <span class="visually-hidden">Cargando...</span>
+    <p class="text-center">Cargando...</p>
   </div>
   <div v-else class="container pt-4">
     <div class="row">

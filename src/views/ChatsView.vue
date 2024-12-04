@@ -2,7 +2,7 @@
   <HeaderComponent />
   <div v-if="loadingChats" class="loading-container">
     <div class="loading-spinner"></div>
-    <span class="visually-hidden">Cargando...</span>
+    <p class="text-center">Cargando...</p>
   </div>
   <div v-else class="layout">
     <!-- Sidebar de chats -->
